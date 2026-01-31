@@ -1,0 +1,166 @@
+.hero {
+    height: 100vh; /* Full screen hero */
+    width: 100%;
+    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.7)),
+                url('../../assets/HyattRegencyKathmandu.jpeg') center/cover no-repeat;
+    display: flex;
+    align-items: center;       /* Center vertically */
+    justify-content: center;   /* Center horizontally */
+    text-align: center;
+    color: #ffffff;
+    padding: 0 20px;
+}
+
+/* Hero text container */
+.heroContent {
+    max-width: 800px;
+    animation: fadeIn 1s ease-out;
+}
+
+/* Main heading */
+.heroTitle {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+/* Highlighted text in heading */
+.heroSpan {
+    color: #f8740f;
+}
+
+/* Subtitle text */
+.heroSubtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+    color: #CBD5E1;
+    font-weight: 300;
+}
+
+/* Search bar container */
+.searchBox {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1),
+                0 10px 10px -5px rgba(0,0,0,0.04);
+}
+
+/* Each input block (location, dates, guests) */
+.searchInputGroup {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    text-align: left;
+    border-right: 1px solid #cbd5e1;
+}
+
+/* Location input – slightly wider */
+.searchInputGroup:first-child {
+    flex: 1.6;
+}
+
+/* Check-in & Check-out – normal width */
+.searchInputGroup:nth-child(2),
+.searchInputGroup:nth-child(3) {
+    flex: 1.2;
+}
+
+/* Guests input – smallest width */
+.searchInputGroup:nth-child(4) {
+    flex: 1;
+}
+
+/* Input labels */
+.searchLabel {
+    font-size: 0.75rem;
+    color: #64748B;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+/* Input fields */
+.searchInput {
+    border: none;
+    width: 100%;
+    font-size: 1rem;
+    color: #0f172a;
+    font-weight: 500;
+    outline: none;
+    background: transparent;
+}
+
+/* Search button (icon) */
+.btnSearch {
+    background-color: #f8740f;
+    color: #ffffff;
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Button hover effect */
+.btnSearch:hover {
+    background-color: #D97706;
+    transform: scale(1.05);
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+    .heroTitle {
+        font-size: 2.5rem;
+    }
+
+    /* Stack search inputs vertically */
+    .searchBox {
+        flex-direction: column;
+        padding: 20px;
+        border-radius: 20px;
+        gap: 15px;
+        width: 100%;
+    }
+
+    /* Full-width inputs on mobile */
+    .searchInputGroup {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 10px;
+    }
+
+    .searchInputGroup:last-of-type {
+        border-bottom: none;
+    }
+
+    /* Full-width search button on mobile */
+    .btnSearch {
+        width: 100%;
+        border-radius: 10px;
+        margin-right: 0;
+    }
+}

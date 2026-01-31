@@ -1,0 +1,88 @@
+/* Navbar wrapper */
+.navbar {
+    position: fixed;               /* Fixed at top */
+    top: 0;
+    left: 0;
+    width: 100%;                   /* Full width */
+    height: 80px;                  /* Navbar height */
+    display: flex;
+    align-items: center;           /* Center items vertically */
+    justify-content: space-between;/* Space between logo, links, buttons */
+    padding: 0 40px;
+    background-color: rgba(15, 23, 42, 0.95); /* Dark semi-transparent background */
+    z-index: 1000;
+}
+
+/* Logo / Brand */
+.navbarLogo {
+    color: #fffffff6;              /* Logo text color */
+    font-size: 28px;               /* Logo font size */
+    display: flex;
+    align-items: center;
+    gap: 8px;                      /* Space between text and span */
+    padding: 0 20px;
+}
+
+/* Highlight color in logo */
+.navbarLogo span {
+    color: #f8740f;
+}
+
+/* Navigation links container */
+.navbarLinks {
+    display: flex;
+    align-items: center;
+    gap: 32px;                     /* Space between links */
+}
+
+/* Each link */
+.navLinks {
+    color: #fffffff6;              /* Default link color */
+}
+
+/* Link hover effect */
+.navLinks:hover {
+    color: #f59e0bff;
+    text-decoration: underline 2px;
+    text-underline-offset: 6px;
+}
+
+/* Active link */
+.navLinks.active {
+    color: #f59e0bff;
+    text-decoration: underline 2px;
+    text-underline-offset: 6px;
+}
+
+/* Action buttons container */
+.navbarActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;                     /* Space between buttons */
+}
+
+/* Login button */
+.navbarActions .btnLogin {
+    color: #fffffff6;
+}
+
+/* Login hover effect */
+.navbarActions .btnLogin:hover {
+    color: #978e8ef6;
+}
+
+/* Sign up button */
+.navbarActions .btnSignup {
+    color: #fffffff6;               /* Text color */
+    border-radius: 50px;            /* Rounded button */
+    background-color: #f8740f;      /* Button background */
+    padding: 10px 24px;             /* Button padding */
+}
+
+/* Sign up hover effect */
+.navbarActions .btnSignup:hover {
+    color: #9e9696f6;
+    border-radius: 50px;
+    background-color: #ba5f1a;
+    padding: 10px 24px;
+}

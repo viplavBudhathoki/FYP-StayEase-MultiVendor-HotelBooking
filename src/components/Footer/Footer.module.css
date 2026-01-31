@@ -1,0 +1,105 @@
+/* ---------- FOOTER WRAPPER ---------- */
+.footer {
+  background-color: rgba(15, 23, 42, 0.95); 
+  color: #ffffff;                           
+  padding: 80px 0 30px;                    
+}
+
+/* ---------- CENTERED GRID CONTAINER ---------- */
+.footerGrid {
+  max-width: 1200px;                        
+  margin: 0 auto 60px;                      
+  padding: 0 20px 60px;
+
+  display: grid;                           
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 40px;                               
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+/* ---------- BRAND SECTION ---------- */
+.footerBrand h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.footerBrand span {
+  color: #f8740f; 
+}
+
+.footerBrand p {
+  color: #94A3B8; 
+  max-width: 300px;
+}
+
+/* ---------- COLUMN STYLING ---------- */
+.footerColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Column headings */
+.footerTitle {
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ---------- LINKS ---------- */
+.footerLinks {
+  list-style: none;  
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinks li {
+  margin-bottom: 12px; 
+}
+
+.footerLinks a {
+  color: #94A3B8;           
+  text-decoration: none;     
+  transition: color 0.25s;   
+}
+
+.footerLinks a:hover {
+  color: #6d6e73; 
+}
+
+/* ---------- FOOTER BOTTOM / COPYRIGHT ---------- */
+.footerBottom {
+  text-align: center;
+  color: #64748B;
+  font-size: 0.9rem;
+  margin-top: 40px;
+}
+
+/* ---------- LIGHT MODE SUPPORT ---------- */
+@media (prefers-color-scheme: light) {
+  .footer {
+    background-color: #f9f9f9;
+    color: #213547;
+  }
+
+  .footerTitle {
+    color: #213547;
+  }
+
+  .footerLinks a {
+    color: #64748B;
+  }
+
+  .footerLinks a:hover {
+    color: #6d6e73;
+  }
+
+  .footerBrand span {
+    color: #f59e0bff;
+  }
+
+  .footerBottom {
+    color: #64748B;
+  }
+}
