@@ -1,26 +1,57 @@
-import Navbar from "./components/Navbar/Navbar"; // Top navigation bar
-import Footer from "./components/Footer/footer"; // Bottom footer
-import LandingPage from "./pages/LandingPage/LandingPage"; // Main landing page content
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/footer";
+import LandingPage from "./pages/LandingPage/LandingPage";
+import Register from "./pages/register/register";
+import Login from "./pages/login/login";
 
 const App = () => {
-  return (
-    <div
-      style={{
-        minHeight: "100vh", // Full viewport height
-        display: "flex",
-        flexDirection: "column", // Stack navbar, main, footer
-      }}
-    >
-      {/* Navbar always at top */}
-      <Navbar />
+  const location = useLocation();
+  const navigate = useNavigate();
 
-      {/* Main content grows to fill remaining space */}
+  // Open modal based on current path
+  const showLogin = location.pathname === "/login";
+  const showRegister = location.pathname === "/register";
+
+  // Close modal by going back to home
+  const handleClose = () => navigate("/");
+  const handleSwitchToRegister = () => navigate("/register");
+  const handleSwitchToLogin = () => navigate("/login");
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* Navbar */}
+      <Navbar
+        onLoginClick={() => navigate("/login")}
+        onSignUpClick={() => navigate("/register")}
+      />
+
+      {/* Main Content */}
       <main style={{ flex: 1 }}>
-        <LandingPage />
+        <Routes>
+          {/* Landing page always rendered */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LandingPage />} />
+          <Route path="/register" element={<LandingPage />} />
+        </Routes>
       </main>
 
-      {/* Footer always at bottom */}
+      {/* Footer */}
       <Footer />
+
+      {/* Login/Register Modals */}
+      {showLogin && (
+        <Login
+          onClose={handleClose}
+          onSwitchToRegister={handleSwitchToRegister}
+        />
+      )}
+      {showRegister && (
+        <Register
+          onClose={handleClose}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
     </div>
   );
 };
