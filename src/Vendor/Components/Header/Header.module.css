@@ -1,0 +1,130 @@
+/* Header.module.css */
+
+/* Main header container */
+.header {
+  height: 70px;                 /* Fixed height of the header */
+  position: fixed;              /* Sticks header to the top */
+  top: 0;
+  right: 0;
+  left: 260px;                  /* Offset to account for sidebar width */
+  display: flex;
+  align-items: center;          /* Vertically center content */
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 90;                  /* Keeps header above page content */
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  /* Subtle border for glass look */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Search bar container */
+.headerSearch {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;          /* Light background for contrast */
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;        /* Fully rounded pill shape */
+  width: 400px;
+  gap: 0.75rem;
+}
+
+/* Search input field */
+.headerSearch input {
+  background: transparent;      /* Inherits parent background */
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+/* Search icon styling */
+.searchIcon {
+  color: #64748b;               /* Muted icon color */
+}
+
+/* Right-side header actions container */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Icon button (notifications, etc.) */
+.iconBtn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;           /* Circular button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  position: relative;           /* Required for notification dot */
+  transition: all 0.2s;
+}
+
+/* Hover effect for icon buttons */
+.iconBtn:hover {
+  background: #f1f5f9;
+  color: #6366f1;               /* Accent color on hover */
+}
+
+/* Notification indicator dot */
+.dot {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;          /* Red dot for unread alerts */
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* User profile container */
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid #e2e8f0; /* Visual separator */
+}
+
+/* User name and role container */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+/* User name text */
+.userName {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* User role text */
+.userRole {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* User avatar circle */
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  background: #6366f1;          /* Primary accent color */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

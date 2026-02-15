@@ -1,0 +1,10 @@
+.bookingsPage {
+  padding: calc(70px + 2rem) 2rem 2rem 2rem; /* header offset + padding */
+}
+
+.bookingsPage h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1e293b;
+}

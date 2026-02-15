@@ -1,0 +1,114 @@
+/* Full-screen modal overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;                            /* Covers the entire viewport */
+  background: rgba(30, 41, 59, 0.7);   /* Dark translucent backdrop */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;                        /* Above other UI layers */
+  padding: 1rem;
+}
+
+/* Modal container */
+.modalContent {
+  width: 100%;
+  max-width: 500px;                   /* Restricts modal width */
+  background: #ffffff;                /* Card background */
+  border-radius: 12px;                /* Rounded corners */
+  padding: 1.5rem;
+  position: relative;
+
+  /* Subtle elevation */
+  box-shadow: 
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Modal header section */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Modal title */
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;                     /* Primary text color */
+}
+
+/* Small icon button (close button) */
+.icon-btn-sm {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;                     /* Muted icon color */
+  padding: 0.25rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+/* Hover effect for close button */
+.icon-btn-sm:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+}
+
+/* Modal form layout */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Individual form group */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Form labels */
+.formGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;                     /* Muted label text */
+}
+
+/* Input and select fields */
+.formGroup input,
+.formGroup select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;           /* Default border color */
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* Focus state for form controls */
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: #6366f1;               /* Primary accent color */
+}
+
+/* Horizontal row for grouped inputs */
+.formRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;                    /* Wrap on smaller screens */
+}
+
+/* Modal footer actions */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

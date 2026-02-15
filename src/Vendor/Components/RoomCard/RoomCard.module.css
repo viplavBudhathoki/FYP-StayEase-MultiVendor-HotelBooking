@@ -1,0 +1,202 @@
+/* Main room card container */
+.roomCard {
+  padding: 0;
+  overflow: hidden;                      /* Keeps image and badge inside card */
+  position: relative;
+  border-radius: 12px;                   /* Rounded card corners */
+  background: #ffffff;                   /* Card background */
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect for subtle lift */
+.roomCard:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Room image wrapper */
+.roomImage {
+  height: 200px;
+  position: relative;                    /* Required for badge positioning */
+  overflow: hidden;
+}
+
+/* Room image */
+.roomImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                     /* Maintains image aspect ratio */
+  transition: transform 0.5s ease;
+}
+
+/* Image zoom effect on hover */
+.roomCard:hover .roomImage img {
+  transform: scale(1.05);
+}
+
+/* Status badge */
+.badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;                 /* Pill shape */
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+/* Status-specific badge colors */
+.badgeAvailable {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badgeOccupied {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badgeMaintenance {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* Card content section */
+.roomInfo {
+  padding: 1.25rem;
+}
+
+/* Header section (room name + actions) */
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+/* Room name */
+.roomHeader h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* Room type and vendor info */
+.roomType {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+/* Footer section */
+.roomFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Room price */
+.roomPrice {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #6366f1;
+}
+
+/* Price suffix (/night) */
+.roomPrice span {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Action menu container */
+.roomActions {
+  position: relative;                    /* Anchor for dropdown menu */
+}
+
+/* Small icon button */
+.iconBtnSm {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+/* Icon button hover effect */
+.iconBtnSm:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Dropdown action menu */
+.roomMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 160px;
+  border-radius: 12px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  z-index: 10;
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Action menu buttons */
+.roomMenu button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #1e293b;
+  text-align: left;
+}
+
+/* Hover state for menu buttons */
+.roomMenu button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Danger text (delete action) */
+.textDanger {
+  color: #ef4444;
+}
+
+/* Status dropdown */
+.statusSelect {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #f8fafc;
+  outline: none;
+  transition: all 0.2s;
+}
+
+/* Focus state for status dropdown */
+.statusSelect:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}

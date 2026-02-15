@@ -1,0 +1,83 @@
+/* Sidebar Container */
+.sidebar {
+  width: 260px; /* fixed sidebar width */
+  height: 100vh; /* full viewport height */
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgb(30, 41, 59); /* dark sidebar background */
+  color: #f8fafc; /* default text color */
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  z-index: 100; /* above main content */
+}
+
+/* Highlight part of the logo */
+.navbarLogo span {
+  color: #f8740f; /* orange accent */
+}
+
+/* Sidebar Logo Section */
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  padding-left: 0.5rem;
+}
+
+/* Navigation Container */
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1; /* fill available vertical space */
+}
+
+/* Navigation Item Styles */
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  color: #94a3b8; /* muted text */
+  text-decoration: none;
+  border-radius: 12px; /* rounded corners */
+  transition: all 0.2s; /* smooth hover effect */
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+
+/* Navigation Hover Effect */
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.05); /* subtle highlight */
+  color: #f8740f; /* orange text on hover */
+}
+
+/* Active Navigation Item */
+.navItemActive {
+  background: #f8740f; /* orange background */
+  color: white; /* white text for active item */
+}
+
+/* Sidebar Footer: Settings & Logout */
+.sidebarFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.1); /* subtle divider */
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Logout Button Hover */
+.btnLogout:hover {
+  color: #ef4444; /* red text on hover */
+  background: rgba(239, 68, 68, 0.1); /* light red background */
+}
