@@ -1,0 +1,112 @@
+.hotelCard {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hotelCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+              0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.hotelImage {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hotelImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.hotelCard:hover .hotelImage img {
+  transform: scale(1.05);
+}
+
+.hotelInfo {
+  padding: 1rem;
+}
+
+.hotelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.hotelHeader h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.hotelActions {
+  position: relative;
+}
+
+.iconBtnSm {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.iconBtnSm:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.hotelMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 140px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  z-index: 10;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+              0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.hotelMenu button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: #1e293b;
+  transition: background 0.2s ease;
+}
+
+.hotelMenu button:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.textDanger {
+  color: #ef4444;
+}
+
+.hotelLocation, .hotelVendor, .hotelDescription {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0.25rem 0;
+}

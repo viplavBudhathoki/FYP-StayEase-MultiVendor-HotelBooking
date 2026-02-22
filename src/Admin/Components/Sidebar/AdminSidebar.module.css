@@ -1,0 +1,80 @@
+/* Sidebar Container */
+.sidebar {
+  width: 260px;                 /* SAME AS VENDOR */
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgb(30, 41, 59);  /* SAME DARK COLOR */
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  z-index: 100;
+}
+
+/* Logo */
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  padding-left: 0.5rem;
+}
+
+.logoText span {
+  color: #f8740f; /* SAME ORANGE AS VENDOR */
+}
+
+/* Navigation */
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+/* Nav Item */
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.2s;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f8740f; /* ORANGE HOVER */
+}
+
+/* Active */
+.navItemActive {
+  background: #f8740f;
+  color: white;
+}
+
+/* Footer */
+.sidebarFooter {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btnLogout:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}

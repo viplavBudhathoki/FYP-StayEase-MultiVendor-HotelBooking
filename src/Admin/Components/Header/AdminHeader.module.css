@@ -1,0 +1,112 @@
+.header {
+  height: 70px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 260px;          /* SAME OFFSET */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 90;
+
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Search */
+.searchBox {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  width: 400px;
+  gap: 0.75rem;
+}
+
+.searchBox input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+/* Right Section */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Icon Buttons */
+.iconBtn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  background: #f1f5f9;
+  color: #f8740f;  /* ORANGE LIKE VENDOR */
+}
+
+/* Notification Dot */
+.dot {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid #e2e8f0;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.role {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: #f8740f;   /* ORANGE */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
