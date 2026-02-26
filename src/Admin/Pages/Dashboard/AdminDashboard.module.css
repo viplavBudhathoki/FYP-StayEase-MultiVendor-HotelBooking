@@ -134,6 +134,12 @@
   text-align: center;
 }
 
+.countText {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .dashboardContent {

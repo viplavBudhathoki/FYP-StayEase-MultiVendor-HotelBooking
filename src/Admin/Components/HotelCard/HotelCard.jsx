@@ -1,13 +1,9 @@
-import { useState } from "react";
-import { MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../../constant";
-
 import styles from "./HotelCard.module.css";
 
 const HotelCard = ({ hotel, onEdit, onDeleteSuccess }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     if (!token) return toast.error("Admin token missing");
@@ -36,51 +32,41 @@ const HotelCard = ({ hotel, onEdit, onDeleteSuccess }) => {
     }
   };
 
-  return (
-    <div className={`${styles.hotelCard} card`}>
-    <div className={styles.hotelImage}>
-    <img
-        src={hotel.image_url ? `${baseUrl}/${hotel.image_url}` : "/placeholder.png"}
-        alt={hotel.name}
-    />
-    </div>
+  const imageSrc = hotel.image_url
+    ? `${baseUrl}/${hotel.image_url}`
+    : `${baseUrl}/uploads/hotels/placeholder.png`;
 
+  return (
+    <div className={styles.hotelCard}>
+      <div className={styles.hotelImage}>
+        <img src={imageSrc} alt={hotel.name} />
+      </div>
 
       <div className={styles.hotelInfo}>
         <div className={styles.hotelHeader}>
           <h3>{hotel.name}</h3>
-
-          <div className={styles.hotelActions}>
-            <button
-              className={styles.iconBtnSm}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <MoreVertical size={16} />
-            </button>
-
-            {isMenuOpen && (
-              <div className={`${styles.hotelMenu} glass`}>
-                <button
-                  onClick={() => {
-                    onEdit(hotel);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <Edit2 size={14} /> Edit
-                </button>
-                <button onClick={handleDelete} className={styles.textDanger}>
-                  <Trash2 size={14} /> Delete
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
-        <p className={styles.hotelLocation}><strong>Location:</strong> {hotel.location}</p>
-        <p className={styles.hotelVendor}><strong>Vendor:</strong> {hotel.vendor_name || hotel.vendor}</p>
+        <p className={styles.hotelLocation}>
+          <strong>Location:</strong> {hotel.location}
+        </p>
+
+        <p className={styles.hotelVendor}>
+          <strong>Vendor:</strong> {hotel.vendor_name || hotel.vendor}
+        </p>
+
         {hotel.description && (
           <p className={styles.hotelDescription}>{hotel.description}</p>
         )}
+
+        <div className={styles.hotelActions}>
+          <button onClick={() => onEdit(hotel)} className={styles.editBtn}>
+            <Edit2 size={16} /> Edit
+          </button>
+          <button onClick={handleDelete} className={`${styles.editBtn} ${styles.textDanger}`}>
+            <Trash2 size={16} /> Delete
+          </button>
+        </div>
       </div>
     </div>
   );

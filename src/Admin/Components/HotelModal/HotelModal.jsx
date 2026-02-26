@@ -7,19 +7,34 @@ import styles from "./HotelModal.module.css";
 const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState([]);
-  
-  // Initialize preview correctly with full URL for existing hotel
-  const [preview, setPreview] = useState(
-    hotel?.image_url ? `${baseUrl}/${hotel.image_url}` : ""
-  );
 
+  const [preview, setPreview] = useState("");
   const [formData, setFormData] = useState({
-    name: hotel?.name || "",
-    location: hotel?.location || "",
-    description: hotel?.description || "",
-    vendor_id: hotel?.vendor_id || "",
-    image_file: null
+    name: "",
+    location: "",
+    description: "",
+    vendor_id: "",
+    image_file: null,
   });
+
+  // Sync form + preview when editing hotel changes
+  useEffect(() => {
+    setFormData({
+      name: hotel?.name || "",
+      location: hotel?.location || "",
+      description: hotel?.description || "",
+      vendor_id: hotel?.vendor_id || "",
+      image_file: null, // reset file when switching edit
+    });
+
+    const img = hotel?.image_url || "";
+    if (!img) {
+      setPreview("");
+    } else {
+      // supports both relative + full url just in case
+      setPreview(img.startsWith("http") ? img : `${baseUrl}/${img}`);
+    }
+  }, [hotel]);
 
   // Fetch vendors list
   useEffect(() => {
@@ -31,14 +46,14 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
         const form = new FormData();
         form.append("token", token);
 
-        const res = await fetch(`${baseUrl}/hotels/getVendor.php`, {
+        const res = await fetch(`${baseUrl}/hotels/getVendors.php`, {
           method: "POST",
-          body: form
+          body: form,
         });
 
         const data = await res.json();
         if (data.success) setVendors(data.data);
-        else toast.error(data.message);
+        else toast.error(data.message || "Failed to fetch vendors");
       } catch (err) {
         toast.error("Failed to fetch vendors: " + err.message);
       }
@@ -49,11 +64,11 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
 
   // Handle image file selection
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image_file: file });
-      setPreview(URL.createObjectURL(file)); // preview local file
-    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFormData((prev) => ({ ...prev, image_file: file }));
+    setPreview(URL.createObjectURL(file)); // preview local file
   };
 
   // Submit Add or Update Hotel
@@ -80,7 +95,6 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
 
       if (formData.image_file) payload.append("image", formData.image_file);
 
-      // Use Add or Update API
       let apiUrl = `${baseUrl}/hotels/addHotel.php`;
       if (hotel && hotel.hotel_id) {
         apiUrl = `${baseUrl}/hotels/updateHotel.php`;
@@ -89,33 +103,24 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
 
       const res = await fetch(apiUrl, {
         method: "POST",
-        body: payload
+        body: payload,
       });
 
       const data = await res.json();
 
       if (data.success) {
-        toast.success(data.message);
+        toast.success(data.message || "Saved successfully");
 
-        // Update preview if backend returns new image path
+        // If backend returns relative image_url (recommended)
         if (data.data?.image_url) {
-          setPreview(`${baseUrl}/${data.data.image_url}`);
+          const img = data.data.image_url;
+          setPreview(img.startsWith("http") ? img : `${baseUrl}/${img}`);
         }
 
-        onSuccess(); // Refresh hotel list
-        onClose();
-
-        // Reset form
-        setFormData({
-          name: "",
-          location: "",
-          description: "",
-          vendor_id: "",
-          image_file: null
-        });
-        setPreview("");
+        onSuccess?.(); // Refresh hotel list
+        onClose?.();
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to save hotel");
       }
     } catch (err) {
       toast.error("Something went wrong: " + err.message);
@@ -129,7 +134,7 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{hotel ? "Edit Hotel" : "Add New Hotel"}</h2>
-          <button className={styles.closeBtn} onClick={onClose}>
+          <button className={styles.closeBtn} onClick={onClose} type="button">
             <X size={20} />
           </button>
         </div>
@@ -141,7 +146,9 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
               type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
             />
           </div>
 
@@ -151,7 +158,9 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
               type="text"
               required
               value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, location: e.target.value }))
+              }
             />
           </div>
 
@@ -160,7 +169,9 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
             <select
               required
               value={formData.vendor_id}
-              onChange={(e) => setFormData({ ...formData, vendor_id: e.target.value })}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, vendor_id: e.target.value }))
+              }
             >
               <option value="">-- Select Vendor --</option>
               {vendors.map((vendor) => (
@@ -176,15 +187,22 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
             <textarea
               rows="3"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, description: e.target.value }))
+              }
             />
           </div>
 
           <div className={styles.formGroup}>
             <label>Hotel Image</label>
+
             <div className={styles.imagePreviewWrapper}>
               {preview ? (
-                <img src={preview} alt="Preview" className={styles.imagePreviewImg} />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className={styles.imagePreviewImg}
+                />
               ) : (
                 <div className={styles.imagePlaceholder}>No image selected</div>
               )}
@@ -197,14 +215,21 @@ const HotelModal = ({ hotel = null, onClose, onSuccess }) => {
               hidden
               onChange={handleFileChange}
             />
+
             <label htmlFor="hotel-image-input" className={styles.fileUploadLabel}>
               <Upload size={18} />
-              {formData.image_file ? formData.image_file.name : "Choose image from desktop..."}
+              {formData.image_file
+                ? formData.image_file.name
+                : "Choose image from desktop..."}
             </label>
           </div>
 
           <div className={styles.modalFooter}>
-            <button type="button" onClick={onClose} className={styles.secondaryBtn}>
+            <button
+              type="button"
+              onClick={onClose}
+              className={styles.secondaryBtn}
+            >
               Cancel
             </button>
             <button type="submit" disabled={isLoading} className={styles.primaryBtn}>

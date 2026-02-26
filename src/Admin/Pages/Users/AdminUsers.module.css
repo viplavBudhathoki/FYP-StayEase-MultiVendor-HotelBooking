@@ -1,0 +1,60 @@
+.page {
+  padding: 2rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+.header p {
+  margin: 0.3rem 0 1.4rem;
+  color: #64748b;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  font-size: 0.85rem;
+  color: #64748b;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.table tr:hover td {
+  background: #f8fafc;
+}
+
+.empty {
+  padding: 1rem;
+  background: #fff;
+  border: 1px dashed #e2e8f0;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+.countText {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+}

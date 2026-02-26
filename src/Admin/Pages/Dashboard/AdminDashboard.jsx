@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Building2,
   Hotel,
@@ -6,10 +6,12 @@ import {
   CalendarCheck,
   TrendingUp,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { baseUrl } from "../../../constant";
 import styles from "./AdminDashboard.module.css";
 
 const AdminDashboard = () => {
-  const [stats] = useState({
+  const [stats, setStats] = useState({
     totalVendors: 0,
     totalHotels: 0,
     totalUsers: 0,
@@ -17,9 +19,44 @@ const AdminDashboard = () => {
     revenue: 0,
   });
 
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Admin token missing");
+
+      const form = new FormData();
+      form.append("token", token);
+
+      // FIXED PATH: admin -> hotels
+      const res = await fetch(`${baseUrl}/hotels/getCounts.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Counts API did not return JSON. Check backend path / PHP errors.");
+      }
+
+      if (data.success) {
+        setStats((prev) => ({ ...prev, ...(data.data || {}) }));
+      } else {
+        toast.error(data.message || "Failed to load dashboard stats");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return (
     <div className={styles.dashboardPage}>
-      {/* Header */}
       <div className={styles.pageHeader}>
         <div>
           <h1>Admin Dashboard</h1>
@@ -27,7 +64,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className={styles.statsGrid}>
         <StatCard
           icon={<Building2 size={22} />}
@@ -60,26 +96,9 @@ const AdminDashboard = () => {
         <StatCard
           icon={<TrendingUp size={22} />}
           label="Platform Revenue"
-          value={`$${stats.revenue}`}
+          value={`Rs.${stats.revenue}`}
           color="dark"
         />
-      </div>
-
-      {/* Bottom Section */}
-      <div className={styles.dashboardContent}>
-        <div className={styles.card}>
-          <h3>Recent Activity</h3>
-          <div className={styles.emptyState}>
-            No recent platform activity found.
-          </div>
-        </div>
-
-        <div className={styles.card}>
-          <h3>System Overview</h3>
-          <div className={styles.emptyState}>
-            System metrics will appear here.
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -88,9 +107,7 @@ const AdminDashboard = () => {
 const StatCard = ({ icon, label, value, color }) => {
   return (
     <div className={styles.statCard}>
-      <div className={`${styles.statIcon} ${styles[color]}`}>
-        {icon}
-      </div>
+      <div className={`${styles.statIcon} ${styles[color]}`}>{icon}</div>
       <div className={styles.statInfo}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>

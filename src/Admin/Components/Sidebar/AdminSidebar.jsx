@@ -16,10 +16,11 @@ import styles from "./AdminSidebar.module.css";
 const AdminSidebar = () => {
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    localStorage.removeItem("user");
-    navigate("/", { replace: true });
-  };
+const handleSignOut = () => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
+  navigate("/", { replace: true });
+};
 
 
   return (
