@@ -11,6 +11,8 @@
   flex-direction: column;
   padding: 1.5rem 1rem;
   z-index: 100; /* above main content */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Highlight part of the logo */

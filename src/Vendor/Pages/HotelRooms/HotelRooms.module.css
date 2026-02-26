@@ -1,0 +1,105 @@
+/* Prevent header overlap */
+.page {
+  padding-top: 90px;
+}
+
+/* Page header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 14.5px;
+}
+
+/* Add room button */
+.addBtn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #0f172a;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.addBtn:hover {
+  background: #f8740f;
+}
+
+/* Grid */
+.roomGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Room card */
+.roomCard {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
+}
+
+.roomCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+}
+
+.roomName {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.roomMeta {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Status badge */
+.status {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.occupied {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.maintenance {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Empty / loading */
+.stateText {
+  padding-top: 90px;
+  color: #64748b;
+}

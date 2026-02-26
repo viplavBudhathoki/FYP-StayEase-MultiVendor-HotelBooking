@@ -53,7 +53,7 @@ const Dashboard = () => {
           <div className="stat-icon icon-purple"><TrendingUp size={24} /></div>
           <div className="stat-info">
             <span className="stat-label">Daily Revenue</span>
-            <span className="stat-value">${stats.revenue}</span>
+            <span className="stat-value">Rs.{stats.revenue}</span>
           </div>
         </div>
       </div>

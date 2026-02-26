@@ -1,12 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
+  Hotel,
   BedDouble,
   Calendar,
   Bell,
   Settings,
   LogOut,
-  Hotel,
   BarChart3,
   Tag,
 } from "lucide-react";
@@ -15,99 +15,73 @@ import styles from "./Sidebar.module.css";
 const Sidebar = () => {
   const navigate = useNavigate();
 
-  // Function to handle user logout
   const handleSignOut = () => {
-    // Remove user data from localStorage
     localStorage.removeItem("user");
-
-    // Navigate back to the home page
-    navigate("/");
-
-    // Optional: reload the page to reset application state
-    window.location.reload();
+    localStorage.removeItem("token");
+    navigate("/", { replace: true });
   };
+
+  const linkClass = ({ isActive }) =>
+    isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem;
 
   return (
     <aside className={styles.sidebar}>
-      {/* Sidebar Logo */}
+      {/* Logo */}
       <div className={styles.sidebarLogo}>
         <div className={styles.navbarLogo}>
           Stay<span>Ease</span>
         </div>
       </div>
 
-      {/* Main Navigation Links */}
+      {/* Main nav */}
       <nav className={styles.sidebarNav}>
-        {/* Dashboard Link */}
-        <NavLink 
-          to="/vendor" 
-          end 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor" end className={linkClass}>
           <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </NavLink>
 
-        {/* Room Status Link */}
-        <NavLink 
-          to="/vendor/rooms" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        {/* My Hotels */}
+        <NavLink to="/vendor/hotels" className={linkClass}>
+          <Hotel size={20} />
+          <span>My Hotels</span>
+        </NavLink>
+
+        <NavLink to="/vendor/rooms" className={linkClass}>
           <BedDouble size={20} />
           <span>Room Status</span>
         </NavLink>
 
-        {/* Bookings Link */}
-        <NavLink 
-          to="/vendor/bookings" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor/bookings" className={linkClass}>
           <Calendar size={20} />
           <span>Bookings</span>
         </NavLink>
 
-        {/* Analysis Link */}
-        <NavLink 
-          to="/vendor/analysis" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor/analysis" className={linkClass}>
           <BarChart3 size={20} />
           <span>Analysis</span>
         </NavLink>
 
-        {/* Special Offers Link */}
-        <NavLink 
-          to="/vendor/offers" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor/offers" className={linkClass}>
           <Tag size={20} />
           <span>Special Offers</span>
         </NavLink>
 
-        {/* Notifications Link */}
-        <NavLink 
-          to="/vendor/notifications" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor/notifications" className={linkClass}>
           <Bell size={20} />
           <span>Notifications</span>
         </NavLink>
       </nav>
 
-      {/* Sidebar Footer: Settings and Logout */}
+      {/* Footer */}
       <div className={styles.sidebarFooter}>
-        {/* Settings Link */}
-        <NavLink 
-          to="/vendor/settings" 
-          className={({ isActive }) => isActive ? `${styles.navItem} ${styles.navItemActive}` : styles.navItem}
-        >
+        <NavLink to="/vendor/settings" className={linkClass}>
           <Settings size={20} />
           <span>Settings</span>
         </NavLink>
 
-        {/* Sign Out Button */}
-        <button 
-          className={`${styles.navItem} ${styles.btnLogout}`} 
+        <button
+          type="button"
+          className={`${styles.navItem} ${styles.btnLogout}`}
           onClick={handleSignOut}
         >
           <LogOut size={20} />
