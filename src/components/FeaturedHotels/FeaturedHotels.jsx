@@ -1,38 +1,43 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { CiLocationOn } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { baseUrl } from "../../constant";
 import styles from "./FeaturedHotels.module.css";
 
-const hotels = [
-  {
-    id: 1,
-    name: "The Royal Paradise",
-    location: "Maldives",
-    price: "$450",
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1571003123894-1ac99dadbee0",
-  },
-  {
-    id: 2,
-    name: "Urban Heights",
-    location: "New York, USA",
-    price: "$320",
-    rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-  },
-  {
-    id: 3,
-    name: "Alpine Retreat",
-    location: "Swiss Alps",
-    price: "$580",
-    rating: 5.0,
-    image:
-      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
-  },
-];
-
 const FeaturedHotels = () => {
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const getHotelImage = (img) => {
+    if (!img) return `${baseUrl}/uploads/hotels/placeholder.png`;
+    return `${baseUrl}/${img}`;
+  };
+
+  const fetchHotels = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/hotels/getPublicHotels.php`);
+      const data = await res.json();
+
+      if (data.success) {
+        setHotels(Array.isArray(data.data) ? data.data.slice(0, 6) : []);
+      } else {
+        toast.error(data.message || "Failed to load hotels");
+      }
+    } catch (err) {
+      toast.error("Failed to load hotels");
+      setHotels([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHotels();
+  }, []);
+
   return (
     <section className={styles.featured} id="hotels">
       <div className={styles.container}>
@@ -43,37 +48,63 @@ const FeaturedHotels = () => {
           </p>
         </div>
 
-        <div className={styles.hotelsGrid}>
-          {hotels.map((hotel) => (
-            <div key={hotel.id} className={styles.hotelCard}>
-              <div className={styles.hotelImageContainer}>
-                <img
-                  src={hotel.image}
-                  alt={hotel.name}
-                  className={styles.hotelImage}
-                />
-                <div className={styles.hotelPriceBadge}>
-                  {hotel.price}/night
+        {loading ? (
+          <p style={{ textAlign: "center" }}>Loading hotels...</p>
+        ) : hotels.length === 0 ? (
+          <p style={{ textAlign: "center" }}>No hotels available right now.</p>
+        ) : (
+          <div className={styles.hotelsGrid}>
+            {hotels.map((hotel) => (
+              <div
+                key={hotel.hotel_id}
+                className={styles.hotelCard}
+                onClick={() => navigate(`/hotels/${hotel.hotel_id}/rooms`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    navigate(`/hotels/${hotel.hotel_id}/rooms`);
+                  }
+                }}
+              >
+                <div className={styles.hotelImageContainer}>
+                  <img
+                    src={getHotelImage(hotel.image_url)}
+                    alt={hotel.name}
+                    className={styles.hotelImage}
+                    onError={(e) => {
+                      e.currentTarget.src = `${baseUrl}/uploads/hotels/placeholder.png`;
+                    }}
+                  />
+                  <div className={styles.hotelPriceBadge}>
+                    View Rooms
+                  </div>
+                </div>
+
+                <div className={styles.hotelInfo}>
+                  <div className={styles.hotelLocation}>
+                    <CiLocationOn /> {hotel.location}
+                  </div>
+
+                  <h3 className={styles.hotelName}>{hotel.name}</h3>
+
+                  <div className={styles.hotelFooter}>
+                    <div className={styles.hotelRating}>★ 4.5</div>
+                    <button
+                      className={styles.btnBook}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/hotels/${hotel.hotel_id}/rooms`);
+                      }}
+                    >
+                      View Details →
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div className={styles.hotelInfo}>
-                <div className={styles.hotelLocation}>
-                  <CiLocationOn /> {hotel.location}
-                </div>
-
-                <h3 className={styles.hotelName}>{hotel.name}</h3>
-
-                <div className={styles.hotelFooter}>
-                  <div className={styles.hotelRating}>★ {hotel.rating}</div>
-                  <button className={styles.btnBook}>
-                    View Details →
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
