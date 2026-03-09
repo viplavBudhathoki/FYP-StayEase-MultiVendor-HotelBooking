@@ -12,7 +12,7 @@
 
 .hotelsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 25px;
 }
 
@@ -22,7 +22,11 @@
   overflow: hidden;
   cursor: pointer;
   transition: 0.25s;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .hotelCard:hover {
@@ -37,6 +41,9 @@
 
 .hotelInfo {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .location {
@@ -45,28 +52,33 @@
   display: flex;
   gap: 5px;
   align-items: center;
+  min-height: 22px;
 }
 
 .hotelName {
   font-size: 1.2rem;
   font-weight: 600;
   margin-top: 6px;
+  min-height: 48px;
 }
 
 .hotelDescription {
   font-size: 0.9rem;
   margin-top: 8px;
   color: #475569;
+  line-height: 1.5;
+  min-height: 70px;
 }
 
 .viewBtn {
-  margin-top: 14px;
+  margin-top: auto;
   padding: 8px 14px;
   border: none;
   background: #f8740f;
   color: white;
   border-radius: 6px;
   cursor: pointer;
+  align-self: flex-start;
 }
 
 .viewBtn:hover {
@@ -77,4 +89,16 @@
   padding: 120px;
   text-align: center;
   font-size: 1.2rem;
+}
+
+@media (max-width: 992px) {
+  .hotelsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .hotelsGrid {
+    grid-template-columns: 1fr;
+  }
 }
