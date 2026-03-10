@@ -1,188 +1,102 @@
-/* Main room card container */
 .roomCard {
-  padding: 0;
-  overflow: hidden;                      /* Keeps image and badge inside card */
-  position: relative;
-  border-radius: 12px;                   /* Rounded card corners */
-  background: #ffffff;                   /* Card background */
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  display: flex;
+  gap: 20px;
+  padding: 22px;
+  min-height: 220px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Hover effect for subtle lift */
 .roomCard:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
 }
 
-/* Room image wrapper */
-.roomImage {
-  height: 200px;
-  position: relative;                    /* Required for badge positioning */
-  overflow: hidden;
+.roomImg {
+  width: 200px;
+  height: 180px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #f1f5f9;
+  flex-shrink: 0;
 }
 
-/* Room image */
-.roomImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;                     /* Maintains image aspect ratio */
-  transition: transform 0.5s ease;
-}
-
-/* Image zoom effect on hover */
-.roomCard:hover .roomImage img {
-  transform: scale(1.05);
-}
-
-/* Status badge */
-.badge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;                 /* Pill shape */
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-}
-
-/* Status-specific badge colors */
-.badgeAvailable {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badgeOccupied {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.badgeMaintenance {
-  background: #fef9c3;
-  color: #854d0e;
-}
-
-/* Card content section */
 .roomInfo {
-  padding: 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Header section (room name + actions) */
-.roomHeader {
+.roomHeaderRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.25rem;
+  gap: 12px;
 }
 
-/* Room name */
-.roomHeader h3 {
-  font-size: 1.125rem;
+.hotelLine {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
   font-weight: 600;
+}
+
+.roomTitle {
+  margin: 4px 0 0 0;
+  font-size: 18px;
+  font-weight: 800;
   color: #1e293b;
 }
 
-/* Room type and vendor info */
-.roomType {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 1rem;
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
 
-/* Footer section */
-.roomFooter {
+.available {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+}
+
+.occupied {
+  background: rgba(239, 68, 68, 0.12);
+  color: #7f1d1d;
+}
+
+.maintenance {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
+.chips {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* Room price */
-.roomPrice {
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: #6366f1;
+.chip {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(245, 245, 255, 0.7);
+  font-size: 12px;
+  color: #111;
 }
 
-/* Price suffix (/night) */
-.roomPrice span {
-  font-weight: 400;
-  font-size: 0.75rem;
-  color: #64748b;
+.price {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #374151;
 }
 
-/* Action menu container */
-.roomActions {
-  position: relative;                    /* Anchor for dropdown menu */
-}
-
-/* Small icon button */
-.iconBtnSm {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #64748b;
-  padding: 4px;
-  border-radius: 4px;
-}
-
-/* Icon button hover effect */
-.iconBtnSm:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-/* Dropdown action menu */
-.roomMenu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 160px;
-  border-radius: 12px;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
-  z-index: 10;
-
-  /* Glassmorphism effect */
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* Action menu buttons */
-.roomMenu button {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.75rem;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  color: #1e293b;
-  text-align: left;
-}
-
-/* Hover state for menu buttons */
-.roomMenu button:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-/* Danger text (delete action) */
-.textDanger {
-  color: #ef4444;
-}
-
-/* Status dropdown */
 .statusSelect {
   padding: 0.4rem 0.75rem;
   border-radius: 8px;
@@ -195,8 +109,67 @@
   transition: all 0.2s;
 }
 
-/* Focus state for status dropdown */
 .statusSelect:focus {
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.editBtn {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.editBtn:hover {
+  background: #f8fafc;
+}
+
+.deleteBtn {
+  background: #fff;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+
+.deleteBtn:hover {
+  background: #fef2f2;
+}
+
+@media (max-width: 768px) {
+  .roomCard {
+    flex-direction: column;
+  }
+
+  .roomImg {
+    width: 100%;
+    height: 200px;
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actionBtn {
+    width: 100%;
+  }
 }
