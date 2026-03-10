@@ -1,93 +1,85 @@
-import { useState } from "react";
-import { MoreVertical, Edit2, Trash2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { Edit2, Trash2 } from "lucide-react";
+import { baseUrl } from "../../../constant";
 import styles from "./RoomCard.module.css";
 
-const RoomCard = ({ room, onEdit, onStatusChange, onUpdateStatus }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleStatusUpdate = async (newStatus) => {
-    // newStatus is lowercase now
-    const ok = await onUpdateStatus(room.room_id, newStatus);
-    if (ok) {
-      toast.success(`Status updated to ${newStatus}`);
-      onStatusChange?.();
-    }
+const RoomCard = ({ room, onEdit, onDelete }) => {
+  const parseAmenities = (value) => {
+    if (!value) return [];
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.map(String);
+    } catch {}
+    return String(value)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   };
 
-  const getBadgeClass = (status) => {
-    switch ((status || "").toLowerCase()) {
-      case "available":
-        return styles.badgeAvailable;
-      case "occupied":
-        return styles.badgeOccupied;
-      case "maintenance":
-        return styles.badgeMaintenance;
-      default:
-        return "";
-    }
-  };
+  const amenitiesArr = parseAmenities(room?.amenities);
+
+  const imageSrc = room?.image_url
+    ? `${baseUrl}/${room.image_url}`
+    : `${baseUrl}/uploads/rooms/placeholder.png`;
 
   return (
-    <div className={`${styles.roomCard} card`}>
-      <div className={styles.roomImage}>
-        <img src={room.image_url} alt={room.name} />
-        <span className={`${styles.badge} ${getBadgeClass(room.status)}`}>
-          {room.status}
-        </span>
-      </div>
+    <div className={styles.roomCard}>
+      <img
+        src={imageSrc}
+        alt={room?.name || "Room"}
+        className={styles.roomImg}
+        onError={(e) => {
+          e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+        }}
+      />
 
       <div className={styles.roomInfo}>
-        <div className={styles.roomHeader}>
-          <h3>{room.name}</h3>
-
-          <div className={styles.roomActions}>
-            <button
-              className={styles.iconBtnSm}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <MoreVertical size={16} />
-            </button>
-
-            {isMenuOpen && (
-              <div className={`${styles.roomMenu} glass`}>
-                <button
-                  onClick={() => {
-                    onEdit?.(room);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <Edit2 size={14} /> Edit Room
-                </button>
-
-                <button className={styles.textDanger}>
-                  <Trash2 size={14} /> Delete
-                </button>
-              </div>
-            )}
+        <div className={styles.roomHeaderRow}>
+          <div>
+            <p className={styles.hotelLine}>
+              {room?.hotel_name} — {room?.hotel_location}
+            </p>
+            <h3 className={styles.roomTitle}>{room?.name}</h3>
           </div>
+
+          <span
+            className={`${styles.badge} ${
+              styles[(room?.status || "").toLowerCase()]
+            }`}
+          >
+            {room?.status}
+          </span>
         </div>
 
-        <p className={styles.roomType}>
-          {room.type} • Vendor #{room.vendor_id}
-        </p>
-
-        <div className={styles.roomFooter}>
-          <span className={styles.roomPrice}>
-            Rs. {room.price} <span>/ night</span>
-          </span>
-
-          <div className={styles.statusQuickSwitch}>
-            <select
-              value={room.status}
-              onChange={(e) => handleStatusUpdate(e.target.value)}
-              className={styles.statusSelect}
-            >
-              <option value="available">Available</option>
-              <option value="occupied">Occupied</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
+        {amenitiesArr.length > 0 && (
+          <div className={styles.chips}>
+            {amenitiesArr.slice(0, 8).map((a, i) => (
+              <span key={i} className={styles.chip}>
+                {a}
+              </span>
+            ))}
           </div>
+        )}
+
+        <p className={styles.price}>Rs. {room?.price} / night</p>
+
+        <div className={styles.actions}>
+          <button
+            className={`${styles.actionBtn} ${styles.editBtn}`}
+            onClick={() => onEdit?.(room)}
+            type="button"
+          >
+            <Edit2 size={15} />
+            Edit
+          </button>
+
+          <button
+            className={`${styles.actionBtn} ${styles.deleteBtn}`}
+            onClick={() => onDelete?.(room.room_id)}
+            type="button"
+          >
+            <Trash2 size={15} />
+            Delete
+          </button>
         </div>
       </div>
     </div>
