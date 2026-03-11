@@ -1,48 +1,35 @@
-// Import icons used in the header (search, notifications, user profile)
-import { Search, Bell, User } from 'lucide-react';
+import { Search, Bell, User } from "lucide-react";
+import styles from "./Header.module.css";
 
-// Import scoped CSS module for header styling
-import styles from './Header.module.css';
-
-// Header component for the dashboard top bar
 const Header = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
   return (
-    // Main header container
     <header className={styles.header}>
-
-      {/* Search section */}
       <div className={styles.headerSearch}>
-        {/* Search icon */}
         <Search size={18} className={styles.searchIcon} />
-
-        {/* Search input field */}
         <input
           type="text"
           placeholder="Search rooms, bookings, or guests..."
         />
       </div>
 
-      {/* Right-side action buttons */}
       <div className={styles.headerActions}>
-
-        {/* Notification button */}
-        <button className={styles.iconBtn}>
+        <button className={styles.iconBtn} type="button">
           <Bell size={20} />
-
-          {/* Notification indicator dot */}
           <span className={styles.dot}></span>
         </button>
 
-        {/* User profile section */}
         <div className={styles.userProfile}>
-
-          {/* User name and role */}
           <div className={styles.userInfo}>
-            <span className={styles.userName}>Viplav</span>
-            <span className={styles.userRole}>Hotel Manager</span>
+            <span className={styles.userName}>
+              {user?.full_name || "Vendor"}
+            </span>
+            <span className={styles.userRole}>
+              {user?.role === "vendor" ? "Vendor" : "Hotel Manager"}
+            </span>
           </div>
 
-          {/* User avatar icon */}
           <div className={styles.userAvatar}>
             <User size={20} />
           </div>
@@ -52,5 +39,4 @@ const Header = () => {
   );
 };
 
-// Export Header component for use in other files
 export default Header;
