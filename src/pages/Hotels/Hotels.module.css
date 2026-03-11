@@ -1,13 +1,66 @@
 .page {
   padding: 120px 40px 60px 40px;
-  background: #f9fafb;
+  background: linear-gradient(180deg, #f8fafc 0%, #f9fafb 100%);
   min-height: 100vh;
 }
 
-.title {
-  font-size: 2.2rem;
+.heroSection {
+  margin-bottom: 34px;
+}
+
+.smallTag {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(248, 116, 15, 0.1);
+  color: #f8740f;
+  font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  max-width: 700px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.topStats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.statBox {
+  background: white;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  min-width: 170px;
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.statLabel {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .hotelsGrid {
@@ -18,36 +71,73 @@
 
 .hotelCard {
   background: white;
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
   cursor: pointer;
-  transition: 0.25s;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-
+  transition: 0.25s ease;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 1px solid #eef2f7;
 }
 
 .hotelCard:hover {
-  transform: translateY(-6px);
+  transform: translateY(-8px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+}
+
+.imageWrap {
+  position: relative;
 }
 
 .hotelImage {
   width: 100%;
-  height: 220px;
+  height: 230px;
   object-fit: cover;
+  display: block;
+}
+
+.imageOverlay {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.95);
+  color: rgb(255, 162, 0);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.popularTag {
+  background: rgba(248, 116, 15, 0.95);
+  color: white;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .hotelInfo {
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .location {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: #64748b;
   display: flex;
   gap: 5px;
@@ -56,29 +146,81 @@
 }
 
 .hotelName {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-top: 6px;
-  min-height: 48px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 8px;
+  color: #0f172a;
+  min-height: 52px;
 }
 
 .hotelDescription {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   margin-top: 8px;
   color: #475569;
-  line-height: 1.5;
-  min-height: 70px;
+  line-height: 1.6;
+  min-height: 74px;
+}
+
+.featureRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  margin-bottom: 18px;
+}
+
+.featureChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+.cardFooter {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.priceLabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.priceText {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.reviewCount {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 3px;
 }
 
 .viewBtn {
-  margin-top: auto;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border: none;
   background: #f8740f;
   color: white;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  align-self: flex-start;
+  font-weight: 700;
+  transition: 0.2s ease;
 }
 
 .viewBtn:hover {
@@ -98,7 +240,24 @@
 }
 
 @media (max-width: 600px) {
+  .page {
+    padding: 110px 20px 40px 20px;
+  }
+
   .hotelsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .viewBtn {
+    width: 100%;
   }
 }
