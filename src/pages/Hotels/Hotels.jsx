@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { CiLocationOn } from "react-icons/ci";
+import { IoStar, IoBedOutline } from "react-icons/io5";
 import { baseUrl } from "../../constant";
+import styles from "./Hotels.module.css";
 
 const Hotels = () => {
   const [hotels, setHotels] = useState([]);
@@ -15,6 +18,7 @@ const Hotels = () => {
 
   const fetchHotels = async () => {
     setLoading(true);
+
     try {
       const res = await fetch(`${baseUrl}/hotels/getPublicHotels.php`);
       const data = await res.json();
@@ -36,54 +40,96 @@ const Hotels = () => {
     fetchHotels();
   }, []);
 
-  if (loading) return <div style={{ padding: "120px 30px" }}>Loading hotels...</div>;
+  if (loading) {
+    return <div className={styles.stateText}>Loading hotels...</div>;
+  }
+
+  if (hotels.length === 0) {
+    return <div className={styles.stateText}>No hotels available right now.</div>;
+  }
 
   return (
-    <div style={{ padding: "120px 30px 40px" }}>
-      <h1 style={{ fontSize: "2rem", marginBottom: "20px" }}>All Hotels</h1>
+    <div className={styles.page}>
+      <div className={styles.heroSection}>
+        <p className={styles.smallTag}>Discover stays across Nepal</p>
+        <h1 className={styles.title}>Find the perfect hotel for your next stay</h1>
+        <p className={styles.subtitle}>
+          Browse premium stays, compare options, and explore rooms before booking.
+        </p>
 
-      {hotels.length === 0 ? (
-        <p>No hotels available right now.</p>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {hotels.map((hotel) => (
-            <div
-              key={hotel.hotel_id}
-              onClick={() => navigate(`/hotels/${hotel.hotel_id}/rooms`)}
-              style={{
-                border: "1px solid #e2e8f0",
-                borderRadius: "14px",
-                overflow: "hidden",
-                cursor: "pointer",
-                background: "#fff",
-              }}
-            >
+        <div className={styles.topStats}>
+          <div className={styles.statBox}>
+            <span className={styles.statNumber}>{hotels.length}</span>
+            <span className={styles.statLabel}>Hotels available</span>
+          </div>
+          <div className={styles.statBox}>
+            <span className={styles.statNumber}>24/7</span>
+            <span className={styles.statLabel}>Guest support</span>
+          </div>
+          <div className={styles.statBox}>
+            <span className={styles.statNumber}>Best</span>
+            <span className={styles.statLabel}>Comfort picks</span>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.hotelsGrid}>
+        {hotels.map((hotel) => (
+          <div
+            key={hotel.hotel_id}
+            className={styles.hotelCard}
+            onClick={() => navigate(`/hotels/${hotel.hotel_id}/rooms`)}
+          >
+            <div className={styles.imageWrap}>
               <img
                 src={getHotelImage(hotel.image_url)}
                 alt={hotel.name}
-                style={{ width: "100%", height: "220px", objectFit: "cover" }}
+                className={styles.hotelImage}
                 onError={(e) => {
                   e.currentTarget.src = `${baseUrl}/uploads/hotels/placeholder.png`;
                 }}
               />
 
-              <div style={{ padding: "16px" }}>
-                <h2 style={{ margin: "0 0 8px", fontSize: "1.2rem" }}>{hotel.name}</h2>
-                <p style={{ margin: "0 0 8px", color: "#64748b" }}>{hotel.location}</p>
-                <p style={{ margin: 0, color: "#475569" }}>
-                  {hotel.description || "No description available."}
-                </p>
+              <div className={styles.imageOverlay}>
+                <span className={styles.badge}>
+                  <IoStar /> {Number(hotel.rating) > 0 ? Number(hotel.rating).toFixed(1) : "New"}
+                </span>
+
+                {hotel.rating >= 4.5 && (
+                  <span className={styles.popularTag}>Popular choice</span>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+
+            <div className={styles.hotelInfo}>
+              <div className={styles.location}>
+                <CiLocationOn /> {hotel.location}
+              </div>
+
+              <h3 className={styles.hotelName}>{hotel.name}</h3>
+
+              <p className={styles.hotelDescription}>
+                {hotel.description || "A comfortable and welcoming stay for your trip."}
+              </p>
+
+              <div className={styles.cardFooter}>
+                <div className={styles.priceBlock}>
+                  <span className={styles.priceLabel}>Starting from</span>
+                  <span className={styles.priceText}>
+                    Rs {hotel.starting_price > 0 ? hotel.starting_price : "--"}
+                  </span>
+                  <span className={styles.reviewCount}>
+                    ({hotel.review_count || 0}{" "}
+                    {Number(hotel.review_count || 0) === 1 ? "review" : "reviews"})
+                  </span>
+                </div>
+
+                <button className={styles.viewBtn}>Explore →</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
