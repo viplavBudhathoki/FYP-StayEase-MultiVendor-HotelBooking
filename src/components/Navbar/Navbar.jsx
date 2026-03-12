@@ -1,60 +1,88 @@
-import styles from './Navbar.module.css';
-import { NavLink } from "react-router-dom";
+import styles from "./Navbar.module.css";
+import { useNavigate } from "react-router-dom";
+import { IoIosLogOut } from "react-icons/io";
 
-const Navbar = () => {
+const Navbar = ({ onLoginClick, onSignUpClick }) => {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/");
+    window.location.reload();
+  };
+
+  if (user?.role === "vendor") return null;
+
   return (
     <nav className={styles.navbar}>
-      
-      {/* Logo / Brand */}
-      <a href="/" className={styles.navbarLogo}>
+      <div className={styles.navbarLogo} onClick={() => navigate("/")}>
         Stay<span>Ease</span>
-      </a>
+      </div>
 
-      {/* Navigation Links */}
       <div className={styles.navbarLinks}>
-        <NavLink 
-          to="/" 
-          className={({ isActive }) => 
-            isActive ? `${styles.navLinks} ${styles.navLinks.active}` : styles.navLinks
-          }
-        >
+        <button className={styles.navLinks} onClick={() => navigate("/")}>
           Home
-        </NavLink>
+        </button>
 
-        <NavLink 
-          to="/hotels" 
-          className={({ isActive }) => 
-            isActive ? `${styles.navLinks} ${styles.navLinks.active}` : styles.navLinks
-          }
-        >
-          Hotels
-        </NavLink>
+        {(!user || user.role === "user") && (
+          <>
+            <button
+              className={styles.navLinks}
+              onClick={() => navigate("/hotels")}
+            >
+              Hotels
+            </button>
 
-        <NavLink 
-          to="/about" 
-          className={({ isActive }) => 
-            isActive ? `${styles.navLinks} ${styles.navLinks.active}` : styles.navLinks
-          }
-        >
+            {user?.role === "user" && (
+              <button
+                className={styles.navLinks}
+                onClick={() => navigate("/my-bookings")}
+              >
+                My Bookings
+              </button>
+            )}
+          </>
+        )}
+
+        {user?.role === "admin" && (
+          <button
+            className={styles.navLinks}
+            onClick={() => navigate("/admin")}
+          >
+            Admin Dashboard
+          </button>
+        )}
+
+        <button className={styles.navLinks} onClick={() => navigate("/about")}>
           About Us
-        </NavLink>
+        </button>
 
-        <NavLink 
-          to="/contact" 
-          className={({ isActive }) => 
-            isActive ? `${styles.navLinks} ${styles.navLinks.active}` : styles.navLinks
-          }
+        <button
+          className={styles.navLinks}
+          onClick={() => navigate("/contact")}
         >
           Contact Us
-        </NavLink>
+        </button>
       </div>
 
-      {/* Action Buttons */}
       <div className={styles.navbarActions}>
-        <button className={styles.btnLogin}>Log in</button>
-        <button className={styles.btnSignup}>Sign Up</button>
+        {user ? (
+          <button className={styles.btnLogout} onClick={handleLogout}>
+            <IoIosLogOut size={18} /> Logout
+          </button>
+        ) : (
+          <>
+            <button className={styles.btnLogin} onClick={onLoginClick}>
+              Log in
+            </button>
+            <button className={styles.btnSignup} onClick={onSignUpClick}>
+              Sign Up
+            </button>
+          </>
+        )}
       </div>
-
     </nav>
   );
 };
