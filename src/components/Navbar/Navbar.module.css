@@ -15,12 +15,14 @@
 
 /* Logo / Brand */
 .navbarLogo {
-    color: #fffffff6;              /* Logo text color */
-    font-size: 28px;               /* Logo font size */
+    color: #fffffff6;
+    font-size: 28px;
     display: flex;
     align-items: center;
-    gap: 8px;                      /* Space between text and span */
+    gap: 8px;
     padding: 0 20px;
+    cursor: pointer;
+    font-weight: 800;
 }
 
 /* Highlight color in logo */
@@ -49,7 +51,7 @@
 
 /* Active link */
 .navLinks.active {
-    color: #f59e0bff;
+    color: rgb(255, 136, 0);
     text-decoration: underline 2px;
     text-underline-offset: 6px;
 }
@@ -86,3 +88,26 @@
     background-color: #ba5f1a;
     padding: 10px 24px;
 }
+
+/* Logout button */
+.navbarActions .btnLogout {
+    display: flex;                /* Align icon and text horizontally */
+    align-items: center;          /* Center vertically */
+    gap: 8px;                     /* Space between icon and text */
+    color: #ffffffc0;             /* Slightly transparent white text */
+    background-color: #f8740f;    /* Orange background to match Sign Up */
+    border: none;                  /* No border */
+    border-radius: 50px;           /* Rounded button like Sign Up */
+    padding: 10px 20px;            /* Adjust padding */
+    cursor: pointer;               /* Pointer on hover */
+    font-size: 16px;               /* Slightly bigger text */
+    transition: all 0.3s ease;    /* Smooth hover transition */
+}
+
+/* Logout hover effect */
+.navbarActions .btnLogout:hover {
+    background-color: #ba5f1a;    /* Darker orange on hover */
+    color: #ffffff;                /* Fully white text on hover */
+}
+
+
