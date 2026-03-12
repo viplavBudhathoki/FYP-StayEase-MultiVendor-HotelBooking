@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import Rating from "react-rating";
@@ -16,13 +16,9 @@ const HotelRooms = () => {
   const [loading, setLoading] = useState(true);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [myReview, setMyReview] = useState(null);
-
-  const [reviewForm, setReviewForm] = useState({
-    rating: 0,
-    comment: "",
-  });
+  const [priceSort, setPriceSort] = useState("default");
+  const [bookingDates, setBookingDates] = useState({});
+  const [bookingLoadingId, setBookingLoadingId] = useState(null);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -52,6 +48,16 @@ const HotelRooms = () => {
     navigate("/login", {
       state: { from: location.pathname },
     });
+  };
+
+  const handleDateChange = (roomId, field, value) => {
+    setBookingDates((prev) => ({
+      ...prev,
+      [roomId]: {
+        ...prev[roomId],
+        [field]: value,
+      },
+    }));
   };
 
   const fetchRooms = async () => {
@@ -89,6 +95,7 @@ const HotelRooms = () => {
       const res = await fetch(
         `${baseUrl}/hotels/getHotelRatings.php?hotel_id=${hotelId}`
       );
+
       const data = await res.json();
 
       if (data.success) {
@@ -104,162 +111,9 @@ const HotelRooms = () => {
     }
   };
 
-  const fetchMyReview = async () => {
-    if (!token) {
-      setMyReview(null);
-      setReviewForm({
-        rating: 0,
-        comment: "",
-      });
-      return;
-    }
-
-    try {
-      const form = new FormData();
-      form.append("token", token);
-      form.append("hotel_id", hotelId);
-
-      const res = await fetch(`${baseUrl}/hotels/getMyHotelReview.php`, {
-        method: "POST",
-        body: form,
-      });
-
-      const data = await res.json();
-
-      if (data.success && data.has_review) {
-        setMyReview(data.data);
-        setReviewForm({
-          rating: Number(data.data.rating),
-          comment: data.data.review_message || "",
-        });
-      } else {
-        setMyReview(null);
-        setReviewForm({
-          rating: 0,
-          comment: "",
-        });
-      }
-    } catch {
-      setMyReview(null);
-    }
-  };
-
-  const openReviewModal = () => {
+  const handleBookNow = async (room) => {
     if (!isLoggedIn) {
       goToLogin();
-      return;
-    }
-
-    if (user?.role !== "user") {
-      toast.error("Only customers can review hotels");
-      return;
-    }
-
-    setIsReviewModalOpen(true);
-  };
-
-  const submitReview = async () => {
-    if (!isLoggedIn) {
-      goToLogin();
-      return;
-    }
-
-    if (user?.role !== "user") {
-      toast.error("Only customers can review hotels");
-      return;
-    }
-
-    if (reviewForm.rating < 0.5) {
-      toast.error("Please give a rating");
-      return;
-    }
-
-    if (!reviewForm.comment.trim()) {
-      toast.error("Please write a review");
-      return;
-    }
-
-    try {
-      const form = new FormData();
-      form.append("token", token);
-      form.append("hotel_id", hotelId);
-      form.append("rating", reviewForm.rating);
-      form.append("review_message", reviewForm.comment.trim());
-
-      const apiUrl = myReview
-        ? `${baseUrl}/hotels/updateRating.php`
-        : `${baseUrl}/hotels/giveRating.php`;
-
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        body: form,
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success(data.message || "Review saved successfully");
-        setIsReviewModalOpen(false);
-        fetchReviews();
-        fetchMyReview();
-      } else {
-        toast.error(data.message || "Failed to submit review");
-      }
-    } catch {
-      toast.error("Failed to submit review");
-    }
-  };
-
-  const deleteReview = async () => {
-    if (!isLoggedIn) {
-      goToLogin();
-      return;
-    }
-
-    if (user?.role !== "user") {
-      toast.error("Only customers can delete reviews");
-      return;
-    }
-
-    const ok = window.confirm("Are you sure you want to delete your review?");
-    if (!ok) return;
-
-    try {
-      const form = new FormData();
-      form.append("token", token);
-      form.append("hotel_id", hotelId);
-
-      const res = await fetch(`${baseUrl}/hotels/deleteRating.php`, {
-        method: "POST",
-        body: form,
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success(data.message || "Review deleted successfully");
-        setMyReview(null);
-        setReviewForm({
-          rating: 0,
-          comment: "",
-        });
-        setIsReviewModalOpen(false);
-        fetchReviews();
-        fetchMyReview();
-      } else {
-        toast.error(data.message || "Failed to delete review");
-      }
-    } catch {
-      toast.error("Failed to delete review");
-    }
-  };
-
-  const handleBookNow = (room) => {
-    if (!isLoggedIn) {
-      toast.error("Please login first to book a room");
-      navigate("/login", {
-        state: { from: location.pathname },
-      });
       return;
     }
 
@@ -268,14 +122,74 @@ const HotelRooms = () => {
       return;
     }
 
-    // toast.success(`Proceeding to book ${room.name}`);
+    const roomDates = bookingDates[room.room_id] || {};
+    const checkIn = roomDates.check_in || "";
+    const checkOut = roomDates.check_out || "";
+
+    if (!checkIn || !checkOut) {
+      toast.error("Please select check-in and check-out dates");
+      return;
+    }
+
+    if (checkOut <= checkIn) {
+      toast.error("Check-out must be after check-in");
+      return;
+    }
+
+    try {
+      setBookingLoadingId(room.room_id);
+
+      const form = new FormData();
+      form.append("token", token);
+      form.append("room_id", room.room_id);
+      form.append("check_in", checkIn);
+      form.append("check_out", checkOut);
+
+      const res = await fetch(`${baseUrl}/bookings/bookRoom.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success(data.message || "Room booked successfully");
+
+        setBookingDates((prev) => ({
+          ...prev,
+          [room.room_id]: {
+            check_in: "",
+            check_out: "",
+          },
+        }));
+
+        navigate("/my-bookings");
+      } else {
+        toast.error(data.message || "Booking failed");
+      }
+    } catch {
+      toast.error("Failed to book room");
+    } finally {
+      setBookingLoadingId(null);
+    }
   };
 
   useEffect(() => {
     fetchRooms();
     fetchReviews();
-    fetchMyReview();
   }, [hotelId]);
+
+  const sortedRooms = useMemo(() => {
+    const copied = [...rooms];
+
+    if (priceSort === "low-to-high") {
+      copied.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (priceSort === "high-to-low") {
+      copied.sort((a, b) => Number(b.price) - Number(a.price));
+    }
+
+    return copied;
+  }, [rooms, priceSort]);
 
   const colors = ["#ffd700", "#c4b5fd", "#86efac", "#f9a8d4", "#93c5fd"];
 
@@ -285,14 +199,38 @@ const HotelRooms = () => {
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>Available Rooms</h1>
+      <div className={styles.pageTop}>
+        <div>
+          <h1 className={styles.title}>Available Rooms</h1>
+          <p className={styles.subtitle}>
+            Explore room options, compare prices, and book your stay.
+          </p>
+        </div>
 
-      {rooms.length === 0 ? (
+        <div className={styles.sortBox}>
+          <label htmlFor="price-sort" className={styles.sortLabel}>
+            Sort by Price
+          </label>
+          <select
+            id="price-sort"
+            value={priceSort}
+            onChange={(e) => setPriceSort(e.target.value)}
+            className={styles.sortSelect}
+          >
+            <option value="default">Default</option>
+            <option value="low-to-high">Low to High</option>
+            <option value="high-to-low">High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      {sortedRooms.length === 0 ? (
         <div className={styles.stateText}>No rooms available.</div>
       ) : (
         <div className={styles.roomsList}>
-          {rooms.map((room) => {
+          {sortedRooms.map((room) => {
             const amenities = parseAmenities(room.amenities);
+            const roomDates = bookingDates[room.room_id] || {};
 
             return (
               <div key={room.room_id} className={styles.roomCard}>
@@ -327,13 +265,47 @@ const HotelRooms = () => {
                     ))}
                   </div>
 
-                  <div className={styles.roomBottom}>
-                    <button
-                      className={styles.bookBtn}
-                      onClick={() => handleBookNow(room)}
-                    >
-                      Book Now
-                    </button>
+                  <div className={styles.bookingSection}>
+                    <div className={styles.dateGroup}>
+                      <div className={styles.dateField}>
+                        <label>Check-in</label>
+                        <input
+                          type="date"
+                          value={roomDates.check_in || ""}
+                          min={new Date().toISOString().split("T")[0]}
+                          onChange={(e) =>
+                            handleDateChange(room.room_id, "check_in", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div className={styles.dateField}>
+                        <label>Check-out</label>
+                        <input
+                          type="date"
+                          value={roomDates.check_out || ""}
+                          min={
+                            roomDates.check_in ||
+                            new Date().toISOString().split("T")[0]
+                          }
+                          onChange={(e) =>
+                            handleDateChange(room.room_id, "check_out", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.roomBottom}>
+                      <button
+                        className={styles.bookBtn}
+                        onClick={() => handleBookNow(room)}
+                        disabled={bookingLoadingId === room.room_id}
+                      >
+                        {bookingLoadingId === room.room_id
+                          ? "Booking..."
+                          : "Book Now"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -345,22 +317,9 @@ const HotelRooms = () => {
       <div className={styles.reviewSection}>
         <div className={styles.reviewTopBar}>
           <h2 className={styles.reviewTitle}>Guest Reviews</h2>
-
-          <div className={styles.reviewActionGroup}>
-            <button className={styles.openReviewBtn} onClick={openReviewModal}>
-              {isLoggedIn
-                ? myReview
-                  ? "Edit Review"
-                  : "Review Hotel"
-                : "Review Hotel"}
-            </button>
-
-            {isLoggedIn && myReview && (
-              <button className={styles.deleteReviewBtn} onClick={deleteReview}>
-                Delete Review
-              </button>
-            )}
-          </div>
+          <p className={styles.reviewNote}>
+            Reviews are submitted only after completed stays.
+          </p>
         </div>
 
         {reviewsLoading ? (
@@ -424,67 +383,6 @@ const HotelRooms = () => {
           </div>
         )}
       </div>
-
-      {isReviewModalOpen && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setIsReviewModalOpen(false)}
-        >
-          <div
-            className={styles.modalBox}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <h3>{myReview ? "Edit Your Review" : "Review Hotel"}</h3>
-              <button
-                className={styles.closeBtn}
-                onClick={() => setIsReviewModalOpen(false)}
-                type="button"
-              >
-                ×
-              </button>
-            </div>
-
-            <p className={styles.modalText}>
-              {myReview
-                ? "Update your rating and review for this hotel"
-                : "Give your rating and review for this hotel"}
-            </p>
-
-            <div className={styles.selectedRating}>
-              Selected Rating: {Number(reviewForm.rating || 0).toFixed(1)}
-            </div>
-
-            <Rating
-              initialRating={reviewForm.rating}
-              fractions={2}
-              fullSymbol={<FaStar />}
-              emptySymbol={<FaRegStar />}
-              className={styles.modalStars}
-              onChange={(value) =>
-                setReviewForm({ ...reviewForm, rating: value })
-              }
-            />
-
-            <textarea
-              className={styles.reviewTextarea}
-              placeholder="Enter your review"
-              value={reviewForm.comment}
-              onChange={(e) =>
-                setReviewForm({ ...reviewForm, comment: e.target.value })
-              }
-            />
-
-            <button
-              className={styles.submitReviewBtn}
-              onClick={submitReview}
-              type="button"
-            >
-              {myReview ? "Update Review" : "Submit Review"}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
