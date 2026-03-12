@@ -1,19 +1,17 @@
-// React Router utilities
 import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
-
-// Toast notification provider
 import { Toaster } from "react-hot-toast";
 
-// ===== Public components =====
+// Public components 
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import LandingPage from "./pages/LandingPage/LandingPage";
-import Register from "./pages/register/register";
+import Register from "./pages/Register/Register";
 import Login from "./pages/Login/Login";
-import Hotels from "./pages/Hotels/Hotels";
-import HotelRooms from "./pages/HotelRooms/HotelRooms";
+import PublicHotels from "./pages/Hotels/Hotels";
+import PublicHotelRooms from "./pages/HotelRooms/HotelRooms";
+import MyBookings from "./pages/MyBookings/MyBookings";
 
-// ===== Vendor dashboard components =====
+// Vendor dashboard components 
 import VendorLayout from "./Vendor/VendorLayout";
 import Dashboard from "./Vendor/Pages/Dashboard/Dashboard";
 import Rooms from "./Vendor/Pages/Rooms/Rooms";
@@ -22,14 +20,13 @@ import Offers from "./Vendor/Pages/Offers/Offers";
 import Bookings from "./Vendor/Pages/Bookings/Bookings";
 import Notifications from "./Vendor/Pages/Notifications/Notifications";
 import Settings from "./Vendor/Pages/Settings/Settings";
-
 import VendorHotels from "./Vendor/Pages/Hotels/Hotels";
-import HotelRooms from "./Vendor/Pages/HotelRooms/HotelRooms";
+import VendorHotelRooms from "./Vendor/Pages/HotelRooms/HotelRooms";
 
-// ===== Admin dashboard components =====
+// Admin dashboard components
 import AdminLayout from "./Admin/AdminLayout";
 import AdminDashboard from "./Admin/Pages/Dashboard/AdminDashboard";
-import Hotels from "./Admin/Pages/Hotels/Hotels";
+import AdminHotels from "./Admin/Pages/Hotels/Hotels";
 import AdminVendors from "./Admin/Pages/Vendors/AdminVendors";
 import AdminUsers from "./Admin/Pages/Users/AdminUsers";
 
@@ -45,17 +42,22 @@ const App = () => {
   const isVendor = user?.role === "vendor";
   const isAdmin = user?.role === "admin";
 
-  const handleClose = () => navigate("/");
-  const handleSwitchToRegister = () => navigate("/register");
-  const handleSwitchToLogin = () => navigate("/login");
+  const handleClose = () => navigate(location.state?.from || "/");
+
+  const handleSwitchToRegister = () =>
+    navigate("/register", {
+      state: { from: location.state?.from || location.pathname || "/" },
+    });
+
+  const handleSwitchToLogin = () =>
+    navigate("/login", {
+      state: { from: location.state?.from || "/" },
+    });
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-      {/* Toast */}
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Navbar (Only for Public Users) */}
       {!isVendor && !isAdmin && (
         <Navbar
           onLoginClick={() => navigate("/login")}
@@ -65,13 +67,22 @@ const App = () => {
 
       <main style={{ flex: 1 }}>
         <Routes>
-
-          {/* ===== Public Routes ===== */}
+          {/* Public Routes */}
           {!isVendor && !isAdmin && (
             <>
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LandingPage />} />
               <Route path="/register" element={<LandingPage />} />
+
+              <Route path="/hotels" element={<PublicHotels />} />
+              <Route path="/hotels/:hotelId/rooms" element={<PublicHotelRooms />} />
+
+              <Route
+                path="/my-bookings"
+                element={
+                  user?.role === "user" ? <MyBookings /> : <Navigate to="/login" replace />
+                }
+              />
             </>
           )}
 
@@ -79,19 +90,9 @@ const App = () => {
           {isVendor && (
             <Route path="/vendor/*" element={<VendorLayout />}>
               <Route index element={<Dashboard />} />
-
-              {/* My Hotels */}
               <Route path="hotels" element={<VendorHotels />} />
-
-              {/* Rooms inside selected hotel */}
-              <Route path="hotels/:hotelId/rooms" element={<HotelRooms />} />
-
-              {/* Room Status page (Sidebar link /vendor/rooms) */}
+              <Route path="hotels/:hotelId/rooms" element={<VendorHotelRooms />} />
               <Route path="rooms" element={<Rooms />} />
-
-              <Route path="/hotels" element={<Hotels />} />
-              <Route path="/hotels/:hotelId/rooms" element={<HotelRooms />} />
-
               <Route path="bookings" element={<Bookings />} />
               <Route path="analysis" element={<Analysis />} />
               <Route path="offers" element={<Offers />} />
@@ -100,47 +101,40 @@ const App = () => {
             </Route>
           )}
 
-          {/* ===== Admin Routes ===== */}
+          {/* Admin Routes */}
           {isAdmin && (
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="hotels" element={<Hotels />} />
-
+              <Route path="hotels" element={<AdminHotels />} />
               <Route path="vendors" element={<AdminVendors />} />
               <Route path="users" element={<AdminUsers />} />
             </Route>
           )}
-          {/* ===== Redirect Unknown Routes ===== */}
+
+          {/* Redirect Unknown Routes */}
           <Route
             path="*"
             element={
-              isAdmin
-                ? <Navigate to="/admin" replace />
-                : isVendor
-                ? <Navigate to="/vendor" replace />
-                : <Navigate to="/" replace />
+              isAdmin ? (
+                <Navigate to="/admin" replace />
+              ) : isVendor ? (
+                <Navigate to="/vendor" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
             }
           />
-
         </Routes>
       </main>
 
-      {/* Footer (Only for Public Users) */}
       {!isVendor && !isAdmin && <Footer />}
 
-      {/* ===== Login & Register Modals (Public Only) ===== */}
       {!isVendor && !isAdmin && showLogin && (
-        <Login
-          onClose={handleClose}
-          onSwitchToRegister={handleSwitchToRegister}
-        />
+        <Login onClose={handleClose} onSwitchToRegister={handleSwitchToRegister} />
       )}
 
       {!isVendor && !isAdmin && showRegister && (
-        <Register
-          onClose={handleClose}
-          onSwitchToLogin={handleSwitchToLogin}
-        />
+        <Register onClose={handleClose} onSwitchToLogin={handleSwitchToLogin} />
       )}
     </div>
   );
