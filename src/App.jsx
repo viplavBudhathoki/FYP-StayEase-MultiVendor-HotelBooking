@@ -29,6 +29,7 @@ import AdminDashboard from "./Admin/Pages/Dashboard/AdminDashboard";
 import AdminHotels from "./Admin/Pages/Hotels/Hotels";
 import AdminVendors from "./Admin/Pages/Vendors/AdminVendors";
 import AdminUsers from "./Admin/Pages/Users/AdminUsers";
+import AdminBookings from "./Admin/Pages/Bookings/AdminBookings";
 
 const App = () => {
   const location = useLocation();
@@ -108,6 +109,7 @@ const App = () => {
               <Route path="hotels" element={<AdminHotels />} />
               <Route path="vendors" element={<AdminVendors />} />
               <Route path="users" element={<AdminUsers />} />
+              <Route path="bookings" element={<AdminBookings />} />
             </Route>
           )}
 
