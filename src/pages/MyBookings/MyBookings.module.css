@@ -136,6 +136,19 @@
   color: #b91c1c;
 }
 
+.completedNotice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.completedText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
 .detailsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -176,8 +189,18 @@
   border: none;
   border-radius: 10px;
   font-weight: 700;
-  cursor: pointer;
   transition: 0.2s ease;
+  min-width: 180px;
+  text-align: center;
+}
+
+.cancelBtn,
+.reviewBtn {
+  cursor: pointer;
+}
+
+.disabledBtn {
+  cursor: not-allowed;
 }
 
 .cancelBtn {
@@ -192,6 +215,7 @@
 .reviewBtn {
   background: #16a34a;
   color: white;
+  align-self: flex-start;
 }
 
 .reviewBtn:hover {
@@ -201,7 +225,6 @@
 .disabledBtn {
   background: #e2e8f0;
   color: #64748b;
-  cursor: not-allowed;
 }
 
 @media (max-width: 1100px) {
@@ -239,5 +262,10 @@
   .reviewBtn,
   .disabledBtn {
     width: 100%;
+    min-width: 100%;
+  }
+
+  .reviewBtn {
+    align-self: stretch;
   }
 }
