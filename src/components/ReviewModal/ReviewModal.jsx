@@ -57,11 +57,6 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       return;
     }
 
-    if (!formData.comment.trim()) {
-      toast.error("Please write a review");
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -83,7 +78,13 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(data.message || "Review saved successfully");
+        toast.success(
+          myReview
+            ? "Review updated successfully"
+            : formData.comment.trim()
+            ? "Rating and review submitted successfully"
+            : "Rating submitted successfully"
+        );
         onSuccess?.();
         onClose?.();
       } else {
@@ -133,7 +134,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
-            <h2>{myReview ? "Edit Review" : "Leave a Review"}</h2>
+            <h2>{myReview ? "Edit Review" : "Rate Your Stay"}</h2>
             <p>
               {booking.hotel_name} — {booking.room_name}
             </p>
@@ -163,7 +164,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
 
         <textarea
           className={styles.textarea}
-          placeholder="Write your review about your stay..."
+          placeholder="Write an optional review about your stay..."
           value={formData.comment}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, comment: e.target.value }))
@@ -191,8 +192,8 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
             {loading
               ? "Saving..."
               : myReview
-              ? "Update Review"
-              : "Submit Review"}
+              ? "Update Rating"
+              : "Submit Rating"}
           </button>
         </div>
       </div>
