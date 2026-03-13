@@ -182,12 +182,18 @@ const MyBookings = () => {
                   )}
 
                   {booking.status === "completed" && (
-                    <button
-                      className={styles.reviewBtn}
-                      onClick={() => openReviewModal(booking)}
-                    >
-                      Give Review
-                    </button>
+                    <div className={styles.completedNotice}>
+                      <p className={styles.completedText}>
+                        Your stay is completed. You can now rate your experience.
+                      </p>
+
+                      <button
+                        className={styles.reviewBtn}
+                        onClick={() => openReviewModal(booking)}
+                      >
+                        Rate Your Stay
+                      </button>
+                    </div>
                   )}
 
                   {booking.status === "cancelled" && (
