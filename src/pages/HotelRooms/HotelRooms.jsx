@@ -112,6 +112,15 @@ const HotelRooms = () => {
   };
 
   const handleBookNow = async (room) => {
+    if (room.status !== "available") {
+      toast.error(
+        room.status === "occupied"
+          ? "This room is currently occupied"
+          : "This room is not available for booking"
+      );
+      return;
+    }
+
     if (!isLoggedIn) {
       goToLogin();
       return;
@@ -201,7 +210,7 @@ const HotelRooms = () => {
     <div className={styles.page}>
       <div className={styles.pageTop}>
         <div>
-          <h1 className={styles.title}>Available Rooms</h1>
+          <h1 className={styles.title}>Rooms</h1>
           <p className={styles.subtitle}>
             Explore room options, compare prices, and book your stay.
           </p>
@@ -231,6 +240,7 @@ const HotelRooms = () => {
           {sortedRooms.map((room) => {
             const amenities = parseAmenities(room.amenities);
             const roomDates = bookingDates[room.room_id] || {};
+            const isOccupied = room.status === "occupied";
 
             return (
               <div key={room.room_id} className={styles.roomCard}>
@@ -250,7 +260,17 @@ const HotelRooms = () => {
                       <p className={styles.roomType}>{room.type}</p>
                     </div>
 
-                    <p className={styles.price}>Rs. {room.price} / night</p>
+                    <div className={styles.rightTop}>
+                      <p className={styles.price}>Rs. {room.price} / night</p>
+
+                      <span
+                        className={`${styles.statusBadge} ${
+                          isOccupied ? styles.occupiedStatus : styles.availableStatus
+                        }`}
+                      >
+                        {isOccupied ? "Occupied" : "Available"}
+                      </span>
+                    </div>
                   </div>
 
                   {room.description && (
@@ -276,6 +296,7 @@ const HotelRooms = () => {
                           onChange={(e) =>
                             handleDateChange(room.room_id, "check_in", e.target.value)
                           }
+                          disabled={isOccupied}
                         />
                       </div>
 
@@ -291,20 +312,27 @@ const HotelRooms = () => {
                           onChange={(e) =>
                             handleDateChange(room.room_id, "check_out", e.target.value)
                           }
+                          disabled={isOccupied}
                         />
                       </div>
                     </div>
 
                     <div className={styles.roomBottom}>
-                      <button
-                        className={styles.bookBtn}
-                        onClick={() => handleBookNow(room)}
-                        disabled={bookingLoadingId === room.room_id}
-                      >
-                        {bookingLoadingId === room.room_id
-                          ? "Booking..."
-                          : "Book Now"}
-                      </button>
+                      {isOccupied ? (
+                        <button className={styles.occupiedBtn} disabled>
+                          Currently Occupied
+                        </button>
+                      ) : (
+                        <button
+                          className={styles.bookBtn}
+                          onClick={() => handleBookNow(room)}
+                          disabled={bookingLoadingId === room.room_id}
+                        >
+                          {bookingLoadingId === room.room_id
+                            ? "Booking..."
+                            : "Book Now"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -317,9 +345,6 @@ const HotelRooms = () => {
       <div className={styles.reviewSection}>
         <div className={styles.reviewTopBar}>
           <h2 className={styles.reviewTitle}>Guest Reviews</h2>
-          <p className={styles.reviewNote}>
-            Reviews are submitted only after completed stays.
-          </p>
         </div>
 
         {reviewsLoading ? (
