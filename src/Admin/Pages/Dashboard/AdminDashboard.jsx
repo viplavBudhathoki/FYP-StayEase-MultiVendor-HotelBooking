@@ -19,6 +19,9 @@ const AdminDashboard = () => {
     revenue: 0,
   });
 
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -27,7 +30,6 @@ const AdminDashboard = () => {
       const form = new FormData();
       form.append("token", token);
 
-      // FIXED PATH: admin -> hotels
       const res = await fetch(`${baseUrl}/hotels/getCounts.php`, {
         method: "POST",
         body: form,
@@ -51,8 +53,40 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchRecentBookings = async () => {
+    setLoadingRecent(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Admin token missing");
+
+      const form = new FormData();
+      form.append("token", token);
+
+      const res = await fetch(`${baseUrl}/bookings/getAdminRecentBookings.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setRecentBookings(Array.isArray(data.data) ? data.data : []);
+      } else {
+        toast.error(data.message || "Failed to load recent bookings");
+        setRecentBookings([]);
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to load recent bookings");
+      setRecentBookings([]);
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchRecentBookings();
   }, []);
 
   return (
@@ -96,9 +130,66 @@ const AdminDashboard = () => {
         <StatCard
           icon={<TrendingUp size={22} />}
           label="Platform Revenue"
-          value={`Rs.${stats.revenue}`}
+          value={`Rs. ${Number(stats.revenue).toFixed(0)}`}
           color="dark"
         />
+      </div>
+
+      <div className={styles.dashboardContent}>
+        <div className={styles.card}>
+          <h3>Recent Platform Bookings</h3>
+
+          {loadingRecent ? (
+            <div className={styles.emptyState}>Loading recent bookings...</div>
+          ) : recentBookings.length === 0 ? (
+            <div className={styles.emptyState}>No recent bookings found.</div>
+          ) : (
+            <div className={styles.recentList}>
+              {recentBookings.map((booking) => (
+                <div key={booking.booking_id} className={styles.recentItem}>
+                  <div>
+                    <p className={styles.recentTitle}>
+                      {booking.customer_name} booked {booking.room_name}
+                    </p>
+                    <p className={styles.recentSub}>
+                      {booking.hotel_name} • Vendor: {booking.vendor_name}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`${styles.statusBadge} ${
+                      styles[booking.status?.toLowerCase()] || ""
+                    }`}
+                  >
+                    {booking.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.card}>
+          <h3>Quick Overview</h3>
+          <div className={styles.overviewList}>
+            <div className={styles.overviewItem}>
+              <span>Total Vendors</span>
+              <strong>{stats.totalVendors}</strong>
+            </div>
+            <div className={styles.overviewItem}>
+              <span>Total Hotels</span>
+              <strong>{stats.totalHotels}</strong>
+            </div>
+            <div className={styles.overviewItem}>
+              <span>Total Users</span>
+              <strong>{stats.totalUsers}</strong>
+            </div>
+            <div className={styles.overviewItem}>
+              <span>Total Bookings</span>
+              <strong>{stats.totalBookings}</strong>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
