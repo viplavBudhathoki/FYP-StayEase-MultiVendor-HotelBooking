@@ -1,9 +1,12 @@
 import { Edit2, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../../constant";
 import styles from "./HotelCard.module.css";
 
 const HotelCard = ({ hotel, onEdit, onDeleteSuccess }) => {
+  const navigate = useNavigate();
+
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     if (!token) return toast.error("Admin token missing");
@@ -21,11 +24,12 @@ const HotelCard = ({ hotel, onEdit, onDeleteSuccess }) => {
       });
 
       const data = await res.json();
+
       if (data.success) {
-        toast.success(data.message);
-        if (onDeleteSuccess) onDeleteSuccess();
+        toast.success(data.message || "Hotel deleted successfully");
+        onDeleteSuccess?.();
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to delete hotel");
       }
     } catch (err) {
       toast.error("Something went wrong: " + err.message);
@@ -36,34 +40,70 @@ const HotelCard = ({ hotel, onEdit, onDeleteSuccess }) => {
     ? `${baseUrl}/${hotel.image_url}`
     : `${baseUrl}/uploads/hotels/placeholder.png`;
 
+  const goToDetails = () => {
+    navigate(`/admin/hotels/${hotel.hotel_id}`);
+  };
+
   return (
-    <div className={styles.hotelCard}>
+    <div
+      className={styles.hotelCard}
+      role="button"
+      tabIndex={0}
+      onClick={goToDetails}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          goToDetails();
+        }
+      }}
+    >
       <div className={styles.hotelImage}>
-        <img src={imageSrc} alt={hotel.name} />
+        <img
+          src={imageSrc}
+          alt={hotel.name}
+          onError={(e) => {
+            e.currentTarget.src = `${baseUrl}/uploads/hotels/placeholder.png`;
+          }}
+        />
       </div>
 
       <div className={styles.hotelInfo}>
         <div className={styles.hotelHeader}>
-          <h3>{hotel.name}</h3>
+          <h3>{hotel.name || "Untitled Hotel"}</h3>
         </div>
 
         <p className={styles.hotelLocation}>
-          <strong>Location:</strong> {hotel.location}
+          <strong>Location:</strong> {hotel.location || "Not added"}
         </p>
 
         <p className={styles.hotelVendor}>
-          <strong>Vendor:</strong> {hotel.vendor_name || hotel.vendor}
+          <strong>Vendor:</strong> {hotel.vendor_name || hotel.vendor || "Not assigned"}
         </p>
 
-        {hotel.description && (
-          <p className={styles.hotelDescription}>{hotel.description}</p>
-        )}
+        <p className={styles.hotelDescription}>
+          {hotel.description || "No description available for this hotel."}
+        </p>
 
         <div className={styles.hotelActions}>
-          <button onClick={() => onEdit(hotel)} className={styles.editBtn}>
+          <button
+            type="button"
+            className={styles.editBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(hotel);
+            }}
+          >
             <Edit2 size={16} /> Edit
           </button>
-          <button onClick={handleDelete} className={`${styles.editBtn} ${styles.textDanger}`}>
+
+          <button
+            type="button"
+            className={`${styles.editBtn} ${styles.textDanger}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+          >
             <Trash2 size={16} /> Delete
           </button>
         </div>
