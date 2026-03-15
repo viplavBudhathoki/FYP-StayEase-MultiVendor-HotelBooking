@@ -113,11 +113,13 @@ const HotelRooms = () => {
 
   const handleBookNow = async (room) => {
     if (room.status !== "available") {
-      toast.error(
-        room.status === "occupied"
-          ? "This room is currently occupied"
-          : "This room is not available for booking"
-      );
+      if (room.status === "occupied") {
+        toast.error("This room is currently occupied");
+      } else if (room.status === "maintenance") {
+        toast.error("This room is under maintenance");
+      } else {
+        toast.error("This room is not available for booking");
+      }
       return;
     }
 
@@ -240,7 +242,30 @@ const HotelRooms = () => {
           {sortedRooms.map((room) => {
             const amenities = parseAmenities(room.amenities);
             const roomDates = bookingDates[room.room_id] || {};
+
+            const isAvailable = room.status === "available";
             const isOccupied = room.status === "occupied";
+            const isMaintenance = room.status === "maintenance";
+            const isUnavailable = !isAvailable;
+
+            let statusText = "Available";
+            let statusClass = styles.availableStatus;
+            let buttonText = "Book Now";
+            let buttonClass = styles.bookBtn;
+
+            if (isOccupied) {
+              statusText = "Occupied";
+              statusClass = styles.occupiedStatus;
+              buttonText = "Currently Occupied";
+              buttonClass = styles.occupiedBtn;
+            }
+
+            if (isMaintenance) {
+              statusText = "Under Maintenance";
+              statusClass = styles.maintenanceStatus;
+              buttonText = "Under Maintenance";
+              buttonClass = styles.maintenanceBtn;
+            }
 
             return (
               <div key={room.room_id} className={styles.roomCard}>
@@ -263,12 +288,8 @@ const HotelRooms = () => {
                     <div className={styles.rightTop}>
                       <p className={styles.price}>Rs. {room.price} / night</p>
 
-                      <span
-                        className={`${styles.statusBadge} ${
-                          isOccupied ? styles.occupiedStatus : styles.availableStatus
-                        }`}
-                      >
-                        {isOccupied ? "Occupied" : "Available"}
+                      <span className={`${styles.statusBadge} ${statusClass}`}>
+                        {statusText}
                       </span>
                     </div>
                   </div>
@@ -296,7 +317,7 @@ const HotelRooms = () => {
                           onChange={(e) =>
                             handleDateChange(room.room_id, "check_in", e.target.value)
                           }
-                          disabled={isOccupied}
+                          disabled={isUnavailable}
                         />
                       </div>
 
@@ -312,25 +333,26 @@ const HotelRooms = () => {
                           onChange={(e) =>
                             handleDateChange(room.room_id, "check_out", e.target.value)
                           }
-                          disabled={isOccupied}
+                          disabled={isUnavailable}
                         />
                       </div>
                     </div>
 
                     <div className={styles.roomBottom}>
-                      {isOccupied ? (
-                        <button className={styles.occupiedBtn} disabled>
-                          Currently Occupied
-                        </button>
-                      ) : (
+                      {isAvailable ? (
                         <button
-                          className={styles.bookBtn}
+                          className={buttonClass}
                           onClick={() => handleBookNow(room)}
                           disabled={bookingLoadingId === room.room_id}
+                          type="button"
                         >
                           {bookingLoadingId === room.room_id
                             ? "Booking..."
-                            : "Book Now"}
+                            : buttonText}
+                        </button>
+                      ) : (
+                        <button className={buttonClass} disabled type="button">
+                          {buttonText}
                         </button>
                       )}
                     </div>
