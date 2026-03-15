@@ -177,6 +177,12 @@
   border-color: #f8740f;
 }
 
+.dateField input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
 .roomBottom {
   display: flex;
   justify-content: flex-start;
@@ -201,6 +207,26 @@
 .bookBtn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.occupiedBtn {
+  padding: 11px 20px;
+  border: none;
+  background: #94a3b8;
+  color: white;
+  border-radius: 10px;
+  cursor: not-allowed;
+  font-weight: 700;
+}
+
+.maintenanceBtn {
+  padding: 11px 20px;
+  border: none;
+  background: #f59e0b;
+  color: white;
+  border-radius: 10px;
+  cursor: not-allowed;
+  font-weight: 700;
 }
 
 .stateText {
@@ -230,12 +256,6 @@
   color: #0f172a;
   margin: 0;
 }
-
-/* .reviewNote {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.95rem;
-} */
 
 .reviewState {
   font-size: 1rem;
@@ -354,14 +374,9 @@
   color: #b91c1c;
 }
 
-.occupiedBtn {
-  padding: 11px 20px;
-  border: none;
-  background: #94a3b8;
-  color: white;
-  border-radius: 10px;
-  cursor: not-allowed;
-  font-weight: 700;
+.maintenanceStatus {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
 }
 
 @media (max-width: 900px) {
@@ -383,6 +398,10 @@
   .dateGroup {
     grid-template-columns: 1fr;
   }
+
+  .rightTop {
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 768px) {
@@ -403,7 +422,9 @@
     white-space: normal;
   }
 
-  .bookBtn {
+  .bookBtn,
+  .occupiedBtn,
+  .maintenanceBtn {
     width: 100%;
   }
 
@@ -413,11 +434,5 @@
 
   .sortSelect {
     width: 100%;
-  }
-}
-
-@media (max-width: 900px) {
-  .rightTop {
-    align-items: flex-start;
   }
 }
