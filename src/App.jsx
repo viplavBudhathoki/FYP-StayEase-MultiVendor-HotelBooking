@@ -10,6 +10,7 @@ import Login from "./pages/Login/Login";
 import PublicHotels from "./pages/Hotels/Hotels";
 import PublicHotelRooms from "./pages/HotelRooms/HotelRooms";
 import MyBookings from "./pages/MyBookings/MyBookings";
+import HotelDetails from "./pages/HotelDetails/HotelDetails";
 
 // Vendor dashboard components 
 import VendorLayout from "./Vendor/VendorLayout";
@@ -30,6 +31,7 @@ import AdminHotels from "./Admin/Pages/Hotels/Hotels";
 import AdminVendors from "./Admin/Pages/Vendors/AdminVendors";
 import AdminUsers from "./Admin/Pages/Users/AdminUsers";
 import AdminBookings from "./Admin/Pages/Bookings/AdminBookings";
+import AdminHotelDetails from "./Admin/Pages/HotelDetails/AdminHotelDetails";
 
 const App = () => {
   const location = useLocation();
@@ -76,6 +78,7 @@ const App = () => {
               <Route path="/register" element={<LandingPage />} />
 
               <Route path="/hotels" element={<PublicHotels />} />
+              <Route path="/hotels/:hotelId" element={<HotelDetails />} />
               <Route path="/hotels/:hotelId/rooms" element={<PublicHotelRooms />} />
 
               <Route
@@ -107,6 +110,7 @@ const App = () => {
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="hotels" element={<AdminHotels />} />
+              <Route path="hotels/:hotelId" element={<AdminHotelDetails />} />
               <Route path="vendors" element={<AdminVendors />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="bookings" element={<AdminBookings />} />
