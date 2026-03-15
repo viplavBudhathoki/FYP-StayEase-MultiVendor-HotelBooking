@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { CiLocationOn } from "react-icons/ci";
-import { IoStar, IoBedOutline } from "react-icons/io5";
+import { IoStar } from "react-icons/io5";
 import { baseUrl } from "../../constant";
 import styles from "./Hotels.module.css";
 
@@ -27,6 +27,7 @@ const Hotels = () => {
         setHotels(Array.isArray(data.data) ? data.data : []);
       } else {
         toast.error(data.message || "Failed to load hotels");
+        setHotels([]);
       }
     } catch (err) {
       toast.error("Failed to load hotels");
@@ -54,7 +55,7 @@ const Hotels = () => {
         <p className={styles.smallTag}>Discover stays across Nepal</p>
         <h1 className={styles.title}>Find the perfect hotel for your next stay</h1>
         <p className={styles.subtitle}>
-          Browse premium stays, compare options, and explore rooms before booking.
+          Browse premium stays, compare options, and explore hotel details before booking.
         </p>
 
         <div className={styles.topStats}>
@@ -62,10 +63,12 @@ const Hotels = () => {
             <span className={styles.statNumber}>{hotels.length}</span>
             <span className={styles.statLabel}>Hotels available</span>
           </div>
+
           <div className={styles.statBox}>
             <span className={styles.statNumber}>24/7</span>
             <span className={styles.statLabel}>Guest support</span>
           </div>
+
           <div className={styles.statBox}>
             <span className={styles.statNumber}>Best</span>
             <span className={styles.statLabel}>Comfort picks</span>
@@ -78,7 +81,15 @@ const Hotels = () => {
           <div
             key={hotel.hotel_id}
             className={styles.hotelCard}
-            onClick={() => navigate(`/hotels/${hotel.hotel_id}/rooms`)}
+            onClick={() => navigate(`/hotels/${hotel.hotel_id}`)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                navigate(`/hotels/${hotel.hotel_id}`);
+              }
+            }}
           >
             <div className={styles.imageWrap}>
               <img
@@ -92,10 +103,11 @@ const Hotels = () => {
 
               <div className={styles.imageOverlay}>
                 <span className={styles.badge}>
-                  <IoStar /> {Number(hotel.rating) > 0 ? Number(hotel.rating).toFixed(1) : "New"}
+                  <IoStar />{" "}
+                  {Number(hotel.rating) > 0 ? Number(hotel.rating).toFixed(1) : "New"}
                 </span>
 
-                {hotel.rating >= 4.5 && (
+                {Number(hotel.rating) >= 4.5 && (
                   <span className={styles.popularTag}>Popular choice</span>
                 )}
               </div>
@@ -116,7 +128,7 @@ const Hotels = () => {
                 <div className={styles.priceBlock}>
                   <span className={styles.priceLabel}>Starting from</span>
                   <span className={styles.priceText}>
-                    Rs {hotel.starting_price > 0 ? hotel.starting_price : "--"}
+                    Rs {Number(hotel.starting_price) > 0 ? Number(hotel.starting_price) : "--"}
                   </span>
                   <span className={styles.reviewCount}>
                     ({hotel.review_count || 0}{" "}
@@ -124,7 +136,16 @@ const Hotels = () => {
                   </span>
                 </div>
 
-                <button className={styles.viewBtn}>Explore →</button>
+                <button
+                  className={styles.viewBtn}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/hotels/${hotel.hotel_id}`);
+                  }}
+                >
+                  Explore →
+                </button>
               </div>
             </div>
           </div>
