@@ -11,18 +11,25 @@
 
 .modalContent {
   width: 100%;
-  max-width: 500px;
+  max-width: 620px;
   max-height: 90vh;
   overflow-y: auto;
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #ffffff;
   animation: slideUp 0.3s ease-out;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modalHeader {
@@ -36,6 +43,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
+  margin: 0;
 }
 
 .modalForm {
@@ -61,12 +69,13 @@
 .formGroup textarea {
   padding: 0.75rem 1rem;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.95rem;
   background: #f8fafc;
   outline: none;
   transition: 0.2s;
   resize: none;
+  font-family: inherit;
 }
 
 .formGroup input:focus,
@@ -74,12 +83,13 @@
 .formGroup textarea:focus {
   border-color: #f8740f;
   background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.1);
 }
 
 .imagePreviewWrapper {
   width: 100%;
-  height: 180px;
-  border-radius: 12px;
+  height: 210px;
+  border-radius: 14px;
   overflow: hidden;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
@@ -106,18 +116,139 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem;
+  padding: 0.85rem;
   border: 2px dashed #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   color: #64748b;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   transition: 0.2s;
+  background: #fcfcfd;
 }
 
 .fileUploadLabel:hover {
   border-color: #f8740f;
   color: #f8740f;
+  background: #fff7f2;
+}
+
+.galleryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.galleryCounter {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f8740f;
+}
+
+.galleryUploadBox {
+  border: 1px dashed #dbe4ee;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.galleryUploadLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.galleryUploadLabel:hover {
+  border-color: #f8740f;
+  color: #f8740f;
+}
+
+.galleryUploadDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.galleryHint {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.galleryStateText {
+  padding: 0.9rem 1rem;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px dashed #e2e8f0;
+  border-radius: 12px;
+}
+
+.gallerySectionTitle {
+  margin: 0.5rem 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.existingGallerySection,
+.newGallerySection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.galleryPreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 0.25rem;
+}
+
+.galleryPreviewCard {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.galleryPreviewImg {
+  width: 100%;
+  height: 85px;
+  object-fit: cover;
+  display: block;
+}
+
+.removeGalleryBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(15, 23, 42, 0.75);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.removeGalleryBtn:hover {
+  background: #dc2626;
 }
 
 .modalFooter {
@@ -130,22 +261,28 @@
 }
 
 .secondaryBtn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   cursor: pointer;
   font-weight: 600;
+  transition: 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: #f8fafc;
 }
 
 .primaryBtn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
   font-weight: 600;
   background: #f8740f;
   color: #ffffff;
+  transition: 0.2s;
 }
 
 .primaryBtn:hover {
@@ -158,8 +295,8 @@
 }
 
 .closeBtn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: none;
   background: #f1f5f9;
@@ -173,4 +310,28 @@
 .closeBtn:hover {
   background: #fee2e2;
   color: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .galleryPreviewGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .imagePreviewWrapper {
+    height: 180px;
+  }
+
+  .modalFooter {
+    flex-direction: column;
+  }
+
+  .secondaryBtn,
+  .primaryBtn {
+    width: 100%;
+  }
 }
