@@ -21,7 +21,14 @@ const HotelRooms = () => {
   const [bookingLoadingId, setBookingLoadingId] = useState(null);
 
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch {
+    user = null;
+  }
+
   const isLoggedIn = !!token && !!user;
 
   const getRoomImage = (img) => {
@@ -51,13 +58,27 @@ const HotelRooms = () => {
   };
 
   const handleDateChange = (roomId, field, value) => {
-    setBookingDates((prev) => ({
-      ...prev,
-      [roomId]: {
-        ...prev[roomId],
+    setBookingDates((prev) => {
+      const currentRoomDates = prev[roomId] || {};
+
+      const updatedRoomDates = {
+        ...currentRoomDates,
         [field]: value,
-      },
-    }));
+      };
+
+      if (
+        field === "check_in" &&
+        currentRoomDates.check_out &&
+        currentRoomDates.check_out <= value
+      ) {
+        updatedRoomDates.check_out = "";
+      }
+
+      return {
+        ...prev,
+        [roomId]: updatedRoomDates,
+      };
+    });
   };
 
   const fetchRooms = async () => {
@@ -190,6 +211,7 @@ const HotelRooms = () => {
     fetchReviews();
   }, [hotelId]);
 
+  // Price Range
   const sortedRooms = useMemo(() => {
     const copied = [...rooms];
 
@@ -228,7 +250,7 @@ const HotelRooms = () => {
             onChange={(e) => setPriceSort(e.target.value)}
             className={styles.sortSelect}
           >
-            <option value="default">Default</option>
+            <option value="default">Recommended</option>
             <option value="low-to-high">Low to High</option>
             <option value="high-to-low">High to Low</option>
           </select>
