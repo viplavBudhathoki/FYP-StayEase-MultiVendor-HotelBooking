@@ -23,6 +23,7 @@ import Notifications from "./Vendor/Pages/Notifications/Notifications";
 import Settings from "./Vendor/Pages/Settings/Settings";
 import VendorHotels from "./Vendor/Pages/Hotels/Hotels";
 import VendorHotelRooms from "./Vendor/Pages/HotelRooms/HotelRooms";
+import VendorHotelDetails from "./Vendor/Pages/HotelDetails/VendorHotelDetails";
 
 // Admin dashboard components
 import AdminLayout from "./Admin/AdminLayout";
@@ -95,6 +96,7 @@ const App = () => {
             <Route path="/vendor/*" element={<VendorLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="hotels" element={<VendorHotels />} />
+              <Route path="hotels/:hotelId" element={<VendorHotelDetails />} />
               <Route path="hotels/:hotelId/rooms" element={<VendorHotelRooms />} />
               <Route path="rooms" element={<Rooms />} />
               <Route path="bookings" element={<Bookings />} />
