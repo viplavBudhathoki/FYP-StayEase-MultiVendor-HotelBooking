@@ -1,294 +1,369 @@
 .page {
-  padding: calc(70px + 2rem) 2rem 2rem;
+  padding: 120px 40px 60px;
   background: #f8fafc;
   min-height: 100vh;
-  box-sizing: border-box;
 }
 
-.topActions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  background: #ffffff;
-  color: #0f172a;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  border: 1px solid #e2e8f0;
-  transition: 0.2s ease;
-}
-
-.backBtn:hover {
-  background: #f1f5f9;
-}
-
-.editBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: none;
-  background: #f8740f;
-  color: #ffffff;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  transition: 0.2s ease;
-}
-
-.editBtn:hover {
-  background: #d4640d;
-}
-
-.detailsCard {
+.heroCard {
   display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 2rem;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  margin-bottom: 1.5rem;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  margin-bottom: 40px;
 }
 
 .imageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mainImageWrap {
   width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f1f5f9;
 }
 
 .hotelImage {
   width: 100%;
-  height: 320px;
+  height: 380px;
   object-fit: cover;
-  border-radius: 16px;
-  background: #f1f5f9;
   display: block;
+  transition: transform 0.3s ease;
+}
+
+.mainImageWrap:hover .hotelImage {
+  transform: scale(1.02);
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.galleryItem {
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.galleryItem:hover {
+  transform: translateY(-2px);
+}
+
+.galleryItemActive {
+  border-color: #f8740f;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.12);
+}
+
+.galleryThumb {
+  width: 100%;
+  height: 88px;
+  object-fit: cover;
+  display: block;
+  background: #f1f5f9;
 }
 
 .contentSection {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.topBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  gap: 14px;
+  justify-content: center;
 }
 
 .badge {
   display: inline-flex;
   width: fit-content;
-  background: rgba(248, 116, 15, 0.1);
-  color: #f8740f;
-  padding: 0.45rem 0.8rem;
+  padding: 7px 14px;
   border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  background: rgba(248, 116, 15, 0.12);
+  color: #f8740f;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .hotelName {
   margin: 0;
-  font-size: 2rem;
-  line-height: 1.2;
-  color: #0f172a;
+  font-size: 2.2rem;
   font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
 }
 
-.infoGrid {
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  color: #475569;
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.statsRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  gap: 14px;
+  margin-top: 10px;
 }
 
-.infoItem {
+.statCard {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+  border-radius: 16px;
+  padding: 16px;
 }
 
-.infoLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: #64748b;
+.statLabel {
+  display: block;
   font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 8px;
   font-weight: 700;
 }
 
-.infoValue {
+.statValue {
+  font-size: 1.05rem;
   color: #0f172a;
-  font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.infoMiniCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.infoMiniLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.infoMiniValue {
+  display: block;
+  color: #0f172a;
+  font-weight: 700;
   line-height: 1.5;
 }
 
-.descriptionBox {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 1.2rem;
+.actionRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
-.descriptionBox h3 {
-  margin: 0 0 0.7rem 0;
-  color: #0f172a;
-  font-size: 1.05rem;
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
   font-weight: 700;
-}
-
-.descriptionBox p {
-  margin: 0;
-  color: #475569;
-  line-height: 1.7;
   font-size: 0.95rem;
+  transition: 0.2s ease;
 }
 
-.gallerySection {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+.primaryBtn {
+  border: none;
+  background: #f8740f;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background: #d85f09;
+}
+
+.secondaryBtn {
+  background: white;
+  color: #0f172a;
+  border: 1px solid #dbe3ea;
+}
+
+.secondaryBtn:hover {
+  background: #f8fafc;
+}
+
+.stateText {
+  padding: 120px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #64748b;
+}
+
+.emptyState {
+  background: white;
   border-radius: 18px;
-  padding: 1.5rem;
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748b;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.galleryHeader {
+.emptyState h2 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+}
+
+.emptyState p {
+  margin: 0 0 20px 0;
+}
+
+/* Gallery section */
+.gallerySection {
+  margin-top: 10px;
+}
+
+.galleryTopBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
 }
 
-.galleryHeader h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #0f172a;
+.galleryTitle {
+  font-size: 1.6rem;
   font-weight: 800;
+  color: #0f172a;
+  margin: 0;
 }
 
-.galleryHeader p {
-  margin: 0;
+.galleryMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: #64748b;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .galleryState {
-  padding: 1rem;
-  border: 1px dashed #e2e8f0;
-  border-radius: 14px;
-  background: #f8fafc;
-  text-align: center;
+  font-size: 1rem;
   color: #64748b;
+  padding: 10px 0;
 }
 
-.galleryGrid {
+.emptyGalleryBox {
+  width: 100%;
+  min-height: 180px;
+  background: white;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.fullGalleryGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
 }
 
-.galleryCard {
+.fullGalleryItem {
+  background: white;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
-.galleryImage {
+.fullGalleryImage {
   width: 100%;
-  height: 180px;
+  height: 210px;
   object-fit: cover;
   display: block;
   background: #f1f5f9;
 }
 
-.stateText {
-  padding: calc(70px + 100px) 20px 100px;
-  text-align: center;
-  color: #64748b;
-  font-size: 1.05rem;
-}
-
-.emptyState {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 3rem 2rem;
-  text-align: center;
-}
-
-.emptyState h2 {
-  margin: 0 0 0.5rem 0;
-  color: #0f172a;
-}
-
-.emptyState p {
-  margin: 0;
-  color: #64748b;
-}
-
 @media (max-width: 1100px) {
-  .detailsCard {
+  .heroCard {
     grid-template-columns: 1fr;
   }
 
   .hotelImage {
-    height: 280px;
+    height: 320px;
   }
 
-  .infoGrid {
+  .statsRow,
+  .infoRow {
     grid-template-columns: 1fr;
+  }
+
+  .fullGalleryGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .page {
-    padding: calc(70px + 1rem) 1rem 1rem;
-  }
-
-  .topActions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .backBtn,
-  .editBtn {
-    justify-content: center;
-    width: 100%;
-  }
-
-  .detailsCard,
-  .gallerySection {
-    padding: 1rem;
+    padding: 110px 20px 40px;
   }
 
   .hotelName {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
   }
 
-  .hotelImage {
-    height: 240px;
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .galleryImage {
-    height: 160px;
+  .galleryThumb {
+    height: 84px;
+  }
+
+  .actionRow {
+    flex-direction: column;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+  }
+
+  .galleryTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fullGalleryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullGalleryImage {
+    height: 190px;
   }
 }
