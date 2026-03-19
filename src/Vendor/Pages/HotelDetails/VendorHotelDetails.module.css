@@ -1,0 +1,336 @@
+.page {
+  padding: 120px 40px 60px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.heroCard {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  margin-bottom: 40px;
+}
+
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mainImageWrap {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f1f5f9;
+}
+
+.hotelImage {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.mainImageWrap:hover .hotelImage {
+  transform: scale(1.02);
+}
+
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.galleryItem {
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.galleryItem:hover {
+  transform: translateY(-2px);
+}
+
+.galleryItemActive {
+  border-color: #f8740f;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.12);
+}
+
+.galleryThumb {
+  width: 100%;
+  height: 88px;
+  object-fit: cover;
+  display: block;
+  background: #f1f5f9;
+}
+
+.contentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: center;
+}
+
+.badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(248, 116, 15, 0.12);
+  color: #f8740f;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hotelName {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  color: #475569;
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.statCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.statLabel {
+  display: block;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.actionRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.primaryBtn {
+  background: #f8740f;
+  color: white;
+}
+
+.primaryBtn:hover {
+  background: #d85f09;
+}
+
+.secondaryBtn {
+  background: white;
+  color: #0f172a;
+  border: 1px solid #dbe3ea;
+}
+
+.secondaryBtn:hover {
+  background: #f8fafc;
+}
+
+.stateText {
+  padding: 120px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #64748b;
+}
+
+.emptyState {
+  background: white;
+  border-radius: 18px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748b;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.emptyState h2 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+}
+
+.emptyState p {
+  margin: 0 0 20px 0;
+}
+
+/* Gallery section */
+.gallerySection {
+  margin-top: 10px;
+}
+
+.galleryTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.galleryTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.galleryMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.galleryState {
+  font-size: 1rem;
+  color: #64748b;
+  padding: 10px 0;
+}
+
+.emptyGalleryBox {
+  width: 100%;
+  min-height: 180px;
+  background: white;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.fullGalleryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.fullGalleryItem {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.fullGalleryImage {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  display: block;
+  background: #f1f5f9;
+}
+
+@media (max-width: 1100px) {
+  .heroCard {
+    grid-template-columns: 1fr;
+  }
+
+  .hotelImage {
+    height: 320px;
+  }
+
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .fullGalleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 110px 20px 40px;
+  }
+
+  .hotelName {
+    font-size: 1.8rem;
+  }
+
+  .galleryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .galleryThumb {
+    height: 84px;
+  }
+
+  .actionRow {
+    flex-direction: column;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+  }
+
+  .galleryTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fullGalleryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullGalleryImage {
+    height: 190px;
+  }
+}
