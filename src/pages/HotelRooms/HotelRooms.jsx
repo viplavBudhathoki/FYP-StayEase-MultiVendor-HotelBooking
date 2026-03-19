@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import Rating from "react-rating";
-import { FaRegStar, FaStar } from "react-icons/fa";
 import { baseUrl } from "../../constant";
 import styles from "./HotelRooms.module.css";
 
@@ -12,9 +10,7 @@ const HotelRooms = () => {
   const location = useLocation();
 
   const [rooms, setRooms] = useState([]);
-  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   const [priceSort, setPriceSort] = useState("default");
   const [bookingDates, setBookingDates] = useState({});
@@ -109,29 +105,6 @@ const HotelRooms = () => {
     }
   };
 
-  const fetchReviews = async () => {
-    setReviewsLoading(true);
-
-    try {
-      const res = await fetch(
-        `${baseUrl}/hotels/getHotelRatings.php?hotel_id=${hotelId}`
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        setReviews(Array.isArray(data.data) ? data.data : []);
-      } else {
-        setReviews([]);
-      }
-    } catch {
-      toast.error("Failed to load reviews");
-      setReviews([]);
-    } finally {
-      setReviewsLoading(false);
-    }
-  };
-
   const handleBookNow = async (room) => {
     if (room.status !== "available") {
       if (room.status === "occupied") {
@@ -208,10 +181,8 @@ const HotelRooms = () => {
 
   useEffect(() => {
     fetchRooms();
-    fetchReviews();
   }, [hotelId]);
 
-  // Price Range
   const sortedRooms = useMemo(() => {
     const copied = [...rooms];
 
@@ -223,8 +194,6 @@ const HotelRooms = () => {
 
     return copied;
   }, [rooms, priceSort]);
-
-  const colors = ["#ffd700", "#c4b5fd", "#86efac", "#f9a8d4", "#93c5fd"];
 
   if (loading) {
     return <div className={styles.stateText}>Loading rooms...</div>;
@@ -385,73 +354,6 @@ const HotelRooms = () => {
           })}
         </div>
       )}
-
-      <div className={styles.reviewSection}>
-        <div className={styles.reviewTopBar}>
-          <h2 className={styles.reviewTitle}>Guest Reviews</h2>
-        </div>
-
-        {reviewsLoading ? (
-          <p className={styles.reviewState}>Loading reviews...</p>
-        ) : reviews.length === 0 ? (
-          <div className={styles.emptyReviewBox}>
-            <p>No reviews yet.</p>
-          </div>
-        ) : (
-          <div className={styles.reviewList}>
-            {reviews.map((r, i) => (
-              <div key={i} className={styles.reviewItem}>
-                <div className={styles.reviewLeft}>
-                  <div
-                    className={styles.userAvatar}
-                    style={{
-                      backgroundColor:
-                        colors[Math.max(Math.ceil(Number(r.rating)) - 1, 0)] ||
-                        "#e2e8f0",
-                    }}
-                  >
-                    {r.full_name?.[0]?.toUpperCase() || "U"}
-                  </div>
-
-                  <div className={styles.reviewContent}>
-                    <div className={styles.reviewHeader}>
-                      <strong>{r.full_name}</strong>
-
-                      <Rating
-                        readonly
-                        initialRating={Number(r.rating)}
-                        fractions={2}
-                        fullSymbol={<FaStar />}
-                        emptySymbol={<FaRegStar />}
-                        className={styles.stars}
-                      />
-
-                      <span className={styles.ratingText}>
-                        {Number(r.rating).toFixed(1)}
-                      </span>
-                    </div>
-
-                    <p className={styles.reviewMessage}>
-                      {r.review_message || "No message added."}
-                    </p>
-                  </div>
-                </div>
-
-                <span className={styles.reviewDate}>
-                  {new Date(r.created_at).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 };
