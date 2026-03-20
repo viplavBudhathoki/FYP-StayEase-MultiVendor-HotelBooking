@@ -126,6 +126,11 @@
   color: #1d4ed8;
 }
 
+.checked_in {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
 .completed {
   background: rgba(34, 197, 94, 0.12);
   color: #15803d;
@@ -182,6 +187,7 @@
   flex-wrap: wrap;
 }
 
+.updateBtn,
 .cancelBtn,
 .reviewBtn,
 .disabledBtn {
@@ -194,6 +200,7 @@
   text-align: center;
 }
 
+.updateBtn,
 .cancelBtn,
 .reviewBtn {
   cursor: pointer;
@@ -201,6 +208,15 @@
 
 .disabledBtn {
   cursor: not-allowed;
+}
+
+.updateBtn {
+  background: #f8740f;
+  color: white;
+}
+
+.updateBtn:hover {
+  background: #d85f09;
 }
 
 .cancelBtn {
@@ -258,6 +274,7 @@
     grid-template-columns: 1fr;
   }
 
+  .updateBtn,
   .cancelBtn,
   .reviewBtn,
   .disabledBtn {
