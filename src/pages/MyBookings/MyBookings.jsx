@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../constant";
 import ReviewModal from "../../components/ReviewModal/ReviewModal";
+import BookingUpdateModal from "../../components/BookingUpdateModal/BookingUpdateModal";
 import styles from "./MyBookings.module.css";
 
 const MyBookings = () => {
@@ -10,6 +11,9 @@ const MyBookings = () => {
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const [selectedUpdateBooking, setSelectedUpdateBooking] = useState(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -88,6 +92,16 @@ const MyBookings = () => {
   const closeReviewModal = () => {
     setSelectedBooking(null);
     setIsReviewModalOpen(false);
+  };
+
+  const openUpdateModal = (booking) => {
+    setSelectedUpdateBooking(booking);
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setSelectedUpdateBooking(null);
+    setIsUpdateModalOpen(false);
   };
 
   useEffect(() => {
@@ -173,11 +187,28 @@ const MyBookings = () => {
 
                 <div className={styles.actions}>
                   {booking.status === "confirmed" && (
-                    <button
-                      className={styles.cancelBtn}
-                      onClick={() => cancelBooking(booking.booking_id)}
-                    >
-                      Cancel Booking
+                    <>
+                      <button
+                        className={styles.updateBtn}
+                        onClick={() => openUpdateModal(booking)}
+                        type="button"
+                      >
+                        Modify Stay
+                      </button>
+
+                      <button
+                        className={styles.cancelBtn}
+                        onClick={() => cancelBooking(booking.booking_id)}
+                        type="button"
+                      >
+                        Cancel Booking
+                      </button>
+                    </>
+                  )}
+
+                  {booking.status === "checked_in" && (
+                    <button className={styles.disabledBtn} disabled type="button">
+                      Stay In Progress
                     </button>
                   )}
 
@@ -190,6 +221,7 @@ const MyBookings = () => {
                       <button
                         className={styles.reviewBtn}
                         onClick={() => openReviewModal(booking)}
+                        type="button"
                       >
                         Rate Your Stay
                       </button>
@@ -197,7 +229,7 @@ const MyBookings = () => {
                   )}
 
                   {booking.status === "cancelled" && (
-                    <button className={styles.disabledBtn} disabled>
+                    <button className={styles.disabledBtn} disabled type="button">
                       Booking Cancelled
                     </button>
                   )}
@@ -212,6 +244,14 @@ const MyBookings = () => {
         <ReviewModal
           booking={selectedBooking}
           onClose={closeReviewModal}
+          onSuccess={fetchBookings}
+        />
+      )}
+
+      {isUpdateModalOpen && selectedUpdateBooking && (
+        <BookingUpdateModal
+          booking={selectedUpdateBooking}
+          onClose={closeUpdateModal}
           onSuccess={fetchBookings}
         />
       )}
