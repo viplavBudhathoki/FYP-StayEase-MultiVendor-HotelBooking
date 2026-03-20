@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { CiLocationOn } from "react-icons/ci";
@@ -9,6 +9,7 @@ import styles from "./Hotels.module.css";
 const Hotels = () => {
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState("rating-high-to-low");
   const navigate = useNavigate();
 
   const getHotelImage = (img) => {
@@ -29,7 +30,7 @@ const Hotels = () => {
         toast.error(data.message || "Failed to load hotels");
         setHotels([]);
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to load hotels");
       setHotels([]);
     } finally {
@@ -40,6 +41,26 @@ const Hotels = () => {
   useEffect(() => {
     fetchHotels();
   }, []);
+
+  const sortedHotels = useMemo(() => {
+    const copied = [...hotels];
+
+    if (sortBy === "rating-high-to-low") {
+      copied.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    } else if (sortBy === "rating-low-to-high") {
+      copied.sort((a, b) => Number(a.rating || 0) - Number(b.rating || 0));
+    } else if (sortBy === "price-low-to-high") {
+      copied.sort(
+        (a, b) => Number(a.starting_price || 0) - Number(b.starting_price || 0)
+      );
+    } else if (sortBy === "price-high-to-low") {
+      copied.sort(
+        (a, b) => Number(b.starting_price || 0) - Number(a.starting_price || 0)
+      );
+    }
+
+    return copied;
+  }, [hotels, sortBy]);
 
   if (loading) {
     return <div className={styles.stateText}>Loading hotels...</div>;
@@ -76,8 +97,29 @@ const Hotels = () => {
         </div>
       </div>
 
+      <div className={styles.sortRow}>
+        <div className={styles.sortBox}>
+          <label htmlFor="hotel-sort" className={styles.sortLabel}>
+            Sort Hotels
+          </label>
+
+          <select
+            id="hotel-sort"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className={styles.sortSelect}
+          >
+            <option value="rating-high-to-low">Rating: High to Low</option>
+            <option value="rating-low-to-high">Rating: Low to High</option>
+            <option value="price-low-to-high">Price: Low to High</option>
+            <option value="price-high-to-low">Price: High to Low</option>
+            <option value="default">Recommended</option>
+          </select>
+        </div>
+      </div>
+
       <div className={styles.hotelsGrid}>
-        {hotels.map((hotel) => (
+        {sortedHotels.map((hotel) => (
           <div
             key={hotel.hotel_id}
             className={styles.hotelCard}
@@ -103,7 +145,7 @@ const Hotels = () => {
 
               <div className={styles.imageOverlay}>
                 <span className={styles.badge}>
-                  <IoStar />{" "}
+                  <IoStar />
                   {Number(hotel.rating) > 0 ? Number(hotel.rating).toFixed(1) : "New"}
                 </span>
 
@@ -128,7 +170,10 @@ const Hotels = () => {
                 <div className={styles.priceBlock}>
                   <span className={styles.priceLabel}>Starting from</span>
                   <span className={styles.priceText}>
-                    Rs {Number(hotel.starting_price) > 0 ? Number(hotel.starting_price) : "--"}
+                    Rs{" "}
+                    {Number(hotel.starting_price) > 0
+                      ? Number(hotel.starting_price)
+                      : "--"}
                   </span>
                   <span className={styles.reviewCount}>
                     ({hotel.review_count || 0}{" "}
