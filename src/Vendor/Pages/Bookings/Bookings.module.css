@@ -1,10 +1,422 @@
-.bookingsPage {
-  padding: calc(70px + 2rem) 2rem 2rem 2rem; /* header offset + padding */
+.page {
+  padding: calc(70px + 2rem) 2rem 2rem;
+  min-height: 100vh;
+  background: #f8fafc;
 }
 
-.bookingsPage h1 {
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.pageHeader h1 {
+  margin: 0 0 8px 0;
   font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.pageHeader p {
+  margin: 0;
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.countText {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.toolbar {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.filterBtn:hover {
+  background: #f8fafc;
+}
+
+.filterBtnActive {
+  background: #f8740f;
+  color: white;
+  border-color: #f8740f;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 320px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: #64748b;
+}
+
+.searchBox input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.exportToolbar {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.dateFilters {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.dateField label {
+  font-size: 0.88rem;
+  color: #475569;
   font-weight: 700;
-  margin-bottom: 2rem;
-  color: #1e293b;
+}
+
+.dateField input {
+  padding: 11px 14px;
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  outline: none;
+  background: white;
+  font-size: 0.95rem;
+}
+
+.dateField input:focus {
+  border-color: #f8740f;
+}
+
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #0f172a;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.exportBtn:hover {
+  background: #1e293b;
+}
+
+.stateText {
+  padding: 100px 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.emptyState {
+  background: white;
+  border-radius: 18px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748b;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.emptyState h3 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+  font-size: 1.35rem;
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+.bookingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bookingCard {
+  display: flex;
+  gap: 24px;
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.roomImage {
+  width: 280px;
+  min-width: 280px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  background: #f1f5f9;
+}
+
+.bookingInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.hotelName {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.roomName {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.roomType {
+  margin: 6px 0 0 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.location {
+  margin: 6px 0 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.statusBadge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.confirmed {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.checked_in {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
+.completed {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.customerBox {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.customerTitle {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.customerText {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailLabel {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.completeBtn,
+.cancelBtn,
+.disabledBtn {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.completeBtn {
+  background: #16a34a;
+  color: white;
+}
+
+.completeBtn:hover {
+  background: #15803d;
+}
+
+.cancelBtn {
+  background: #dc2626;
+  color: white;
+}
+
+.cancelBtn:hover {
+  background: #b91c1c;
+}
+
+.disabledBtn {
+  background: #e2e8f0;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.completeBtn:disabled,
+.cancelBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .detailsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .bookingCard {
+    flex-direction: column;
+  }
+
+  .roomImage {
+    width: 100%;
+    min-width: 100%;
+    height: 240px;
+  }
+
+  .topRow {
+    flex-direction: column;
+  }
+
+  .searchBox {
+    min-width: 100%;
+  }
+
+  .exportToolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dateFilters {
+    flex-direction: column;
+  }
+
+  .dateField {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: calc(70px + 1.5rem) 1rem 1.5rem;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .completeBtn,
+  .cancelBtn,
+  .disabledBtn,
+  .exportBtn {
+    width: 100%;
+  }
 }
