@@ -63,6 +63,40 @@
   color: #64748b;
 }
 
+.sortRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.sortBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 240px;
+}
+
+.sortLabel {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.sortSelect {
+  padding: 11px 14px;
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.95rem;
+  outline: none;
+  cursor: pointer;
+  color: #0f172a;
+}
+
+.sortSelect:focus {
+  border-color: #f8740f;
+}
+
 .hotelsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -96,6 +130,7 @@
   height: 230px;
   object-fit: cover;
   display: block;
+  background: #f1f5f9;
 }
 
 .imageOverlay {
@@ -106,6 +141,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 10px;
 }
 
 .badge {
@@ -151,6 +187,12 @@
   margin-top: 8px;
   color: #0f172a;
   min-height: 52px;
+  line-height: 1.4;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .hotelDescription {
@@ -159,27 +201,11 @@
   color: #475569;
   line-height: 1.6;
   min-height: 74px;
-}
 
-.featureRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-  margin-bottom: 18px;
-}
-
-.featureChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid #e2e8f0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cardFooter {
@@ -188,6 +214,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  padding-top: 16px;
 }
 
 .priceBlock {
@@ -221,6 +248,7 @@
   cursor: pointer;
   font-weight: 700;
   transition: 0.2s ease;
+  white-space: nowrap;
 }
 
 .viewBtn:hover {
@@ -231,6 +259,7 @@
   padding: 120px;
   text-align: center;
   font-size: 1.2rem;
+  color: #64748b;
 }
 
 @media (max-width: 992px) {
@@ -258,6 +287,18 @@
   }
 
   .viewBtn {
+    width: 100%;
+  }
+
+  .sortRow {
+    justify-content: stretch;
+  }
+
+  .sortBox {
+    width: 100%;
+  }
+
+  .sortSelect {
     width: 100%;
   }
 }
