@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Search, FileDown } from "lucide-react";
+import { Search } from "lucide-react";
 import { baseUrl } from "../../../constant";
 import styles from "./Bookings.module.css";
 
 const Bookings = () => {
+  const [searchParams] = useSearchParams();
+
+  const initialStatus = searchParams.get("status") || "all";
+
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
 
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [search, setSearch] = useState("");
-
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -83,78 +85,17 @@ const Bookings = () => {
     }
   };
 
-  const handleExportPdf = () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      toast.error("Vendor token missing");
-      return;
-    }
-
-    if (!fromDate || !toDate) {
-      toast.error("Please select both from date and to date");
-      return;
-    }
-
-    if (toDate < fromDate) {
-      toast.error("To date must be same or after from date");
-      return;
-    }
-
-    const params = new URLSearchParams();
-    params.append("token", token);
-    params.append("from_date", fromDate);
-    params.append("to_date", toDate);
-
-    if (statusFilter && statusFilter !== "all") {
-      params.append("status", statusFilter);
-    }
-
-    window.open(
-      `${baseUrl}/bookings/exportVendorBookingsPdf.php?${params.toString()}`,
-      "_blank"
-    );
-  };
-
   useEffect(() => {
     fetchBookings();
   }, []);
 
+  useEffect(() => {
+    const urlStatus = searchParams.get("status") || "all";
+    setStatusFilter(urlStatus);
+  }, [searchParams]);
+
   const filteredBookings = useMemo(() => {
     const q = search.trim().toLowerCase();
-
-  const handleExportPdf = () => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    toast.error("Vendor token missing");
-    return;
-  }
-
-  if (!fromDate || !toDate) {
-    toast.error("Please select both from date and to date");
-    return;
-  }
-
-  if (toDate < fromDate) {
-    toast.error("To date must be same or after from date");
-    return;
-  }
-
-  const params = new URLSearchParams();
-  params.append("token", token);
-  params.append("from_date", fromDate);
-  params.append("to_date", toDate);
-
-  if (statusFilter && statusFilter !== "all") {
-    params.append("status", statusFilter);
-  }
-
-  window.open(
-    `${baseUrl}/bookings/exportVendorBookingsPdf.php?${params.toString()}`,
-    "_blank"
-  );
-};
 
     return bookings.filter((booking) => {
       const statusMatch =
@@ -221,38 +162,6 @@ const Bookings = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-      </div>
-
-      <div className={styles.exportToolbar}>
-        <div className={styles.dateFilters}>
-          <div className={styles.dateField}>
-            <label>From Date</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-          </div>
-
-          <div className={styles.dateField}>
-            <label>To Date</label>
-            <input
-              type="date"
-              value={toDate}
-              min={fromDate || ""}
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className={styles.exportBtn}
-          onClick={handleExportPdf}
-        >
-          <FileDown size={18} />
-          Export PDF
-        </button>
       </div>
 
       {filteredBookings.length === 0 ? (
