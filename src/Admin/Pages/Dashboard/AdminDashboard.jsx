@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Building2,
   Hotel,
@@ -11,6 +12,8 @@ import { baseUrl } from "../../../constant";
 import styles from "./AdminDashboard.module.css";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalVendors: 0,
     totalHotels: 0,
@@ -116,6 +119,7 @@ const AdminDashboard = () => {
           label="Total Vendors"
           value={stats.totalVendors}
           color="blue"
+          onClick={() => navigate("/admin/vendors")}
         />
 
         <StatCard
@@ -123,6 +127,7 @@ const AdminDashboard = () => {
           label="Total Hotels"
           value={stats.totalHotels}
           color="green"
+          onClick={() => navigate("/admin/hotels")}
         />
 
         <StatCard
@@ -130,6 +135,7 @@ const AdminDashboard = () => {
           label="Total Users"
           value={stats.totalUsers}
           color="orange"
+          onClick={() => navigate("/admin/users")}
         />
 
         <StatCard
@@ -137,6 +143,7 @@ const AdminDashboard = () => {
           label="Total Bookings"
           value={stats.totalBookings}
           color="purple"
+          onClick={() => navigate("/admin/bookings")}
         />
 
         <StatCard
@@ -202,29 +209,45 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.quickOverviewCard}`}>
           <h3>Quick Overview</h3>
 
           <div className={styles.overviewList}>
-            <div className={styles.overviewItem}>
+            <button
+              type="button"
+              className={styles.overviewItem}
+              onClick={() => navigate("/admin/vendors")}
+            >
               <span>Total Vendors</span>
               <strong>{stats.totalVendors}</strong>
-            </div>
+            </button>
 
-            <div className={styles.overviewItem}>
+            <button
+              type="button"
+              className={styles.overviewItem}
+              onClick={() => navigate("/admin/hotels")}
+            >
               <span>Total Hotels</span>
               <strong>{stats.totalHotels}</strong>
-            </div>
+            </button>
 
-            <div className={styles.overviewItem}>
+            <button
+              type="button"
+              className={styles.overviewItem}
+              onClick={() => navigate("/admin/users")}
+            >
               <span>Total Users</span>
               <strong>{stats.totalUsers}</strong>
-            </div>
+            </button>
 
-            <div className={styles.overviewItem}>
+            <button
+              type="button"
+              className={styles.overviewItem}
+              onClick={() => navigate("/admin/bookings")}
+            >
               <span>Total Bookings</span>
               <strong>{stats.totalBookings}</strong>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -232,7 +255,25 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({ icon, label, value, color }) => {
+const StatCard = ({ icon, label, value, color, onClick }) => {
+  const isClickable = typeof onClick === "function";
+
+  if (isClickable) {
+    return (
+      <button
+        type="button"
+        className={`${styles.statCard} ${styles.clickableCard}`}
+        onClick={onClick}
+      >
+        <div className={`${styles.statIcon} ${styles[color]}`}>{icon}</div>
+        <div className={styles.statInfo}>
+          <span className={styles.statLabel}>{label}</span>
+          <span className={styles.statValue}>{value}</span>
+        </div>
+      </button>
+    );
+  }
+
   return (
     <div className={styles.statCard}>
       <div className={`${styles.statIcon} ${styles[color]}`}>{icon}</div>
