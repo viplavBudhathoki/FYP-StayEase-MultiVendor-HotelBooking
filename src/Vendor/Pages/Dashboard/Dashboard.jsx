@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BedDouble, Users, CheckCircle, TrendingUp } from "lucide-react";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../../constant";
 import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalRooms: 0,
     occupied: 0,
@@ -21,7 +24,7 @@ const Dashboard = () => {
 
   const occupancyRate =
     stats.totalRooms > 0
-      ? Math.round((stats.occupied / stats.totalRooms) * 100)
+      ? Math.round((Number(stats.occupied || 0) / Number(stats.totalRooms || 0)) * 100)
       : 0;
 
   const fetchStats = async () => {
@@ -105,7 +108,11 @@ const Dashboard = () => {
       </div>
 
       <div className={styles.statsGrid}>
-        <div className={`${styles.statCard} ${styles.card}`}>
+        <button
+          type="button"
+          className={`${styles.statCard} ${styles.clickableCard}`}
+          onClick={() => navigate("/vendor/rooms")}
+        >
           <div className={`${styles.statIcon} ${styles.iconBlue}`}>
             <BedDouble size={24} />
           </div>
@@ -113,9 +120,13 @@ const Dashboard = () => {
             <span className={styles.statLabel}>Total Rooms</span>
             <span className={styles.statValue}>{stats.totalRooms}</span>
           </div>
-        </div>
+        </button>
 
-        <div className={`${styles.statCard} ${styles.card}`}>
+        <button
+          type="button"
+          className={`${styles.statCard} ${styles.clickableCard}`}
+          onClick={() => navigate("/vendor/bookings?status=confirmed")}
+        >
           <div className={`${styles.statIcon} ${styles.iconGreen}`}>
             <Users size={24} />
           </div>
@@ -123,9 +134,13 @@ const Dashboard = () => {
             <span className={styles.statLabel}>Confirmed Bookings</span>
             <span className={styles.statValue}>{stats.confirmedBookings}</span>
           </div>
-        </div>
+        </button>
 
-        <div className={`${styles.statCard} ${styles.card}`}>
+        <button
+          type="button"
+          className={`${styles.statCard} ${styles.clickableCard}`}
+          onClick={() => navigate("/vendor/bookings?status=checked_in")}
+        >
           <div className={`${styles.statIcon} ${styles.iconOrange}`}>
             <CheckCircle size={24} />
           </div>
@@ -133,15 +148,17 @@ const Dashboard = () => {
             <span className={styles.statLabel}>Occupancy Rate</span>
             <span className={styles.statValue}>{occupancyRate}%</span>
           </div>
-        </div>
+        </button>
 
-        <div className={`${styles.statCard} ${styles.card}`}>
+        <div className={styles.statCard}>
           <div className={`${styles.statIcon} ${styles.iconPurple}`}>
             <TrendingUp size={24} />
           </div>
           <div className={styles.statInfo}>
             <span className={styles.statLabel}>Total Revenue</span>
-            <span className={styles.statValue}>Rs. {stats.revenue}</span>
+            <span className={styles.statValue}>
+              Rs. {Number(stats.revenue || 0).toFixed(0)}
+            </span>
           </div>
         </div>
       </div>
@@ -204,24 +221,36 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className={`${styles.quickStats} ${styles.card}`}>
+        <div className={`${styles.quickStats} ${styles.card} ${styles.quickStatsCompact}`}>
           <h3>Booking Summary</h3>
 
           <div className={styles.summaryList}>
-            <div className={styles.summaryItem}>
+            <button
+              type="button"
+              className={styles.summaryItem}
+              onClick={() => navigate("/vendor/bookings?status=completed")}
+            >
               <span>Completed Stays</span>
               <strong>{stats.completedBookings}</strong>
-            </div>
+            </button>
 
-            <div className={styles.summaryItem}>
+            <button
+              type="button"
+              className={styles.summaryItem}
+              onClick={() => navigate("/vendor/bookings?status=cancelled")}
+            >
               <span>Cancelled Bookings</span>
               <strong>{stats.cancelledBookings}</strong>
-            </div>
+            </button>
 
-            <div className={styles.summaryItem}>
+            <button
+              type="button"
+              className={styles.summaryItem}
+              onClick={() => navigate("/vendor/rooms")}
+            >
               <span>Rooms Under Maintenance</span>
               <strong>{stats.maintenance}</strong>
-            </div>
+            </button>
           </div>
         </div>
       </div>
