@@ -42,9 +42,18 @@
   transition: 0.2s ease;
 }
 
-.statCard:hover {
+.clickableCard {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  font: inherit;
+}
+
+.clickableCard:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 15px rgb(0 0 0 / 0.08);
+  border-color: #f8740f;
 }
 
 .statIcon {
@@ -54,6 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .blue {
@@ -84,6 +94,7 @@
 .statInfo {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .statLabel {
@@ -102,6 +113,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1.5rem;
+  align-items: start;
 }
 
 .card {
@@ -110,6 +122,10 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.quickOverviewCard {
+  align-self: start;
 }
 
 .card h3 {
@@ -176,8 +192,7 @@
   gap: 1rem;
 }
 
-.recentItem,
-.overviewItem {
+.recentItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -186,6 +201,26 @@
   border-radius: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+}
+
+.overviewItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font: inherit;
+  text-align: left;
+}
+
+.overviewItem:hover {
+  border-color: #f8740f;
+  background: #fff7f1;
 }
 
 .recentTitle {
@@ -222,6 +257,7 @@
   font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .confirmed {
@@ -248,6 +284,10 @@
   .dashboardContent {
     grid-template-columns: 1fr;
   }
+
+  .quickOverviewCard {
+    align-self: stretch;
+  }
 }
 
 @media (max-width: 768px) {
@@ -273,5 +313,9 @@
   .overviewItem {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .statusBadge {
+    white-space: normal;
   }
 }
