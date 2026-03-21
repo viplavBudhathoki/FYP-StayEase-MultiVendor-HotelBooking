@@ -1,6 +1,5 @@
 .dashboardPage {
   padding: 2rem;
-  padding-top: calc(70px + 2rem);
   background: #f8fafc;
   min-height: 100vh;
   box-sizing: border-box;
@@ -20,22 +19,15 @@
 .pageHeader p {
   font-size: 1rem;
   color: #64748b;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   margin-bottom: 0;
 }
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
-}
-
-.card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 .statCard {
@@ -43,22 +35,41 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  transition: 0.2s ease;
 }
 
-.statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
+.clickableCard {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  border: 1px solid #e2e8f0;
+  outline: none;
+}
+
+.clickableCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgb(0 0 0 / 0.08);
+  border-color: #f8740f;
+}
+
+.clickableCard:focus {
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.2);
+  border-color: #f8740f;
 }
 
 .statIcon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .iconBlue {
@@ -84,6 +95,7 @@
 .statInfo {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .statLabel {
@@ -93,25 +105,38 @@
 }
 
 .statValue {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #1e293b;
+  word-break: break-word;
 }
 
 .dashboardContent {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1.5rem;
+  align-items: start;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
 }
 
 .recentActivity,
 .quickStats {
-  padding: 1.5rem;
+  width: 100%;
 }
 
-.recentActivity h3,
-.quickStats h3 {
-  font-size: 1.125rem;
+.quickStatsCompact {
+  align-self: start;
+}
+
+.card h3 {
+  font-size: 1.1rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
@@ -122,7 +147,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 14px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
 }
 
@@ -134,10 +159,10 @@
 
 .historyBtn {
   padding: 9px 14px;
-  border-radius: 10px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   color: #475569;
+  border-radius: 10px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
@@ -165,20 +190,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100px;
-  font-size: 0.95rem;
-  color: #64748b;
-  text-align: center;
+  min-height: 100px;
   border: 1px dashed #e2e8f0;
   border-radius: 12px;
   background: #f8fafc;
+  color: #64748b;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .activityItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   padding: 14px;
   border-radius: 12px;
   background: #f8fafc;
@@ -211,6 +236,7 @@
   font-weight: 700;
   text-transform: capitalize;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .confirmed {
@@ -237,10 +263,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px;
+  gap: 14px;
+  padding: 12px 14px;
   border-radius: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font: inherit;
+  text-align: left;
+  outline: none;
+}
+
+.summaryItem:hover {
+  border-color: #f8740f;
+  background: #fff7f1;
+}
+
+.summaryItem:focus {
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.2);
+  border-color: #f8740f;
 }
 
 .summaryItem span {
@@ -257,11 +299,15 @@
   .dashboardContent {
     grid-template-columns: 1fr;
   }
+
+  .quickStatsCompact {
+    align-self: stretch;
+  }
 }
 
 @media (max-width: 768px) {
   .dashboardPage {
-    padding: calc(70px + 1rem) 1rem 1rem;
+    padding: 1rem;
   }
 
   .sectionTop {
@@ -282,5 +328,9 @@
   .summaryItem {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .statusBadge {
+    white-space: normal;
   }
 }
