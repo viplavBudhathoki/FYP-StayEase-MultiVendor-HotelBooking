@@ -21,6 +21,7 @@ const AdminDashboard = () => {
 
   const [recentBookings, setRecentBookings] = useState([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
+  const [historyRange, setHistoryRange] = useState("7days");
 
   const fetchStats = async () => {
     try {
@@ -37,10 +38,11 @@ const AdminDashboard = () => {
 
       const text = await res.text();
       let data;
+
       try {
         data = JSON.parse(text);
       } catch {
-        throw new Error("Counts API did not return JSON. Check backend path / PHP errors.");
+        throw new Error(`Counts API did not return JSON. Response: ${text}`);
       }
 
       if (data.success) {
@@ -49,7 +51,7 @@ const AdminDashboard = () => {
         toast.error(data.message || "Failed to load dashboard stats");
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load dashboard stats");
     }
   };
 
@@ -62,6 +64,7 @@ const AdminDashboard = () => {
 
       const form = new FormData();
       form.append("token", token);
+      form.append("range", historyRange);
 
       const res = await fetch(`${baseUrl}/bookings/getAdminRecentBookings.php`, {
         method: "POST",
@@ -73,11 +76,11 @@ const AdminDashboard = () => {
       if (data.success) {
         setRecentBookings(Array.isArray(data.data) ? data.data : []);
       } else {
-        toast.error(data.message || "Failed to load recent bookings");
+        toast.error(data.message || "Failed to load booking history");
         setRecentBookings([]);
       }
     } catch (err) {
-      toast.error(err.message || "Failed to load recent bookings");
+      toast.error(err.message || "Failed to load booking history");
       setRecentBookings([]);
     } finally {
       setLoadingRecent(false);
@@ -86,15 +89,24 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchStats();
-    fetchRecentBookings();
   }, []);
+
+  useEffect(() => {
+    fetchRecentBookings();
+  }, [historyRange]);
+
+  const historyButtons = [
+    { label: "Last 7 Days", value: "7days" },
+    { label: "Last 30 Days", value: "30days" },
+    { label: "All", value: "all" },
+  ];
 
   return (
     <div className={styles.dashboardPage}>
       <div className={styles.pageHeader}>
         <div>
           <h1>Admin Dashboard</h1>
-          <p>Monitor platform performance and activity</p>
+          <p>Monitor platform performance and booking activity</p>
         </div>
       </div>
 
@@ -130,19 +142,36 @@ const AdminDashboard = () => {
         <StatCard
           icon={<TrendingUp size={22} />}
           label="Platform Revenue"
-          value={`Rs. ${Number(stats.revenue).toFixed(0)}`}
+          value={`Rs. ${Number(stats.revenue || 0).toFixed(0)}`}
           color="dark"
         />
       </div>
 
       <div className={styles.dashboardContent}>
         <div className={styles.card}>
-          <h3>Recent Platform Bookings</h3>
+          <div className={styles.sectionTop}>
+            <h3>Booking History</h3>
+
+            <div className={styles.historyFilters}>
+              {historyButtons.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  className={`${styles.historyBtn} ${
+                    historyRange === item.value ? styles.historyBtnActive : ""
+                  }`}
+                  onClick={() => setHistoryRange(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {loadingRecent ? (
-            <div className={styles.emptyState}>Loading recent bookings...</div>
+            <div className={styles.emptyState}>Loading booking history...</div>
           ) : recentBookings.length === 0 ? (
-            <div className={styles.emptyState}>No recent bookings found.</div>
+            <div className={styles.emptyState}>No bookings found.</div>
           ) : (
             <div className={styles.recentList}>
               {recentBookings.map((booking) => (
@@ -153,6 +182,10 @@ const AdminDashboard = () => {
                     </p>
                     <p className={styles.recentSub}>
                       {booking.hotel_name} • Vendor: {booking.vendor_name}
+                    </p>
+                    <p className={styles.recentMeta}>
+                      {booking.check_in} to {booking.check_out} • Rs.{" "}
+                      {booking.total_price}
                     </p>
                   </div>
 
@@ -171,19 +204,23 @@ const AdminDashboard = () => {
 
         <div className={styles.card}>
           <h3>Quick Overview</h3>
+
           <div className={styles.overviewList}>
             <div className={styles.overviewItem}>
               <span>Total Vendors</span>
               <strong>{stats.totalVendors}</strong>
             </div>
+
             <div className={styles.overviewItem}>
               <span>Total Hotels</span>
               <strong>{stats.totalHotels}</strong>
             </div>
+
             <div className={styles.overviewItem}>
               <span>Total Users</span>
               <strong>{stats.totalUsers}</strong>
             </div>
+
             <div className={styles.overviewItem}>
               <span>Total Bookings</span>
               <strong>{stats.totalBookings}</strong>
