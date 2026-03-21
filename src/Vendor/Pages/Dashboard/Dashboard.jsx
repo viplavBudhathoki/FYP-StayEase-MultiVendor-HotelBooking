@@ -1,80 +1,227 @@
-import { useState } from 'react';
-import { BedDouble, Users, CheckCircle, TrendingUp } from 'lucide-react';
-import './Dashboard.css';
+import { useEffect, useState } from "react";
+import { BedDouble, Users, CheckCircle, TrendingUp } from "lucide-react";
+import toast from "react-hot-toast";
+import { baseUrl } from "../../../constant";
+import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
     totalRooms: 0,
     occupied: 0,
     maintenance: 0,
+    confirmedBookings: 0,
+    completedBookings: 0,
+    cancelledBookings: 0,
     revenue: 0,
   });
 
-  const occupancyRate = stats.totalRooms > 0 ? Math.round((stats.occupied / stats.totalRooms) * 100) : 0;
-  const availableRooms = stats.totalRooms - stats.occupied - stats.maintenance;
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+  const [historyRange, setHistoryRange] = useState("7days");
+
+  const occupancyRate =
+    stats.totalRooms > 0
+      ? Math.round((stats.occupied / stats.totalRooms) * 100)
+      : 0;
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Vendor token missing");
+
+      const form = new FormData();
+      form.append("token", token);
+
+      const res = await fetch(`${baseUrl}/bookings/getVendorDashboardStats.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStats((prev) => ({ ...prev, ...(data.data || {}) }));
+      } else {
+        toast.error(data.message || "Failed to load dashboard stats");
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to load dashboard stats");
+    }
+  };
+
+  const fetchRecentBookings = async () => {
+    setLoadingRecent(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Vendor token missing");
+
+      const form = new FormData();
+      form.append("token", token);
+      form.append("range", historyRange);
+
+      const res = await fetch(`${baseUrl}/bookings/getVendorRecentBookings.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setRecentBookings(Array.isArray(data.data) ? data.data : []);
+      } else {
+        toast.error(data.message || "Failed to load booking history");
+        setRecentBookings([]);
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to load booking history");
+      setRecentBookings([]);
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    fetchRecentBookings();
+  }, [historyRange]);
+
+  const historyButtons = [
+    { label: "Last 7 Days", value: "7days" },
+    { label: "Last 30 Days", value: "30days" },
+    { label: "All", value: "all" },
+  ];
 
   return (
-    <div className="dashboard-page">
-      {/* Page Header */}
-      <div className="page-header">
+    <div className={styles.dashboardPage}>
+      <div className={styles.pageHeader}>
         <div>
           <h1>Welcome Back, Manager</h1>
-          <p>Here's what's happening today at your properties</p>
+          <p>Here&apos;s what&apos;s happening today at your properties</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card card">
-          <div className="stat-icon icon-blue"><BedDouble size={24} /></div>
-          <div className="stat-info">
-            <span className="stat-label">Total Rooms</span>
-            <span className="stat-value">{stats.totalRooms}</span>
+      <div className={styles.statsGrid}>
+        <div className={`${styles.statCard} ${styles.card}`}>
+          <div className={`${styles.statIcon} ${styles.iconBlue}`}>
+            <BedDouble size={24} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statLabel}>Total Rooms</span>
+            <span className={styles.statValue}>{stats.totalRooms}</span>
           </div>
         </div>
 
-        <div className="stat-card card">
-          <div className="stat-icon icon-green"><Users size={24} /></div>
-          <div className="stat-info">
-            <span className="stat-label">Current Guests</span>
-            <span className="stat-value">{stats.occupied}</span>
+        <div className={`${styles.statCard} ${styles.card}`}>
+          <div className={`${styles.statIcon} ${styles.iconGreen}`}>
+            <Users size={24} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statLabel}>Confirmed Bookings</span>
+            <span className={styles.statValue}>{stats.confirmedBookings}</span>
           </div>
         </div>
 
-        <div className="stat-card card">
-          <div className="stat-icon icon-orange"><CheckCircle size={24} /></div>
-          <div className="stat-info">
-            <span className="stat-label">Occupancy Rate</span>
-            <span className="stat-value">{occupancyRate}%</span>
+        <div className={`${styles.statCard} ${styles.card}`}>
+          <div className={`${styles.statIcon} ${styles.iconOrange}`}>
+            <CheckCircle size={24} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statLabel}>Occupancy Rate</span>
+            <span className={styles.statValue}>{occupancyRate}%</span>
           </div>
         </div>
 
-        <div className="stat-card card">
-          <div className="stat-icon icon-purple"><TrendingUp size={24} /></div>
-          <div className="stat-info">
-            <span className="stat-label">Daily Revenue</span>
-            <span className="stat-value">Rs.{stats.revenue}</span>
+        <div className={`${styles.statCard} ${styles.card}`}>
+          <div className={`${styles.statIcon} ${styles.iconPurple}`}>
+            <TrendingUp size={24} />
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statLabel}>Total Revenue</span>
+            <span className={styles.statValue}>Rs. {stats.revenue}</span>
           </div>
         </div>
       </div>
 
-      {/* Dashboard Content */}
-      <div className="dashboard-content">
-        {/* Recent Activity */}
-        <div className="recent-activity card">
-          <h3>Recent Booking Activity</h3>
-          <div className="activity-list">
-            <div className="activity-empty">
-              <p>No recent activity found. Start by adding rooms and bookings.</p>
+      <div className={styles.dashboardContent}>
+        <div className={`${styles.recentActivity} ${styles.card}`}>
+          <div className={styles.sectionTop}>
+            <h3>Booking History</h3>
+
+            <div className={styles.historyFilters}>
+              {historyButtons.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  className={`${styles.historyBtn} ${
+                    historyRange === item.value ? styles.historyBtnActive : ""
+                  }`}
+                  onClick={() => setHistoryRange(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
+
+          <div className={styles.activityList}>
+            {loadingRecent ? (
+              <div className={styles.activityEmpty}>
+                <p>Loading booking history...</p>
+              </div>
+            ) : recentBookings.length === 0 ? (
+              <div className={styles.activityEmpty}>
+                <p>No booking history found.</p>
+              </div>
+            ) : (
+              recentBookings.map((booking) => (
+                <div key={booking.booking_id} className={styles.activityItem}>
+                  <div>
+                    <p className={styles.activityTitle}>
+                      {booking.customer_name} booked {booking.room_name}
+                    </p>
+                    <p className={styles.activitySub}>
+                      {booking.hotel_name} • {booking.check_in} to {booking.check_out}
+                    </p>
+                    <p className={styles.activityMeta}>
+                      Rs. {booking.total_price}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`${styles.statusBadge} ${
+                      styles[booking.status?.toLowerCase()] || ""
+                    }`}
+                  >
+                    {booking.status}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Room Status Distribution */}
-        <div className="quick-stats card">
-          <h3>Room Status Distribution</h3>
-          <div className="activity-empty">
-            <p>Add rooms to see status distribution.</p>
+        <div className={`${styles.quickStats} ${styles.card}`}>
+          <h3>Booking Summary</h3>
+
+          <div className={styles.summaryList}>
+            <div className={styles.summaryItem}>
+              <span>Completed Stays</span>
+              <strong>{stats.completedBookings}</strong>
+            </div>
+
+            <div className={styles.summaryItem}>
+              <span>Cancelled Bookings</span>
+              <strong>{stats.cancelledBookings}</strong>
+            </div>
+
+            <div className={styles.summaryItem}>
+              <span>Rooms Under Maintenance</span>
+              <strong>{stats.maintenance}</strong>
+            </div>
           </div>
         </div>
       </div>
