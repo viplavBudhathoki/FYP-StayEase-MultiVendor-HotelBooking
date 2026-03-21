@@ -23,8 +23,8 @@ const Dashboard = () => {
   const [historyRange, setHistoryRange] = useState("7days");
 
   const occupancyRate =
-    stats.totalRooms > 0
-      ? Math.round((Number(stats.occupied || 0) / Number(stats.totalRooms || 0)) * 100)
+    Number(stats.totalRooms) > 0
+      ? Math.round((Number(stats.occupied) / Number(stats.totalRooms)) * 100)
       : 0;
 
   const fetchStats = async () => {
@@ -111,7 +111,7 @@ const Dashboard = () => {
         <button
           type="button"
           className={`${styles.statCard} ${styles.clickableCard}`}
-          onClick={() => navigate("/vendor/rooms")}
+          onClick={() => navigate("/vendor/rooms?status=all")}
         >
           <div className={`${styles.statIcon} ${styles.iconBlue}`}>
             <BedDouble size={24} />
@@ -246,7 +246,7 @@ const Dashboard = () => {
             <button
               type="button"
               className={styles.summaryItem}
-              onClick={() => navigate("/vendor/rooms")}
+              onClick={() => navigate("/vendor/rooms?status=maintenance")}
             >
               <span>Rooms Under Maintenance</span>
               <strong>{stats.maintenance}</strong>
