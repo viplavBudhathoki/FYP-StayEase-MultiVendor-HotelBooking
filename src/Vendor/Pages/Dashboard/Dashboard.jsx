@@ -13,6 +13,7 @@ const Dashboard = () => {
     occupied: 0,
     maintenance: 0,
     confirmedBookings: 0,
+    checkedInBookings: 0,
     completedBookings: 0,
     cancelledBookings: 0,
     revenue: 0,
@@ -139,7 +140,7 @@ const Dashboard = () => {
         <button
           type="button"
           className={`${styles.statCard} ${styles.clickableCard}`}
-          onClick={() => navigate("/vendor/bookings?status=checked_in")}
+          onClick={() => navigate("/vendor/rooms?status=occupied")}
         >
           <div className={`${styles.statIcon} ${styles.iconOrange}`}>
             <CheckCircle size={24} />
