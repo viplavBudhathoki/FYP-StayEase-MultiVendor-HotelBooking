@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 import { Plus, BedDouble } from "lucide-react";
-import { baseUrl } from "../../../constant";
+import toast from "react-hot-toast";
 import RoomModal from "../../Components/RoomModal/RoomModal";
 import RoomCard from "../../Components/RoomCard/RoomCard";
+import { baseUrl } from "../../../constant";
 import styles from "./Rooms.module.css";
 
 const Rooms = () => {
+  const [searchParams] = useSearchParams();
+
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
 
@@ -18,6 +20,7 @@ const Rooms = () => {
 
   const fetchAllRooms = async () => {
     setLoading(true);
+
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Vendor token missing");
@@ -39,15 +42,16 @@ const Rooms = () => {
         setRooms([]);
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to load rooms");
       setRooms([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const deleteRoom = async (room_id) => {
-    if (!window.confirm("Delete this room?")) return;
+  const handleDeleteRoom = async (roomId) => {
+    const ok = window.confirm("Are you sure you want to delete this room?");
+    if (!ok) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -55,7 +59,7 @@ const Rooms = () => {
 
       const form = new FormData();
       form.append("token", token);
-      form.append("room_id", room_id);
+      form.append("room_id", roomId);
 
       const res = await fetch(`${baseUrl}/rooms/deleteRoom.php`, {
         method: "POST",
@@ -65,13 +69,13 @@ const Rooms = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(data.message || "Deleted");
+        toast.success(data.message || "Room deleted successfully");
         fetchAllRooms();
       } else {
-        toast.error(data.message || "Failed to delete");
+        toast.error(data.message || "Failed to delete room");
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to delete room");
     }
   };
 
@@ -79,21 +83,28 @@ const Rooms = () => {
     fetchAllRooms();
   }, []);
 
+  useEffect(() => {
+    const urlStatus = (searchParams.get("status") || "all").toLowerCase();
+    setStatusFilter(urlStatus);
+  }, [searchParams]);
+
   const filteredRooms = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    return rooms.filter((r) => {
-      const statusOk =
-        statusFilter === "all"
-          ? true
-          : String(r.status || "").toLowerCase() === statusFilter;
+    return rooms.filter((room) => {
+      const roomStatus = String(room.status || "").toLowerCase();
 
-      const searchOk =
+      const statusMatch =
+        statusFilter === "all" ? true : roomStatus === statusFilter;
+
+      const searchMatch =
         !q ||
-        String(r.name || "").toLowerCase().includes(q) ||
-        String(r.hotel_name || "").toLowerCase().includes(q);
+        String(room.name || "").toLowerCase().includes(q) ||
+        String(room.type || "").toLowerCase().includes(q) ||
+        String(room.hotel_name || "").toLowerCase().includes(q) ||
+        String(room.description || "").toLowerCase().includes(q);
 
-      return statusOk && searchOk;
+      return statusMatch && searchMatch;
     });
   }, [rooms, statusFilter, search]);
 
@@ -126,16 +137,16 @@ const Rooms = () => {
 
       <div className={`${styles.roomsToolbar} ${styles.card}`}>
         <div className={styles.filterGroup}>
-          {statusButtons.map((s) => (
+          {statusButtons.map((status) => (
             <button
-              key={s.value}
-              className={`${styles.filterBtn} ${
-                statusFilter === s.value ? styles.filterBtnActive : ""
-              }`}
-              onClick={() => setStatusFilter(s.value)}
+              key={status.value}
               type="button"
+              className={`${styles.filterBtn} ${
+                statusFilter === status.value ? styles.filterBtnActive : ""
+              }`}
+              onClick={() => setStatusFilter(status.value)}
             >
-              {s.label}
+              {status.label}
             </button>
           ))}
         </div>
@@ -143,7 +154,7 @@ const Rooms = () => {
         <div className={styles.searchBar}>
           <input
             type="text"
-            placeholder="Filter by room name or hotel..."
+            placeholder="Search by room name, type, hotel, or description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -152,14 +163,15 @@ const Rooms = () => {
 
       {loading ? (
         <div className={styles.loadingState}>
-          <div className={styles.spinner} />
+          <div className={styles.spinner}></div>
           <p>Loading rooms...</p>
         </div>
       ) : filteredRooms.length === 0 ? (
         <div className={`${styles.emptyState} ${styles.card}`}>
           <BedDouble size={48} />
           <h3>No Rooms Found</h3>
-          <p>It looks like there are no rooms registered yet.</p>
+          <p>No rooms are available in this filter right now.</p>
+
           <button
             className={`${styles.btn} ${styles.btnPrimary}`}
             onClick={() => {
@@ -181,7 +193,7 @@ const Rooms = () => {
                 setEditingRoom(selectedRoom);
                 setIsModalOpen(true);
               }}
-              onDelete={deleteRoom}
+              onDelete={handleDeleteRoom}
             />
           ))}
         </div>
@@ -189,7 +201,6 @@ const Rooms = () => {
 
       {isModalOpen && (
         <RoomModal
-          hotelId={null}
           room={editingRoom}
           onClose={() => {
             setIsModalOpen(false);
