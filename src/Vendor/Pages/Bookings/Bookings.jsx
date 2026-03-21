@@ -8,13 +8,11 @@ import styles from "./Bookings.module.css";
 const Bookings = () => {
   const [searchParams] = useSearchParams();
 
-  const initialStatus = searchParams.get("status") || "all";
-
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
 
-  const [statusFilter, setStatusFilter] = useState(initialStatus);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
 
   const getRoomImage = (img) => {
@@ -90,7 +88,7 @@ const Bookings = () => {
   }, []);
 
   useEffect(() => {
-    const urlStatus = searchParams.get("status") || "all";
+    const urlStatus = (searchParams.get("status") || "all").toLowerCase();
     setStatusFilter(urlStatus);
   }, [searchParams]);
 
@@ -98,10 +96,10 @@ const Bookings = () => {
     const q = search.trim().toLowerCase();
 
     return bookings.filter((booking) => {
+      const bookingStatus = String(booking.status || "").toLowerCase();
+
       const statusMatch =
-        statusFilter === "all"
-          ? true
-          : String(booking.status || "").toLowerCase() === statusFilter;
+        statusFilter === "all" ? true : bookingStatus === statusFilter;
 
       const searchMatch =
         !q ||
