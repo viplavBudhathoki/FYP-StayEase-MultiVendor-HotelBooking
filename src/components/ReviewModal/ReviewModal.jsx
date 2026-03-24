@@ -16,7 +16,14 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
 
   const token = localStorage.getItem("token");
 
+  const bookingTitle =
+    Number(booking?.rooms_requested || 1) > 1
+      ? `${booking?.room_name} (${booking?.rooms_requested} rooms)`
+      : booking?.room_name;
+
   const fetchMyReview = async () => {
+    if (!token || !booking?.booking_id) return;
+
     try {
       const form = new FormData();
       form.append("token", token);
@@ -49,9 +56,14 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
 
   useEffect(() => {
     fetchMyReview();
-  }, [booking.booking_id]);
+  }, [booking?.booking_id]);
 
   const handleSubmit = async () => {
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
     if (formData.rating < 0.5) {
       toast.error("Please give a rating");
       return;
@@ -98,6 +110,11 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
   };
 
   const handleDelete = async () => {
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
     const ok = window.confirm("Are you sure you want to delete your review?");
     if (!ok) return;
 
@@ -136,7 +153,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
           <div>
             <h2>{myReview ? "Edit Review" : "Rate Your Stay"}</h2>
             <p>
-              {booking.hotel_name} — {booking.room_name}
+              {booking.hotel_name} — {bookingTitle}
             </p>
           </div>
 
