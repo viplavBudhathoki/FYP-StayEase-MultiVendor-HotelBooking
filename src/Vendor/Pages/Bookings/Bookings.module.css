@@ -51,17 +51,23 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .filterBtn:hover {
-  background: #f8fafc;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .filterBtnActive {
   background: #f8740f;
   color: white;
   border-color: #f8740f;
+}
+
+.filterBtnActive:hover {
+  background: #d85f09; 
+  color: white;
 }
 
 .searchBox {
