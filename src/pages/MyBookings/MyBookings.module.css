@@ -4,22 +4,28 @@
   background: #f8fafc;
 }
 
-.pageHeader {
+.header {
   margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.title {
+.header h1 {
   margin: 0 0 8px 0;
   font-size: 2rem;
   font-weight: 800;
   color: #0f172a;
 }
 
-.subtitle {
+.header p {
   margin: 0;
   color: #64748b;
   font-size: 1rem;
   line-height: 1.6;
+  max-width: 760px;
 }
 
 .stateText {
@@ -48,7 +54,7 @@
   margin: 0;
 }
 
-.bookingsList {
+.bookingList {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -63,6 +69,10 @@
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
+.imageWrap {
+  flex-shrink: 0;
+}
+
 .roomImage {
   width: 280px;
   min-width: 280px;
@@ -72,7 +82,7 @@
   background: #f1f5f9;
 }
 
-.bookingInfo {
+.bookingContent {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -88,28 +98,22 @@
 
 .hotelName {
   margin: 0 0 4px 0;
-  font-size: 0.95rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.roomName {
-  margin: 0;
-  font-size: 1.45rem;
-  font-weight: 800;
+  font-size: 1.35rem;
   color: #0f172a;
-}
-
-.roomType {
-  margin: 6px 0 0 0;
-  color: #475569;
-  font-size: 0.95rem;
+  font-weight: 800;
 }
 
 .location {
-  margin: 6px 0 0 0;
+  margin: 4px 0 0 0;
   color: #64748b;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+}
+
+.roomName {
+  margin: 8px 0 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #475569;
 }
 
 .statusBadge {
@@ -126,7 +130,7 @@
   color: #1d4ed8;
 }
 
-.checked_in {
+.checkedIn {
   background: rgba(245, 158, 11, 0.15);
   color: #92400e;
 }
@@ -141,22 +145,14 @@
   color: #b91c1c;
 }
 
-.completedNotice {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.completedText {
-  margin: 0;
-  font-size: 0.95rem;
+.defaultStatus {
+  background: #e2e8f0;
   color: #475569;
-  line-height: 1.5;
 }
 
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   padding: 14px;
   border-radius: 14px;
@@ -181,66 +177,131 @@
   font-weight: 600;
 }
 
-.actions {
+.editDatesBox {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.sectionHeading {
+  margin: 0 0 14px 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #9a3412;
+}
+
+.dateRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dateField label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #7c2d12;
+}
+
+.dateField input {
+  padding: 11px 14px;
+  border: 1px solid #fdba74;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  font-size: 0.95rem;
+}
+
+.dateField input:focus {
+  border-color: #f8740f;
+}
+
+.dateField input:disabled {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.saveBtn {
+  margin-top: 14px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #f8740f;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.saveBtn:hover {
+  background: #d3610a;
+}
+
+.saveBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.actionRow {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.updateBtn,
-.cancelBtn,
-.reviewBtn,
-.disabledBtn {
+.pdfBtn,
+.reviewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 11px 18px;
   border: none;
   border-radius: 10px;
   font-weight: 700;
   transition: 0.2s ease;
-  min-width: 180px;
-  text-align: center;
-}
-
-.updateBtn,
-.cancelBtn,
-.reviewBtn {
   cursor: pointer;
 }
 
-.disabledBtn {
-  cursor: not-allowed;
+.pdfBtn {
+  background: #0f172a;
+  color: #ffffff;
 }
 
-.updateBtn {
-  background: #f8740f;
-  color: white;
-}
-
-.updateBtn:hover {
-  background: #d85f09;
-}
-
-.cancelBtn {
-  background: #dc2626;
-  color: white;
-}
-
-.cancelBtn:hover {
-  background: #b91c1c;
+.pdfBtn:hover {
+  background: #1e293b;
 }
 
 .reviewBtn {
   background: #16a34a;
   color: white;
-  align-self: flex-start;
 }
 
 .reviewBtn:hover {
   background: #15803d;
 }
 
-.disabledBtn {
-  background: #e2e8f0;
-  color: #64748b;
+.multiRoomBox {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.roomList {
+  margin: 10px 0 0 0;
+  padding-left: 18px;
+}
+
+.roomListItem {
+  color: #334155;
+  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
 @media (max-width: 1100px) {
@@ -263,6 +324,10 @@
   .topRow {
     flex-direction: column;
   }
+
+  .dateRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -274,15 +339,10 @@
     grid-template-columns: 1fr;
   }
 
-  .updateBtn,
-  .cancelBtn,
+  .pdfBtn,
   .reviewBtn,
-  .disabledBtn {
+  .saveBtn {
     width: 100%;
-    min-width: 100%;
-  }
-
-  .reviewBtn {
-    align-self: stretch;
+    justify-content: center;
   }
 }
