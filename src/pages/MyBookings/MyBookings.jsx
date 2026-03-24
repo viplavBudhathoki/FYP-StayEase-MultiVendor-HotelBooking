@@ -23,16 +23,15 @@ const MyBookings = () => {
   };
 
   const fetchBookings = async () => {
+    if (!token) {
+      toast.error("Please login first");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      if (!token) {
-        toast.error("Please login first");
-        setBookings([]);
-        setLoading(false);
-        return;
-      }
-
       const form = new FormData();
       form.append("token", token);
 
@@ -44,17 +43,17 @@ const MyBookings = () => {
       const data = await res.json();
 
       if (data.success) {
-        const bookingList = Array.isArray(data.data) ? data.data : [];
-        setBookings(bookingList);
+        const bookingData = Array.isArray(data.data) ? data.data : [];
+        setBookings(bookingData);
 
-        const initialDates = {};
-        bookingList.forEach((booking) => {
-          initialDates[booking.booking_id] = {
+        const initialEditDates = {};
+        bookingData.forEach((booking) => {
+          initialEditDates[booking.booking_id] = {
             check_in: booking.check_in || "",
             check_out: booking.check_out || "",
           };
         });
-        setEditDates(initialDates);
+        setEditDates(initialEditDates);
       } else {
         toast.error(data.message || "Failed to load bookings");
         setBookings([]);
@@ -67,55 +66,41 @@ const MyBookings = () => {
     }
   };
 
-  const cancelBooking = async (bookingId) => {
-    const ok = window.confirm("Are you sure you want to cancel this booking?");
-    if (!ok) return;
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
-    try {
-      const form = new FormData();
-      form.append("token", token);
-      form.append("booking_id", bookingId);
+  const handleDateChange = (bookingId, field, value) => {
+    setEditDates((prev) => {
+      const current = prev[bookingId] || { check_in: "", check_out: "" };
+      const updated = {
+        ...current,
+        [field]: value,
+      };
 
-      const res = await fetch(`${baseUrl}/bookings/cancelBooking.php`, {
-        method: "POST",
-        body: form,
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        toast.success(data.message || "Booking cancelled successfully");
-        fetchBookings();
-      } else {
-        toast.error(data.message || "Failed to cancel booking");
+      if (field === "check_in" && updated.check_out && updated.check_out <= value) {
+        updated.check_out = "";
       }
-    } catch {
-      toast.error("Failed to cancel booking");
-    }
+
+      return {
+        ...prev,
+        [bookingId]: updated,
+      };
+    });
   };
 
-  const updateBookingDates = async (booking) => {
-    const bookingDates = editDates[booking.booking_id] || {};
-    const newCheckIn = bookingDates.check_in || "";
-    const newCheckOut = bookingDates.check_out || "";
+  const handleUpdateDates = async (booking) => {
+    const currentEdit = editDates[booking.booking_id] || {};
+    const checkIn = currentEdit.check_in || "";
+    const checkOut = currentEdit.check_out || "";
 
-    if (!newCheckIn || !newCheckOut) {
-      toast.error("Check-in and check-out are required");
+    if (!checkIn || !checkOut) {
+      toast.error("Please select both check-in and check-out dates");
       return;
     }
 
-    if (newCheckIn !== booking.check_in) {
-      toast.error("Check-in date cannot be changed");
-      return;
-    }
-
-    if (newCheckOut <= newCheckIn) {
+    if (checkOut <= checkIn) {
       toast.error("Check-out must be after check-in");
-      return;
-    }
-
-    if (newCheckOut === booking.check_out) {
-      toast.error("No date changes found");
       return;
     }
 
@@ -125,9 +110,10 @@ const MyBookings = () => {
       const form = new FormData();
       form.append("token", token);
       form.append("booking_id", booking.booking_id);
-      form.append("check_out", newCheckOut);
+      form.append("check_in", checkIn);
+      form.append("check_out", checkOut);
 
-      const res = await fetch(`${baseUrl}/bookings/updateMyBookingDates.php`, {
+      const res = await fetch(`${baseUrl}/bookings/updateMyBookingStay.php`, {
         method: "POST",
         body: form,
       });
@@ -135,7 +121,7 @@ const MyBookings = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(data.message || "Booking updated successfully");
+        toast.success(data.message || "Booking dates updated successfully");
         fetchBookings();
       } else {
         toast.error(data.message || "Failed to update booking dates");
@@ -147,19 +133,14 @@ const MyBookings = () => {
     }
   };
 
-  const handleExportPdf = () => {
+  const handleDownloadPdf = (bookingId) => {
     if (!token) {
       toast.error("Please login first");
       return;
     }
 
-    const params = new URLSearchParams();
-    params.append("token", token);
-
-    window.open(
-      `${baseUrl}/bookings/exportMyBookingsPdf.php?${params.toString()}`,
-      "_blank"
-    );
+    const url = `${baseUrl}/bookings/exportMyBookingsPdf.php?token=${encodeURIComponent(token)}`;
+    window.open(url, "_blank");
   };
 
   const openReviewModal = (booking) => {
@@ -172,9 +153,15 @@ const MyBookings = () => {
     setIsReviewModalOpen(false);
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const getStatusClass = (status) => {
+    const normalized = String(status || "").toLowerCase();
+
+    if (normalized === "confirmed") return styles.confirmed;
+    if (normalized === "checked_in") return styles.checkedIn;
+    if (normalized === "completed") return styles.completed;
+    if (normalized === "cancelled") return styles.cancelled;
+    return styles.defaultStatus;
+  };
 
   if (loading) {
     return <div className={styles.stateText}>Loading bookings...</div>;
@@ -182,66 +169,60 @@ const MyBookings = () => {
 
   return (
     <div className={styles.page}>
-      <div className={styles.pageHeader}>
+      <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>My Bookings</h1>
-          <p className={styles.subtitle}>
-            Track your reservations, booking status, completed stays, and update your check-out date before check-in.
-          </p>
+          <h1>My Bookings</h1>
+          <p>Track our reservations, stay details, and booking updates.</p>
         </div>
-
-        <button
-          type="button"
-          className={styles.exportBtn}
-          onClick={handleExportPdf}
-        >
-          <FileDown size={18} />
-          Export PDF
-        </button>
       </div>
 
       {bookings.length === 0 ? (
         <div className={styles.emptyState}>
           <h3>No bookings found</h3>
-          <p>Your booked rooms will appear here.</p>
+          <p>We have not made any bookings yet.</p>
         </div>
       ) : (
-        <div className={styles.bookingsList}>
+        <div className={styles.bookingList}>
           {bookings.map((booking) => {
-            const dates = editDates[booking.booking_id] || {
-              check_in: booking.check_in,
-              check_out: booking.check_out,
+            const currentEdit = editDates[booking.booking_id] || {
+              check_in: booking.check_in || "",
+              check_out: booking.check_out || "",
             };
 
-            const canModifyDates =
-              booking.status === "confirmed" &&
-              booking.can_modify_dates === 1;
+            const rooms = Array.isArray(booking.rooms) ? booking.rooms : [];
+            const displayRoomImage =
+              booking.room_image || (rooms.length > 0 ? rooms[0].room_image : "");
+            const displayRoomNames =
+              booking.room_name ||
+              rooms.map((room) => room.room_name).filter(Boolean).join(", ");
+            const displayRoomTypes =
+              booking.room_type ||
+              [...new Set(rooms.map((room) => room.room_type).filter(Boolean))].join(", ");
 
             return (
               <div key={booking.booking_id} className={styles.bookingCard}>
-                <img
-                  src={getRoomImage(booking.room_image)}
-                  alt={booking.room_name}
-                  className={styles.roomImage}
-                  onError={(e) => {
-                    e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
-                  }}
-                />
+                <div className={styles.imageWrap}>
+                  <img
+                    src={getRoomImage(displayRoomImage)}
+                    alt={displayRoomNames || "Booked room"}
+                    className={styles.roomImage}
+                    onError={(e) => {
+                      e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                    }}
+                  />
+                </div>
 
-                <div className={styles.bookingInfo}>
+                <div className={styles.bookingContent}>
                   <div className={styles.topRow}>
                     <div>
-                      <p className={styles.hotelName}>{booking.hotel_name}</p>
-                      <h2 className={styles.roomName}>{booking.room_name}</h2>
-                      <p className={styles.roomType}>{booking.room_type}</p>
+                      <h2 className={styles.hotelName}>{booking.hotel_name}</h2>
                       <p className={styles.location}>{booking.hotel_location}</p>
+                      <p className={styles.roomName}>
+                        {displayRoomNames} • {displayRoomTypes}
+                      </p>
                     </div>
 
-                    <span
-                      className={`${styles.statusBadge} ${
-                        styles[booking.status?.toLowerCase()] || ""
-                      }`}
-                    >
+                    <span className={`${styles.statusBadge} ${getStatusClass(booking.status)}`}>
                       {booking.status}
                     </span>
                   </div>
@@ -258,10 +239,22 @@ const MyBookings = () => {
                     </div>
 
                     <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Total Price</span>
+                      <span className={styles.detailLabel}>Guests</span>
                       <span className={styles.detailValue}>
-                        Rs. {booking.total_price}
+                        {booking.adults || 1} Adults, {booking.children || 0} Children
                       </span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Rooms</span>
+                      <span className={styles.detailValue}>
+                        {booking.rooms_requested || 1}
+                      </span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Total Price</span>
+                      <span className={styles.detailValue}>Rs. {booking.total_price}</span>
                     </div>
 
                     <div className={styles.detailItem}>
@@ -274,92 +267,83 @@ const MyBookings = () => {
                     </div>
                   </div>
 
-                  {canModifyDates && (
-                    <div className={styles.modifyBox}>
-                      <h3 className={styles.modifyTitle}>Modify Stay Dates</h3>
-                      <p className={styles.modifyText}>
-                        You can change only the check-out date before the stay begins.
-                      </p>
+                  {rooms.length > 1 && (
+                    <div className={styles.multiRoomBox}>
+                      <h4 className={styles.sectionHeading}>Selected Rooms</h4>
+                      <ul className={styles.roomList}>
+                        {rooms.map((room) => (
+                          <li key={room.room_id} className={styles.roomListItem}>
+                            {room.room_name} ({room.room_type}) - Rs.{" "}
+                            {Number(room.price_per_night || 0).toFixed(2)} / night
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                      <div className={styles.modifyGrid}>
-                        <div className={styles.inputGroup}>
+                  {Number(booking.can_modify_dates) === 1 && (
+                    <div className={styles.editDatesBox}>
+                      <h4 className={styles.sectionHeading}>Update Stay Dates</h4>
+
+                      <div className={styles.dateRow}>
+                        <div className={styles.dateField}>
                           <label>Check-in</label>
-                          <input type="date" value={dates.check_in} disabled />
+                          <input
+                            type="date"
+                            value={currentEdit.check_in}
+                            min={new Date().toISOString().split("T")[0]}
+                            onChange={(e) =>
+                              handleDateChange(booking.booking_id, "check_in", e.target.value)
+                            }
+                          />
                         </div>
 
-                        <div className={styles.inputGroup}>
+                        <div className={styles.dateField}>
                           <label>Check-out</label>
                           <input
                             type="date"
-                            value={dates.check_out}
-                            min={dates.check_in || booking.check_in}
+                            value={currentEdit.check_out}
+                            min={currentEdit.check_in || new Date().toISOString().split("T")[0]}
                             onChange={(e) =>
-                              setEditDates((prev) => ({
-                                ...prev,
-                                [booking.booking_id]: {
-                                  ...prev[booking.booking_id],
-                                  check_in: booking.check_in,
-                                  check_out: e.target.value,
-                                },
-                              }))
+                              handleDateChange(booking.booking_id, "check_out", e.target.value)
                             }
                           />
                         </div>
                       </div>
 
-                      <div className={styles.modifyActions}>
-                        <button
-                          type="button"
-                          className={styles.updateBtn}
-                          onClick={() => updateBookingDates(booking)}
-                          disabled={updatingBookingId === booking.booking_id}
-                        >
-                          {updatingBookingId === booking.booking_id
-                            ? "Updating..."
-                            : "Update Checkout"}
-                        </button>
-                      </div>
+                      <button
+                        className={styles.saveBtn}
+                        type="button"
+                        onClick={() => handleUpdateDates(booking)}
+                        disabled={updatingBookingId === booking.booking_id}
+                      >
+                        {updatingBookingId === booking.booking_id
+                          ? "Updating..."
+                          : "Save Dates"}
+                      </button>
                     </div>
                   )}
 
-                  <div className={styles.actions}>
-                    {booking.status === "confirmed" && (
-                      <button
-                        className={styles.cancelBtn}
-                        onClick={() => cancelBooking(booking.booking_id)}
-                        type="button"
-                      >
-                        Cancel Booking
-                      </button>
-                    )}
+                  <div className={styles.actionRow}>
+                    <button
+                      type="button"
+                      className={styles.pdfBtn}
+                      onClick={() => handleDownloadPdf(booking.booking_id)}
+                    >
+                      <FileDown size={16} />
+                      Download PDF
+                    </button>
 
-                    {booking.status === "completed" && (
-                      <div className={styles.completedNotice}>
-                        <p className={styles.completedText}>
-                          Your stay is completed. You can now rate your experience.
-                        </p>
-
+                    {String(booking.status).toLowerCase() === "completed" &&
+                      new Date() > new Date(booking.check_out) && (
                         <button
+                          type="button"
                           className={styles.reviewBtn}
                           onClick={() => openReviewModal(booking)}
-                          type="button"
                         >
-                          Rate Your Stay
+                          Rate & Review
                         </button>
-                      </div>
-                    )}
-
-                    {booking.status === "cancelled" && (
-                      <button className={styles.disabledBtn} disabled type="button">
-                        Booking Cancelled
-                      </button>
-                    )}
-
-                    {booking.status === "checked_in" && (
-                      <button className={styles.disabledBtn} disabled type="button">
-                        Stay In Progress
-                      </button>
-                    )}
+                      )}
                   </div>
                 </div>
               </div>
