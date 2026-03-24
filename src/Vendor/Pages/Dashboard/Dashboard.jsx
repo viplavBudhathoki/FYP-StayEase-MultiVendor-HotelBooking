@@ -199,10 +199,14 @@ const Dashboard = () => {
                 <div key={booking.booking_id} className={styles.activityItem}>
                   <div>
                     <p className={styles.activityTitle}>
-                      {booking.customer_name} booked {booking.room_name}
+                      {booking.customer_name} booked {booking.rooms_requested || 1} room
+                      {Number(booking.rooms_requested || 1) > 1 ? "s" : ""}
                     </p>
                     <p className={styles.activitySub}>
-                      {booking.hotel_name} • {booking.check_in} to {booking.check_out}
+                      {booking.room_name} • {booking.hotel_name}
+                    </p>
+                    <p className={styles.activitySub}>
+                      {booking.check_in} to {booking.check_out}
                     </p>
                     <p className={styles.activityMeta}>
                       Rs. {booking.total_price}
