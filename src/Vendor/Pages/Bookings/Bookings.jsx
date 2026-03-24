@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Search } from "lucide-react";
+import { Search, FileDown } from "lucide-react";
 import { baseUrl } from "../../../constant";
 import styles from "./Bookings.module.css";
 
@@ -14,6 +14,8 @@ const Bookings = () => {
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -29,6 +31,18 @@ const Bookings = () => {
 
       const form = new FormData();
       form.append("token", token);
+
+      if (statusFilter !== "all") {
+        form.append("status", statusFilter);
+      }
+
+      if (fromDate) {
+        form.append("from_date", fromDate);
+      }
+
+      if (toDate) {
+        form.append("to_date", toDate);
+      }
 
       const res = await fetch(`${baseUrl}/bookings/getVendorBookings.php`, {
         method: "POST",
@@ -83,24 +97,52 @@ const Bookings = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const handleExportPdf = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Vendor token missing");
+      return;
+    }
+
+    if (!fromDate || !toDate) {
+      toast.error("Please select both from date and to date");
+      return;
+    }
+
+    if (toDate < fromDate) {
+      toast.error("To date must be same or after from date");
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.append("token", token);
+    params.append("from_date", fromDate);
+    params.append("to_date", toDate);
+
+    if (statusFilter !== "all") {
+      params.append("status", statusFilter);
+    }
+
+    window.open(
+      `${baseUrl}/bookings/exportVendorBookingsPdf.php?${params.toString()}`,
+      "_blank"
+    );
+  };
 
   useEffect(() => {
     const urlStatus = (searchParams.get("status") || "all").toLowerCase();
     setStatusFilter(urlStatus);
   }, [searchParams]);
 
+  useEffect(() => {
+    fetchBookings();
+  }, [statusFilter, fromDate, toDate]);
+
   const filteredBookings = useMemo(() => {
     const q = search.trim().toLowerCase();
 
     return bookings.filter((booking) => {
-      const bookingStatus = String(booking.status || "").toLowerCase();
-
-      const statusMatch =
-        statusFilter === "all" ? true : bookingStatus === statusFilter;
-
       const searchMatch =
         !q ||
         String(booking.customer_name || "").toLowerCase().includes(q) ||
@@ -109,9 +151,9 @@ const Bookings = () => {
         String(booking.room_name || "").toLowerCase().includes(q) ||
         String(booking.room_type || "").toLowerCase().includes(q);
 
-      return statusMatch && searchMatch;
+      return searchMatch;
     });
-  }, [bookings, statusFilter, search]);
+  }, [bookings, search]);
 
   const filterButtons = [
     { label: "All", value: "all" },
@@ -162,6 +204,38 @@ const Bookings = () => {
         </div>
       </div>
 
+      <div className={styles.exportToolbar}>
+        <div className={styles.dateFilters}>
+          <div className={styles.dateField}>
+            <label>From</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.dateField}>
+            <label>To</label>
+            <input
+              type="date"
+              value={toDate}
+              min={fromDate || ""}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className={styles.exportBtn}
+          onClick={handleExportPdf}
+        >
+          <FileDown size={18} />
+          Export PDF
+        </button>
+      </div>
+
       {filteredBookings.length === 0 ? (
         <div className={styles.emptyState}>
           <h3>No bookings found</h3>
@@ -169,134 +243,143 @@ const Bookings = () => {
         </div>
       ) : (
         <div className={styles.bookingsList}>
-          {filteredBookings.map((booking) => (
-            <div key={booking.booking_id} className={styles.bookingCard}>
-              <img
-                src={getRoomImage(booking.room_image)}
-                alt={booking.room_name}
-                className={styles.roomImage}
-                onError={(e) => {
-                  e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
-                }}
-              />
+          {filteredBookings.map((booking) => {
+            const roomsRequested = Number(booking.rooms_requested || 1);
 
-              <div className={styles.bookingInfo}>
-                <div className={styles.topRow}>
-                  <div>
-                    <p className={styles.hotelName}>{booking.hotel_name}</p>
-                    <h2 className={styles.roomName}>{booking.room_name}</h2>
-                    <p className={styles.roomType}>{booking.room_type}</p>
-                    <p className={styles.location}>{booking.hotel_location}</p>
-                  </div>
+            return (
+              <div key={booking.booking_id} className={styles.bookingCard}>
+                <img
+                  src={getRoomImage(booking.room_image)}
+                  alt={booking.room_name || "Booked room"}
+                  className={styles.roomImage}
+                  onError={(e) => {
+                    e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                  }}
+                />
 
-                  <span
-                    className={`${styles.statusBadge} ${
-                      styles[booking.status?.toLowerCase()] || ""
-                    }`}
-                  >
-                    {booking.status}
-                  </span>
-                </div>
+                <div className={styles.bookingInfo}>
+                  <div className={styles.topRow}>
+                    <div>
+                      <p className={styles.hotelName}>{booking.hotel_name}</p>
+                      <h2 className={styles.roomName}>{booking.room_name}</h2>
+                      <p className={styles.roomType}>{booking.room_type}</p>
+                      <p className={styles.location}>{booking.hotel_location}</p>
+                    </div>
 
-                <div className={styles.customerBox}>
-                  <p className={styles.customerTitle}>Customer Details</p>
-                  <p className={styles.customerText}>
-                    <strong>Name:</strong> {booking.customer_name}
-                  </p>
-                  <p className={styles.customerText}>
-                    <strong>Email:</strong> {booking.customer_email}
-                  </p>
-                </div>
-
-                <div className={styles.detailsGrid}>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Check-in</span>
-                    <span className={styles.detailValue}>{booking.check_in}</span>
-                  </div>
-
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Check-out</span>
-                    <span className={styles.detailValue}>{booking.check_out}</span>
-                  </div>
-
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Total Price</span>
-                    <span className={styles.detailValue}>
-                      Rs. {booking.total_price}
+                    <span
+                      className={`${styles.statusBadge} ${
+                        styles[String(booking.status || "").toLowerCase()] || ""
+                      }`}
+                    >
+                      {booking.status}
                     </span>
                   </div>
 
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Booked On</span>
-                    <span className={styles.detailValue}>
-                      {booking.created_at
-                        ? new Date(booking.created_at).toLocaleDateString()
-                        : "-"}
-                    </span>
+                  <div className={styles.customerBox}>
+                    <p className={styles.customerTitle}>Customer Details</p>
+                    <p className={styles.customerText}>
+                      <strong>Name:</strong> {booking.customer_name}
+                    </p>
+                    <p className={styles.customerText}>
+                      <strong>Email:</strong> {booking.customer_email}
+                    </p>
                   </div>
-                </div>
 
-                <div className={styles.actions}>
-                  {booking.status === "confirmed" && (
-                    <>
+                  <div className={styles.detailsGrid}>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Check-in</span>
+                      <span className={styles.detailValue}>{booking.check_in}</span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Check-out</span>
+                      <span className={styles.detailValue}>{booking.check_out}</span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Rooms</span>
+                      <span className={styles.detailValue}>{roomsRequested}</span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Total Price</span>
+                      <span className={styles.detailValue}>
+                        Rs. {booking.total_price}
+                      </span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Booked On</span>
+                      <span className={styles.detailValue}>
+                        {booking.created_at
+                          ? new Date(booking.created_at).toLocaleDateString()
+                          : "-"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.actions}>
+                    {booking.status === "confirmed" && (
+                      <>
+                        <button
+                          className={styles.completeBtn}
+                          onClick={() =>
+                            updateBookingStatus(booking.booking_id, "checked_in")
+                          }
+                          disabled={updatingId === booking.booking_id}
+                          type="button"
+                        >
+                          {updatingId === booking.booking_id
+                            ? "Updating..."
+                            : "Check In Guest"}
+                        </button>
+
+                        <button
+                          className={styles.cancelBtn}
+                          onClick={() =>
+                            updateBookingStatus(booking.booking_id, "cancelled")
+                          }
+                          disabled={updatingId === booking.booking_id}
+                          type="button"
+                        >
+                          {updatingId === booking.booking_id
+                            ? "Updating..."
+                            : "Cancel Booking"}
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status === "checked_in" && (
                       <button
                         className={styles.completeBtn}
                         onClick={() =>
-                          updateBookingStatus(booking.booking_id, "checked_in")
+                          updateBookingStatus(booking.booking_id, "completed")
                         }
                         disabled={updatingId === booking.booking_id}
                         type="button"
                       >
                         {updatingId === booking.booking_id
                           ? "Updating..."
-                          : "Check In Guest"}
+                          : "Complete Stay"}
                       </button>
+                    )}
 
-                      <button
-                        className={styles.cancelBtn}
-                        onClick={() =>
-                          updateBookingStatus(booking.booking_id, "cancelled")
-                        }
-                        disabled={updatingId === booking.booking_id}
-                        type="button"
-                      >
-                        {updatingId === booking.booking_id
-                          ? "Updating..."
-                          : "Cancel Booking"}
+                    {booking.status === "completed" && (
+                      <button className={styles.disabledBtn} disabled type="button">
+                        Stay Completed
                       </button>
-                    </>
-                  )}
+                    )}
 
-                  {booking.status === "checked_in" && (
-                    <button
-                      className={styles.completeBtn}
-                      onClick={() =>
-                        updateBookingStatus(booking.booking_id, "completed")
-                      }
-                      disabled={updatingId === booking.booking_id}
-                      type="button"
-                    >
-                      {updatingId === booking.booking_id
-                        ? "Updating..."
-                        : "Complete Stay"}
-                    </button>
-                  )}
-
-                  {booking.status === "completed" && (
-                    <button className={styles.disabledBtn} disabled type="button">
-                      Stay Completed
-                    </button>
-                  )}
-
-                  {booking.status === "cancelled" && (
-                    <button className={styles.disabledBtn} disabled type="button">
-                      Booking Cancelled
-                    </button>
-                  )}
+                    {booking.status === "cancelled" && (
+                      <button className={styles.disabledBtn} disabled type="button">
+                        Booking Cancelled
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
