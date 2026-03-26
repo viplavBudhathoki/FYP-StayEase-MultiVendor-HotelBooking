@@ -96,6 +96,13 @@
   align-items: flex-start;
 }
 
+.bookingId {
+  margin: 0 0 6px 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #f8740f;
+}
+
 .hotelName {
   margin: 0 0 4px 0;
   font-size: 1.35rem;
@@ -152,7 +159,7 @@
 
 .detailsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   padding: 14px;
   border-radius: 14px;
@@ -177,11 +184,79 @@
   font-weight: 600;
 }
 
+.roomBreakdown {
+  margin-top: 2px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.breakdownHeading {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.roomBreakdownList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roomBreakdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.roomBreakdownItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.breakdownRoomTitle {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.breakdownRoomMeta {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.breakdownPrice {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f8740f;
+  white-space: nowrap;
+}
+
 .editDatesBox {
   background: #fff7ed;
   border: 1px solid #fed7aa;
   border-radius: 14px;
   padding: 16px;
+}
+
+.checkedInBox {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 5px solid #f8740f;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.checkedInBox .sectionHeading {
+  color: #c2410c;
 }
 
 .sectionHeading {
@@ -227,6 +302,13 @@
   color: #64748b;
 }
 
+.policyNote {
+  margin: 12px 0 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #7c2d12;
+}
+
 .saveBtn {
   margin-top: 14px;
   padding: 11px 18px;
@@ -252,12 +334,16 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .pdfBtn,
-.reviewBtn {
+.reviewBtn,
+.downloadBtn,
+.cancelBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 11px 18px;
   border: none;
@@ -276,6 +362,29 @@
   background: #1e293b;
 }
 
+.downloadBtn {
+  background: #f8740f;
+  color: white;
+}
+
+.downloadBtn:hover {
+  background: #d3610a;
+}
+
+.cancelBtn {
+  background: #ef4444;
+  color: white;
+}
+
+.cancelBtn:hover {
+  background: #dc2626;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .reviewBtn {
   background: #16a34a;
   color: white;
@@ -283,25 +392,6 @@
 
 .reviewBtn:hover {
   background: #15803d;
-}
-
-.multiRoomBox {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #f8fafc;
-}
-
-.roomList {
-  margin: 10px 0 0 0;
-  padding-left: 18px;
-}
-
-.roomListItem {
-  color: #334155;
-  margin-bottom: 6px;
-  line-height: 1.5;
 }
 
 @media (max-width: 1100px) {
@@ -328,6 +418,15 @@
   .dateRow {
     grid-template-columns: 1fr;
   }
+
+  .roomBreakdownItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .breakdownPrice {
+    white-space: normal;
+  }
 }
 
 @media (max-width: 768px) {
@@ -341,7 +440,9 @@
 
   .pdfBtn,
   .reviewBtn,
-  .saveBtn {
+  .saveBtn,
+  .downloadBtn,
+  .cancelBtn {
     width: 100%;
     justify-content: center;
   }
