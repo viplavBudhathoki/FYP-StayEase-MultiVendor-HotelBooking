@@ -353,9 +353,7 @@ const MyBookings = () => {
                               <p className={styles.breakdownRoomTitle}>
                                 Room {index + 1}: {room.room_name}
                               </p>
-                              <p className={styles.breakdownRoomMeta}>
-                                {room.room_type}
-                              </p>
+                              <p className={styles.breakdownRoomMeta}>{room.room_type}</p>
                             </div>
 
                             <p className={styles.breakdownPrice}>
@@ -443,16 +441,15 @@ const MyBookings = () => {
                       </button>
                     )}
 
-                    {normalizedStatus === "completed" &&
-                      new Date() > new Date(booking.check_out) && (
-                        <button
-                          type="button"
-                          className={styles.reviewBtn}
-                          onClick={() => openReviewModal(booking)}
-                        >
-                          Rate & Review
-                        </button>
-                      )}
+                    {normalizedStatus === "completed" && (
+                      <button
+                        type="button"
+                        className={styles.reviewBtn}
+                        onClick={() => openReviewModal(booking)}
+                      >
+                        Rate & Review
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
