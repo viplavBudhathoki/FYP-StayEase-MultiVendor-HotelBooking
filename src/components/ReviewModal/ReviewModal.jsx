@@ -65,7 +65,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
     }
 
     if (formData.rating < 0.5) {
-      toast.error("Please give a rating");
+      toast.error("Please select a rating before submitting");
       return;
     }
 
@@ -92,7 +92,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       if (data.success) {
         toast.success(
           myReview
-            ? "Review updated successfully"
+            ? "Feedback updated successfully"
             : formData.comment.trim()
             ? "Rating and review submitted successfully"
             : "Rating submitted successfully"
@@ -100,10 +100,10 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
         onSuccess?.();
         onClose?.();
       } else {
-        toast.error(data.message || "Failed to save review");
+        toast.error(data.message || "Failed to save feedback");
       }
     } catch {
-      toast.error("Failed to save review");
+      toast.error("Failed to save feedback");
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       return;
     }
 
-    const ok = window.confirm("Are you sure you want to delete your review?");
+    const ok = window.confirm("Are you sure you want to delete your feedback?");
     if (!ok) return;
 
     try {
@@ -133,14 +133,14 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(data.message || "Review deleted successfully");
+        toast.success(data.message || "Feedback deleted successfully");
         onSuccess?.();
         onClose?.();
       } else {
-        toast.error(data.message || "Failed to delete review");
+        toast.error(data.message || "Failed to delete feedback");
       }
     } catch {
-      toast.error("Failed to delete review");
+      toast.error("Failed to delete feedback");
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
       <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
-            <h2>{myReview ? "Edit Review" : "Rate Your Stay"}</h2>
+            <h2>{myReview ? "Edit Feedback" : "Rate Your Stay (Optional)"}</h2>
             <p>
               {booking.hotel_name} — {bookingTitle}
             </p>
@@ -196,7 +196,7 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
               disabled={loading}
               type="button"
             >
-              Delete Review
+              Delete Feedback
             </button>
           )}
 
@@ -209,7 +209,9 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
             {loading
               ? "Saving..."
               : myReview
-              ? "Update Rating"
+              ? "Update Feedback"
+              : formData.comment.trim()
+              ? "Submit Feedback"
               : "Submit Rating"}
           </button>
         </div>
