@@ -14,6 +14,7 @@ const MyBookings = () => {
 
   const [editDates, setEditDates] = useState({});
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [cancellingBookingId, setCancellingBookingId] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -91,15 +92,14 @@ const MyBookings = () => {
 
   const handleUpdateDates = async (booking) => {
     const currentEdit = editDates[booking.booking_id] || {};
-    const checkIn = currentEdit.check_in || "";
     const checkOut = currentEdit.check_out || "";
 
-    if (!checkIn || !checkOut) {
-      toast.error("Please select both check-in and check-out dates");
+    if (!checkOut) {
+      toast.error("Please select check-out date");
       return;
     }
 
-    if (checkOut <= checkIn) {
+    if (checkOut <= booking.check_in) {
       toast.error("Check-out must be after check-in");
       return;
     }
@@ -110,10 +110,9 @@ const MyBookings = () => {
       const form = new FormData();
       form.append("token", token);
       form.append("booking_id", booking.booking_id);
-      form.append("check_in", checkIn);
       form.append("check_out", checkOut);
 
-      const res = await fetch(`${baseUrl}/bookings/updateMyBookingStay.php`, {
+      const res = await fetch(`${baseUrl}/bookings/updateMyBookingsDate.php`, {
         method: "POST",
         body: form,
       });
@@ -133,13 +132,62 @@ const MyBookings = () => {
     }
   };
 
-  const handleDownloadPdf = (bookingId) => {
+  const handleCancelBooking = async (bookingId) => {
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    const ok = window.confirm("Are you sure you want to cancel this booking?");
+    if (!ok) return;
+
+    try {
+      setCancellingBookingId(bookingId);
+
+      const form = new FormData();
+      form.append("token", token);
+      form.append("booking_id", bookingId);
+
+      const res = await fetch(`${baseUrl}/bookings/cancelBooking.php`, {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success(data.message || "Booking cancelled successfully");
+        fetchBookings();
+      } else {
+        toast.error(data.message || "Failed to cancel booking");
+      }
+    } catch {
+      toast.error("Failed to cancel booking");
+    } finally {
+      setCancellingBookingId(null);
+    }
+  };
+
+  const handleExportPdf = () => {
     if (!token) {
       toast.error("Please login first");
       return;
     }
 
     const url = `${baseUrl}/bookings/exportMyBookingsPdf.php?token=${encodeURIComponent(token)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleDownloadSinglePdf = (bookingId) => {
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    const url = `${baseUrl}/bookings/exportSingleBookingPdf.php?token=${encodeURIComponent(
+      token
+    )}&booking_id=${encodeURIComponent(bookingId)}`;
+
     window.open(url, "_blank");
   };
 
@@ -163,6 +211,18 @@ const MyBookings = () => {
     return styles.defaultStatus;
   };
 
+  const getNights = (checkIn, checkOut) => {
+    if (!checkIn || !checkOut) return 0;
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+
+    const diff = end - start;
+    if (Number.isNaN(diff) || diff <= 0) return 0;
+
+    return Math.round(diff / (1000 * 60 * 60 * 24));
+  };
+
   if (loading) {
     return <div className={styles.stateText}>Loading bookings...</div>;
   }
@@ -174,6 +234,11 @@ const MyBookings = () => {
           <h1>My Bookings</h1>
           <p>Track our reservations, stay details, and booking updates.</p>
         </div>
+
+        <button type="button" className={styles.pdfBtn} onClick={handleExportPdf}>
+          <FileDown size={16} />
+          Export PDF
+        </button>
       </div>
 
       {bookings.length === 0 ? (
@@ -199,6 +264,11 @@ const MyBookings = () => {
               booking.room_type ||
               [...new Set(rooms.map((room) => room.room_type).filter(Boolean))].join(", ");
 
+            const normalizedStatus = String(booking.status || "").toLowerCase();
+            const canCancel = Number(booking.can_cancel_booking) === 1;
+            const canUpdateStay = Number(booking.can_modify_dates) === 1;
+            const nights = getNights(booking.check_in, booking.check_out);
+
             return (
               <div key={booking.booking_id} className={styles.bookingCard}>
                 <div className={styles.imageWrap}>
@@ -215,6 +285,7 @@ const MyBookings = () => {
                 <div className={styles.bookingContent}>
                   <div className={styles.topRow}>
                     <div>
+                      <p className={styles.bookingId}>Booking ID: #{booking.booking_id}</p>
                       <h2 className={styles.hotelName}>{booking.hotel_name}</h2>
                       <p className={styles.location}>{booking.hotel_location}</p>
                       <p className={styles.roomName}>
@@ -236,6 +307,11 @@ const MyBookings = () => {
                     <div className={styles.detailItem}>
                       <span className={styles.detailLabel}>Check-out</span>
                       <span className={styles.detailValue}>{booking.check_out}</span>
+                    </div>
+
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Nights</span>
+                      <span className={styles.detailValue}>{nights}</span>
                     </div>
 
                     <div className={styles.detailItem}>
@@ -267,35 +343,48 @@ const MyBookings = () => {
                     </div>
                   </div>
 
-                  {rooms.length > 1 && (
-                    <div className={styles.multiRoomBox}>
-                      <h4 className={styles.sectionHeading}>Selected Rooms</h4>
-                      <ul className={styles.roomList}>
-                        {rooms.map((room) => (
-                          <li key={room.room_id} className={styles.roomListItem}>
-                            {room.room_name} ({room.room_type}) - Rs.{" "}
-                            {Number(room.price_per_night || 0).toFixed(2)} / night
-                          </li>
+                  {rooms.length > 0 && (
+                    <div className={styles.roomBreakdown}>
+                      <h4 className={styles.breakdownHeading}>Room Details</h4>
+                      <div className={styles.roomBreakdownList}>
+                        {rooms.map((room, index) => (
+                          <div key={room.room_id} className={styles.roomBreakdownItem}>
+                            <div>
+                              <p className={styles.breakdownRoomTitle}>
+                                Room {index + 1}: {room.room_name}
+                              </p>
+                              <p className={styles.breakdownRoomMeta}>
+                                {room.room_type}
+                              </p>
+                            </div>
+
+                            <p className={styles.breakdownPrice}>
+                              Rs. {Number(room.price_per_night || 0).toFixed(2)} / night
+                            </p>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
                   )}
 
-                  {Number(booking.can_modify_dates) === 1 && (
-                    <div className={styles.editDatesBox}>
-                      <h4 className={styles.sectionHeading}>Update Stay Dates</h4>
+                  {canUpdateStay && (
+                    <div
+                      className={
+                        normalizedStatus === "checked_in"
+                          ? styles.checkedInBox
+                          : styles.editDatesBox
+                      }
+                    >
+                      <h4 className={styles.sectionHeading}>
+                        {normalizedStatus === "checked_in"
+                          ? "Extend or Shorten Stay"
+                          : "Update Stay Dates"}
+                      </h4>
 
                       <div className={styles.dateRow}>
                         <div className={styles.dateField}>
                           <label>Check-in</label>
-                          <input
-                            type="date"
-                            value={currentEdit.check_in}
-                            min={new Date().toISOString().split("T")[0]}
-                            onChange={(e) =>
-                              handleDateChange(booking.booking_id, "check_in", e.target.value)
-                            }
-                          />
+                          <input type="date" value={booking.check_in} disabled />
                         </div>
 
                         <div className={styles.dateField}>
@@ -303,13 +392,18 @@ const MyBookings = () => {
                           <input
                             type="date"
                             value={currentEdit.check_out}
-                            min={currentEdit.check_in || new Date().toISOString().split("T")[0]}
+                            min={booking.check_in}
                             onChange={(e) =>
                               handleDateChange(booking.booking_id, "check_out", e.target.value)
                             }
                           />
                         </div>
                       </div>
+
+                      <p className={styles.policyNote}>
+                        Extension or shortening is allowed only if all selected room(s)
+                        remain available for the updated date range.
+                      </p>
 
                       <button
                         className={styles.saveBtn}
@@ -319,6 +413,8 @@ const MyBookings = () => {
                       >
                         {updatingBookingId === booking.booking_id
                           ? "Updating..."
+                          : normalizedStatus === "checked_in"
+                          ? "Update Stay"
                           : "Save Dates"}
                       </button>
                     </div>
@@ -327,14 +423,27 @@ const MyBookings = () => {
                   <div className={styles.actionRow}>
                     <button
                       type="button"
-                      className={styles.pdfBtn}
-                      onClick={() => handleDownloadPdf(booking.booking_id)}
+                      className={styles.downloadBtn}
+                      onClick={() => handleDownloadSinglePdf(booking.booking_id)}
                     >
                       <FileDown size={16} />
                       Download PDF
                     </button>
 
-                    {String(booking.status).toLowerCase() === "completed" &&
+                    {canCancel && (
+                      <button
+                        type="button"
+                        className={styles.cancelBtn}
+                        onClick={() => handleCancelBooking(booking.booking_id)}
+                        disabled={cancellingBookingId === booking.booking_id}
+                      >
+                        {cancellingBookingId === booking.booking_id
+                          ? "Cancelling..."
+                          : "Cancel Booking"}
+                      </button>
+                    )}
+
+                    {normalizedStatus === "completed" &&
                       new Date() > new Date(booking.check_out) && (
                         <button
                           type="button"
