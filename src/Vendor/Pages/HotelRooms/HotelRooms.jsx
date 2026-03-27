@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../../constant";
 import RoomModal from "../../Components/RoomModal/RoomModal";
@@ -7,6 +7,7 @@ import styles from "./HotelRooms.module.css";
 
 const HotelRooms = () => {
   const { hotelId } = useParams();
+  const navigate = useNavigate();
 
   const [hotel, setHotel] = useState(null);
   const [rooms, setRooms] = useState([]);
@@ -14,6 +15,8 @@ const HotelRooms = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
+
+  const [selectedImages, setSelectedImages] = useState({});
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -32,6 +35,32 @@ const HotelRooms = () => {
       .filter(Boolean);
   };
 
+  const buildRoomGallery = (room) => {
+    const gallery = Array.isArray(room.gallery) ? [...room.gallery] : [];
+
+    const hasMain = gallery.some((img) => img.image_url === room.image_url);
+
+    if (!hasMain && room.image_url) {
+      gallery.unshift({
+        image_id: 0,
+        image_url: room.image_url,
+      });
+    }
+
+    if (gallery.length === 0) {
+      gallery.push({
+        image_id: 0,
+        image_url: "uploads/rooms/placeholder.png",
+      });
+    }
+
+    return gallery;
+  };
+
+  const goToRoomDetails = (roomId) => {
+    navigate(`/vendor/rooms/${roomId}`);
+  };
+
   const fetchHotelInfo = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -45,8 +74,11 @@ const HotelRooms = () => {
       });
 
       const data = await res.json();
-      if (data.success) setHotel(data.data);
-      else setHotel(null);
+      if (data.success) {
+        setHotel(data.data);
+      } else {
+        setHotel(null);
+      }
     } catch {
       setHotel(null);
     }
@@ -68,8 +100,21 @@ const HotelRooms = () => {
       });
 
       const data = await res.json();
-      if (data.success) setRooms(Array.isArray(data.data) ? data.data : []);
-      else toast.error(data.message || "Failed to load rooms");
+
+      if (data.success) {
+        const roomData = Array.isArray(data.data) ? data.data : [];
+        setRooms(roomData);
+
+        const nextSelectedImages = {};
+        roomData.forEach((room) => {
+          const gallery = buildRoomGallery(room);
+          nextSelectedImages[room.room_id] = gallery[0]?.image_url || "";
+        });
+        setSelectedImages(nextSelectedImages);
+      } else {
+        toast.error(data.message || "Failed to load rooms");
+        setRooms([]);
+      }
     } catch (err) {
       toast.error(err.message);
       setRooms([]);
@@ -79,7 +124,8 @@ const HotelRooms = () => {
   };
 
   const deleteRoom = async (room_id) => {
-    if (!confirm("Delete this room?")) return;
+    if (!window.confirm("Delete this room?")) return;
+
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Vendor token missing");
@@ -94,6 +140,7 @@ const HotelRooms = () => {
       });
 
       const data = await res.json();
+
       if (data.success) {
         toast.success(data.message || "Deleted");
         fetchRooms();
@@ -115,7 +162,9 @@ const HotelRooms = () => {
     return `Hotel ID: ${hotelId}`;
   }, [hotel, hotelId]);
 
-  if (loading) return <div className={styles.stateText}>Loading rooms...</div>;
+  if (loading) {
+    return <div className={styles.stateText}>Loading rooms...</div>;
+  }
 
   return (
     <div className={styles.page}>
@@ -144,26 +193,68 @@ const HotelRooms = () => {
         <div className={styles.roomList}>
           {rooms.map((r) => {
             const amenitiesArr = parseAmenities(r.amenities);
+            const gallery = buildRoomGallery(r);
+            const selectedImage =
+              selectedImages[r.room_id] ||
+              gallery[0]?.image_url ||
+              "uploads/rooms/placeholder.png";
 
             return (
               <div key={r.room_id} className={styles.roomRow}>
-                <img
-                  src={getRoomImage(r.image_url)}
-                  alt={r.name}
-                  className={styles.roomImage}
-                  onError={(e) => {
-                    e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
-                  }}
-                />
+                <div className={styles.roomGallerySection}>
+                  <img
+                    src={getRoomImage(selectedImage)}
+                    alt={r.name}
+                    className={styles.roomImage}
+                    onClick={() => goToRoomDetails(r.room_id)}
+                    onError={(e) => {
+                      e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                    }}
+                  />
+
+                  {gallery.length > 1 && (
+                    <div className={styles.thumbnailRow}>
+                      {gallery.map((img, index) => (
+                        <button
+                          key={img.image_id || index}
+                          type="button"
+                          className={`${styles.thumbBtn} ${
+                            selectedImage === img.image_url ? styles.activeThumb : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedImages((prev) => ({
+                              ...prev,
+                              [r.room_id]: img.image_url,
+                            }))
+                          }
+                        >
+                          <img
+                            src={getRoomImage(img.image_url)}
+                            alt={`${r.name} ${index + 1}`}
+                            className={styles.thumbImg}
+                            onError={(e) => {
+                              e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className={styles.roomContent}>
                   <div className={styles.roomTop}>
                     <div>
                       <p className={styles.roomType}>{r.type}</p>
-                      <h2 className={styles.roomName}>{r.name}</h2>
+                      <h2
+                        className={styles.roomName}
+                        onClick={() => goToRoomDetails(r.room_id)}
+                      >
+                        {r.name}
+                      </h2>
                     </div>
 
-                    <span className={`${styles.status} ${styles[r.status]}`}>
+                    <span className={`${styles.status} ${styles[r.status] || ""}`}>
                       {r.status}
                     </span>
                   </div>
@@ -171,6 +262,11 @@ const HotelRooms = () => {
                   {r.description ? (
                     <p className={styles.roomDesc}>{r.description}</p>
                   ) : null}
+
+                  <div className={styles.roomMeta}>
+                    <span className={styles.metaItem}>Capacity: {r.capacity}</span>
+                    <span className={styles.metaItem}>Gallery: {gallery.length}</span>
+                  </div>
 
                   {amenitiesArr.length > 0 && (
                     <div className={styles.amenitiesWrap}>
@@ -182,12 +278,15 @@ const HotelRooms = () => {
                     </div>
                   )}
 
-                  <p className={styles.roomPrice}>Rs. {r.price} / night</p>
+                  <p className={styles.roomPrice}>
+                    Rs. {Number(r.price).toLocaleString()} / night
+                  </p>
 
                   <div className={styles.roomActions}>
                     <button
                       className={styles.editBtn}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setEditingRoom(r);
                         setOpenModal(true);
                       }}
@@ -197,7 +296,10 @@ const HotelRooms = () => {
 
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => deleteRoom(r.room_id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteRoom(r.room_id);
+                      }}
                     >
                       Delete
                     </button>
@@ -211,7 +313,7 @@ const HotelRooms = () => {
 
       {openModal && (
         <RoomModal
-          hotelId={hotelId} // fixed hotel from route
+          hotelId={hotelId}
           room={editingRoom}
           onClose={() => {
             setOpenModal(false);
