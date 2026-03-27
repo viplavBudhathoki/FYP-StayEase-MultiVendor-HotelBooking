@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// Public components 
+// Public components
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import LandingPage from "./pages/LandingPage/LandingPage";
@@ -11,8 +11,9 @@ import PublicHotels from "./pages/Hotels/Hotels";
 import PublicHotelRooms from "./pages/HotelRooms/HotelRooms";
 import MyBookings from "./pages/MyBookings/MyBookings";
 import HotelDetails from "./pages/HotelDetails/HotelDetails";
+import RoomDetails from "./pages/RoomDetails/RoomDetails";
 
-// Vendor dashboard components 
+// Vendor dashboard components
 import VendorLayout from "./Vendor/VendorLayout";
 import Dashboard from "./Vendor/Pages/Dashboard/Dashboard";
 import Rooms from "./Vendor/Pages/Rooms/Rooms";
@@ -24,6 +25,7 @@ import Settings from "./Vendor/Pages/Settings/Settings";
 import VendorHotels from "./Vendor/Pages/Hotels/Hotels";
 import VendorHotelRooms from "./Vendor/Pages/HotelRooms/HotelRooms";
 import VendorHotelDetails from "./Vendor/Pages/HotelDetails/VendorHotelDetails";
+import VendorRoomDetails from "./Vendor/Pages/RoomDetails/VendorRoomDetails";
 
 // Admin dashboard components
 import AdminLayout from "./Admin/AdminLayout";
@@ -38,7 +40,12 @@ const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch {
+    user = null;
+  }
 
   const showLogin = location.pathname === "/login";
   const showRegister = location.pathname === "/register";
@@ -71,7 +78,6 @@ const App = () => {
 
       <main style={{ flex: 1 }}>
         <Routes>
-          {/* Public Routes */}
           {!isVendor && !isAdmin && (
             <>
               <Route path="/" element={<LandingPage />} />
@@ -81,6 +87,7 @@ const App = () => {
               <Route path="/hotels" element={<PublicHotels />} />
               <Route path="/hotels/:hotelId" element={<HotelDetails />} />
               <Route path="/hotels/:hotelId/rooms" element={<PublicHotelRooms />} />
+              <Route path="/hotels/:hotelId/rooms/:roomId" element={<RoomDetails />} />
 
               <Route
                 path="/my-bookings"
@@ -91,7 +98,6 @@ const App = () => {
             </>
           )}
 
-          {/* ===== Vendor Routes ===== */}
           {isVendor && (
             <Route path="/vendor/*" element={<VendorLayout />}>
               <Route index element={<Dashboard />} />
@@ -99,6 +105,7 @@ const App = () => {
               <Route path="hotels/:hotelId" element={<VendorHotelDetails />} />
               <Route path="hotels/:hotelId/rooms" element={<VendorHotelRooms />} />
               <Route path="rooms" element={<Rooms />} />
+              <Route path="rooms/:roomId" element={<VendorRoomDetails />} />
               <Route path="bookings" element={<Bookings />} />
               <Route path="analysis" element={<Analysis />} />
               <Route path="offers" element={<Offers />} />
@@ -107,7 +114,6 @@ const App = () => {
             </Route>
           )}
 
-          {/* Admin Routes */}
           {isAdmin && (
             <Route path="/admin/*" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -119,7 +125,6 @@ const App = () => {
             </Route>
           )}
 
-          {/* Redirect Unknown Routes */}
           <Route
             path="*"
             element={
