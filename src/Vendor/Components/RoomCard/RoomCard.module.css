@@ -22,6 +22,7 @@
   object-fit: cover;
   background: #f1f5f9;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .roomInfo {
@@ -50,6 +51,11 @@
   font-size: 18px;
   font-weight: 800;
   color: #1e293b;
+  cursor: pointer;
+}
+
+.roomTitle:hover {
+  color: #f8740f;
 }
 
 .badge {
@@ -118,6 +124,7 @@
   display: flex;
   gap: 10px;
   margin-top: 6px;
+  flex-wrap: wrap;
 }
 
 .actionBtn {
@@ -132,6 +139,15 @@
   font-weight: 700;
   font-size: 13px;
   transition: 0.2s ease;
+}
+
+.viewBtn {
+  background: #f8740f;
+  color: #ffffff;
+}
+
+.viewBtn:hover {
+  background: #dc6a11;
 }
 
 .editBtn {
