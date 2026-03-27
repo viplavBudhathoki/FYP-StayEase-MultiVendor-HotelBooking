@@ -1,6 +1,6 @@
 .page {
   padding: 24px;
-  padding-top: calc(70px + 24px); /* header height fix */
+  padding-top: calc(70px + 24px);
 }
 
 .header {
@@ -20,7 +20,7 @@
 
 .subtitle {
   font-size: 15px;
-  font-weight: 800; /* darker & bold like you want */
+  font-weight: 800;
   color: #111;
   margin-top: 6px;
 }
@@ -53,14 +53,12 @@
   margin: 0;
 }
 
-/* ✅ list layout */
 .roomList {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* ✅ row layout like your sample */
 .roomRow {
   display: flex;
   gap: 16px;
@@ -68,15 +66,57 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.roomImage {
+.roomGallerySection {
   width: 48%;
   max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roomImage {
+  width: 100%;
   height: 240px;
   border-radius: 14px;
-  object-fit: contain;      
-  object-position: center;  
-  background: #f1f5f9;      
+  object-fit: contain;
+  object-position: center;
+  background: #f1f5f9;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.thumbnailRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.thumbBtn {
+  width: 76px;
+  height: 60px;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.thumbBtn:hover {
+  border-color: #f8740f;
+}
+
+.activeThumb {
+  border-color: #f8740f;
+  box-shadow: 0 0 0 2px rgba(248, 116, 15, 0.15);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .roomContent {
@@ -104,6 +144,11 @@
   font-size: 26px;
   font-weight: 800;
   color: #111;
+  cursor: pointer;
+}
+
+.roomName:hover {
+  color: #f8740f;
 }
 
 .roomDesc {
@@ -111,6 +156,23 @@
   color: #6b7280;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.roomMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.metaItem {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
 }
 
 .amenitiesWrap {
@@ -135,7 +197,6 @@
   color: #374151;
 }
 
-/* status badge */
 .status {
   padding: 6px 10px;
   border-radius: 999px;
@@ -185,15 +246,17 @@
   font-weight: 700;
 }
 
-/* responsive */
 @media (max-width: 900px) {
   .roomRow {
     flex-direction: column;
   }
-  .roomImage,
+
+  .roomGallerySection,
   .roomContent {
     width: 100%;
+    max-width: 100%;
   }
+
   .roomImage {
     height: 220px;
   }
@@ -202,5 +265,18 @@
 @media (max-width: 768px) {
   .page {
     padding-top: calc(70px + 70px);
+  }
+
+  .thumbnailRow {
+    gap: 8px;
+  }
+
+  .thumbBtn {
+    width: 64px;
+    height: 54px;
+  }
+
+  .roomName {
+    font-size: 22px;
   }
 }
