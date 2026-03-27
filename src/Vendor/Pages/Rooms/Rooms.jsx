@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, BedDouble } from "lucide-react";
 import toast from "react-hot-toast";
 import RoomModal from "../../Components/RoomModal/RoomModal";
@@ -8,6 +8,7 @@ import { baseUrl } from "../../../constant";
 import styles from "./Rooms.module.css";
 
 const Rooms = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const [rooms, setRooms] = useState([]);
@@ -77,6 +78,10 @@ const Rooms = () => {
     } catch (err) {
       toast.error(err.message || "Failed to delete room");
     }
+  };
+
+  const handleViewRoomDetails = (roomId) => {
+    navigate(`/vendor/rooms/${roomId}`);
   };
 
   useEffect(() => {
@@ -189,6 +194,7 @@ const Rooms = () => {
             <RoomCard
               key={room.room_id}
               room={room}
+              onViewDetails={handleViewRoomDetails}
               onEdit={(selectedRoom) => {
                 setEditingRoom(selectedRoom);
                 setIsModalOpen(true);
