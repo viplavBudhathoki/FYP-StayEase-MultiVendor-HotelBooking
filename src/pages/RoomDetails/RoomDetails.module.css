@@ -1,0 +1,292 @@
+.page {
+  padding: 2rem;
+  padding-top: calc(70px + 2rem);
+  min-height: 100vh;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.state {
+  padding: calc(70px + 2rem) 2rem 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backBtn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.top {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.imageSection {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainImg {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  display: block;
+}
+
+.thumbRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.thumb {
+  width: 82px;
+  height: 62px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.thumb:hover {
+  border-color: #f8740f;
+  transform: translateY(-1px);
+}
+
+.active {
+  border: 2px solid #f8740f;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.14);
+}
+
+.info {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.type {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.price {
+  margin: 0.35rem 0 0 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f8740f;
+}
+
+.meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.desc {
+  margin-top: 0.5rem;
+  color: #475569;
+  line-height: 1.8;
+  font-size: 0.96rem;
+}
+
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 0.35rem;
+}
+
+.chip {
+  padding: 7px 12px;
+  background: #fff7f2;
+  border: 1px solid rgba(248, 116, 15, 0.14);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #c85d0b;
+}
+
+.bookingBox {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bookingBox p {
+  margin: 0;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.bookBtn {
+  margin-top: 6px;
+  padding: 12px 16px;
+  background: #f8740f;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.bookBtn:hover {
+  background: #dc6a11;
+  transform: translateY(-1px);
+}
+
+.gallerySection {
+  margin-top: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.gallerySection h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.grid img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grid img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 992px) {
+  .top {
+    flex-direction: column;
+  }
+
+  .imageSection,
+  .info {
+    width: 100%;
+  }
+
+  .mainImg {
+    height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+    padding-top: calc(70px + 1rem);
+  }
+
+  .top,
+  .gallerySection {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .info h1 {
+    font-size: 1.6rem;
+  }
+
+  .price {
+    font-size: 1.35rem;
+  }
+
+  .mainImg {
+    height: 250px;
+  }
+
+  .thumb {
+    width: 72px;
+    height: 56px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .thumbRow {
+    gap: 8px;
+  }
+
+  .thumb {
+    width: 64px;
+    height: 50px;
+  }
+
+  .bookBtn {
+    width: 100%;
+  }
+}
