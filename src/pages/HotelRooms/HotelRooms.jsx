@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { baseUrl } from "../../constant";
 import styles from "./HotelRooms.module.css";
 
+const MAX_CAPACITY_PER_ROOM_RULE = 4;
+
 const HotelRooms = () => {
   const { hotelId } = useParams();
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ const HotelRooms = () => {
   const [priceSort, setPriceSort] = useState("default");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedRoomIds, setSelectedRoomIds] = useState([]);
+  const [selectedImages, setSelectedImages] = useState({});
 
   const [stayInfo, setStayInfo] = useState({
     check_in: searchParams.get("check_in") || "",
@@ -34,9 +37,9 @@ const HotelRooms = () => {
   }
 
   const isLoggedIn = !!token && !!user;
-
   const today = new Date().toISOString().split("T")[0];
   const totalGuests = Number(stayInfo.adults || 0) + Number(stayInfo.children || 0);
+  const minimumRoomsNeeded = Math.ceil(totalGuests / MAX_CAPACITY_PER_ROOM_RULE);
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -57,6 +60,40 @@ const HotelRooms = () => {
       .filter(Boolean);
   };
 
+  const buildRoomGallery = (room) => {
+    const gallery = Array.isArray(room.gallery) ? [...room.gallery] : [];
+
+    const hasMain = gallery.some((img) => img.image_url === room.image_url);
+
+    if (!hasMain && room.image_url) {
+      gallery.unshift({
+        image_id: 0,
+        image_url: room.image_url,
+      });
+    }
+
+    if (gallery.length === 0) {
+      gallery.push({
+        image_id: 0,
+        image_url: "uploads/rooms/placeholder.png",
+      });
+    }
+
+    return gallery;
+  };
+
+  const goToRoomDetails = (roomId) => {
+    const params = new URLSearchParams();
+
+    if (stayInfo.check_in) params.set("check_in", stayInfo.check_in);
+    if (stayInfo.check_out) params.set("check_out", stayInfo.check_out);
+    params.set("adults", String(stayInfo.adults));
+    params.set("children", String(stayInfo.children));
+    params.set("rooms", String(stayInfo.rooms_requested));
+
+    navigate(`/hotels/${hotelId}/rooms/${roomId}?${params.toString()}`);
+  };
+
   const goToLogin = () => {
     toast.error("Please login first");
     navigate("/login", {
@@ -65,14 +102,10 @@ const HotelRooms = () => {
   };
 
   const updateSearchParams = (nextStayInfo) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
 
     if (nextStayInfo.check_in) params.set("check_in", nextStayInfo.check_in);
-    else params.delete("check_in");
-
     if (nextStayInfo.check_out) params.set("check_out", nextStayInfo.check_out);
-    else params.delete("check_out");
-
     params.set("adults", String(nextStayInfo.adults));
     params.set("children", String(nextStayInfo.children));
     params.set("rooms", String(nextStayInfo.rooms_requested));
@@ -116,7 +149,15 @@ const HotelRooms = () => {
       const data = await res.json();
 
       if (data.success) {
-        setRooms(Array.isArray(data.data) ? data.data : []);
+        const roomData = Array.isArray(data.data) ? data.data : [];
+        setRooms(roomData);
+
+        const nextSelectedImages = {};
+        roomData.forEach((room) => {
+          const gallery = buildRoomGallery(room);
+          nextSelectedImages[room.room_id] = gallery[0]?.image_url || room.image_url || "";
+        });
+        setSelectedImages(nextSelectedImages);
       } else {
         toast.error(data.message || "Failed to load rooms");
         setRooms([]);
@@ -131,6 +172,7 @@ const HotelRooms = () => {
 
   useEffect(() => {
     fetchRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hotelId, stayInfo.check_in, stayInfo.check_out]);
 
   useEffect(() => {
@@ -185,17 +227,35 @@ const HotelRooms = () => {
     return selectedPricePerNight * nights;
   }, [selectedPricePerNight, nights]);
 
+  const availableSelectableRooms = useMemo(() => {
+    return sortedRooms.filter(
+      (room) => room.status !== "maintenance" && !room.is_booked_for_dates
+    );
+  }, [sortedRooms]);
+
+  const canHotelHandleRequestedStay = useMemo(() => {
+    const availableCapacity = availableSelectableRooms.reduce(
+      (sum, room) => sum + Number(room.capacity || 1),
+      0
+    );
+
+    return (
+      availableSelectableRooms.length >= Number(stayInfo.rooms_requested || 1) &&
+      availableCapacity >= totalGuests
+    );
+  }, [availableSelectableRooms, stayInfo.rooms_requested, totalGuests]);
+
   const handleToggleRoom = (room) => {
     const roomId = Number(room.room_id);
     const isSelected = selectedRoomIds.includes(roomId);
 
-    if (room.status === "maintenance") {
-      toast.error("This room is under maintenance");
+    if (!stayInfo.check_in || !stayInfo.check_out) {
+      toast.error("Please select check-in and check-out dates first");
       return;
     }
 
-    if (!stayInfo.check_in || !stayInfo.check_out) {
-      toast.error("Please select check-in and check-out dates first");
+    if (room.status === "maintenance") {
+      toast.error("This room is under maintenance");
       return;
     }
 
@@ -233,13 +293,13 @@ const HotelRooms = () => {
       return;
     }
 
-    if (stayInfo.check_out <= stayInfo.check_in) {
-      toast.error("Check-out must be after check-in");
+    if (stayInfo.check_in < today) {
+      toast.error("Check-in date cannot be in the past");
       return;
     }
 
-    if (stayInfo.check_in < today) {
-      toast.error("Check-in date cannot be in the past");
+    if (stayInfo.check_out <= stayInfo.check_in) {
+      toast.error("Check-out must be after check-in");
       return;
     }
 
@@ -250,6 +310,11 @@ const HotelRooms = () => {
 
     if (stayInfo.children < 0 || stayInfo.rooms_requested < 1) {
       toast.error("Invalid guest or room selection");
+      return;
+    }
+
+    if (stayInfo.rooms_requested < minimumRoomsNeeded) {
+      toast.error(`For ${totalGuests} guests, at least ${minimumRoomsNeeded} room(s) are required`);
       return;
     }
 
@@ -299,6 +364,11 @@ const HotelRooms = () => {
     }
   };
 
+  const availableCapacity = availableSelectableRooms.reduce(
+    (sum, room) => sum + Number(room.capacity || 1),
+    0
+  );
+
   if (loading) {
     return <div className={styles.stateText}>Loading rooms...</div>;
   }
@@ -309,7 +379,7 @@ const HotelRooms = () => {
         <div>
           <h1 className={styles.title}>Choose your rooms</h1>
           <p className={styles.subtitle}>
-            Select {stayInfo.rooms_requested} room(s) for our stay, guest count, and travel dates.
+            Select exactly {stayInfo.rooms_requested} room(s) for our stay and make sure the total room capacity covers all guests.
           </p>
         </div>
 
@@ -343,13 +413,11 @@ const HotelRooms = () => {
 
         <div className={styles.summaryCard}>
           <span>Guests</span>
-          <strong>
-            {stayInfo.adults} Adults, {stayInfo.children} Children
-          </strong>
+          <strong>{stayInfo.adults} Adults, {stayInfo.children} Children</strong>
         </div>
 
         <div className={styles.summaryCard}>
-          <span>Rooms Needed</span>
+          <span>Requested Rooms</span>
           <strong>{stayInfo.rooms_requested}</strong>
         </div>
       </div>
@@ -418,22 +486,26 @@ const HotelRooms = () => {
             </select>
           </div>
         </div>
+
+        <div className={styles.infoBanner}>
+          <strong>Booking rule:</strong> For {totalGuests} guest(s), at least {minimumRoomsNeeded} room(s) are recommended by system validation.
+        </div>
+
+        {!canHotelHandleRequestedStay && (
+          <div className={styles.warningBanner}>
+            This hotel can currently accommodate up to {availableCapacity} guest(s),
+            but {totalGuests} guest(s) were selected. Please choose another hotel or adjust your search.
+          </div>
+        )}
       </div>
 
       <div className={styles.selectionSummary}>
         <div className={styles.selectionInfo}>
-          <p>
-            Selected Rooms: <strong>{selectedRoomIds.length}</strong> / {stayInfo.rooms_requested}
-          </p>
-          <p>
-            Selected Capacity: <strong>{selectedCapacity}</strong> guest(s)
-          </p>
-          <p>
-            Total Guests: <strong>{totalGuests}</strong>
-          </p>
-          <p>
-            Total Price: <strong>Rs. {totalBookingPrice.toFixed(2)}</strong>
-          </p>
+          <p>Selected Rooms: <strong>{selectedRoomIds.length}</strong> / {stayInfo.rooms_requested}</p>
+          <p>Selected Capacity: <strong>{selectedCapacity}</strong> guest(s)</p>
+          <p>Total Guests: <strong>{totalGuests}</strong></p>
+          <p>Nights: <strong>{nights}</strong></p>
+          <p>Total Price: <strong>Rs. {totalBookingPrice.toFixed(2)}</strong></p>
         </div>
 
         <button
@@ -443,8 +515,10 @@ const HotelRooms = () => {
             bookingLoading ||
             !stayInfo.check_in ||
             !stayInfo.check_out ||
+            stayInfo.rooms_requested < minimumRoomsNeeded ||
             selectedRoomIds.length !== Number(stayInfo.rooms_requested || 1) ||
-            selectedCapacity < totalGuests
+            selectedCapacity < totalGuests ||
+            !canHotelHandleRequestedStay
           }
           onClick={handleReserveSelected}
         >
@@ -462,6 +536,12 @@ const HotelRooms = () => {
             const isMaintenance = room.status === "maintenance";
             const isBookedForDates = room.is_booked_for_dates;
             const isSelected = selectedRoomIds.includes(Number(room.room_id));
+            const gallery = buildRoomGallery(room);
+            const selectedImage =
+              selectedImages[room.room_id] ||
+              gallery[0]?.image_url ||
+              room.image_url ||
+              "uploads/rooms/placeholder.png";
 
             let statusText = "Available for selected stay";
             let statusClass = styles.availableStatus;
@@ -482,23 +562,58 @@ const HotelRooms = () => {
                 key={room.room_id}
                 className={`${styles.roomCard} ${isSelected ? styles.selectedRoomCard : ""}`}
               >
-                <img
-                  src={getRoomImage(room.image_url)}
-                  alt={room.name}
-                  className={styles.roomImage}
-                  onError={(e) => {
-                    e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
-                  }}
-                />
+                <div className={styles.roomGallerySection}>
+                  <img
+                    src={getRoomImage(selectedImage)}
+                    alt={room.name}
+                    className={styles.roomImage}
+                    onClick={() => goToRoomDetails(room.room_id)}
+                    onError={(e) => {
+                      e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                    }}
+                  />
+
+                  {gallery.length > 1 && (
+                    <div className={styles.thumbnailRow}>
+                      {gallery.map((img, index) => (
+                        <button
+                          key={img.image_id || index}
+                          type="button"
+                          className={`${styles.thumbBtn} ${
+                            selectedImage === img.image_url ? styles.activeThumb : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedImages((prev) => ({
+                              ...prev,
+                              [room.room_id]: img.image_url,
+                            }))
+                          }
+                        >
+                          <img
+                            src={getRoomImage(img.image_url)}
+                            alt={`${room.name} ${index + 1}`}
+                            className={styles.thumbImg}
+                            onError={(e) => {
+                              e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className={styles.roomInfo}>
                   <div className={styles.roomTop}>
                     <div>
-                      <h3 className={styles.roomName}>{room.name}</h3>
+                      <h3
+                        className={styles.roomName}
+                        onClick={() => goToRoomDetails(room.room_id)}
+                      >
+                        {room.name}
+                      </h3>
                       <p className={styles.roomType}>{room.type}</p>
-                      <p className={styles.roomType}>
-                        Capacity: {roomCapacity} guest(s)
-                      </p>
+                      <p className={styles.roomType}>Capacity: {roomCapacity} guest(s)</p>
                     </div>
 
                     <div className={styles.rightTop}>
@@ -522,6 +637,14 @@ const HotelRooms = () => {
                   </div>
 
                   <div className={styles.roomBottom}>
+                    <button
+                      type="button"
+                      className={styles.viewDetailsBtn}
+                      onClick={() => goToRoomDetails(room.room_id)}
+                    >
+                      View Details
+                    </button>
+
                     <button
                       type="button"
                       className={
