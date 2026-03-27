@@ -128,6 +128,26 @@
   border-color: #f8740f;
 }
 
+.infoBanner {
+  background: rgba(14, 165, 233, 0.08);
+  color: #0c4a6e;
+  border: 1px solid rgba(14, 165, 233, 0.18);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.warningBanner {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
 .selectionSummary {
   display: flex;
   justify-content: space-between;
@@ -268,6 +288,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  gap: 12px; 
   padding-top: 10px;
   border-top: 1px solid #e2e8f0;
 }
@@ -341,6 +362,71 @@
 .maintenanceStatus {
   background: rgba(245, 158, 11, 0.15);
   color: #92400e;
+}
+
+.roomGallerySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.thumbnailRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.thumbBtn {
+  width: 72px;
+  height: 58px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+}
+
+.thumbBtn:hover {
+  border-color: #f8740f;
+}
+
+.activeThumb {
+  border-color: #f8740f;
+  box-shadow: 0 0 0 2px rgba(248, 116, 15, 0.15);
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.roomImage {
+  cursor: pointer;
+}
+
+.roomName {
+  cursor: pointer;
+}
+
+.roomName:hover {
+  color: #f8740f;
+}
+
+.viewDetailsBtn {
+  padding: 10px 14px;
+  border: 1px solid #f8740f;
+  background: #fff7f2;
+  color: #f8740f;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.viewDetailsBtn:hover {
+  background: #ffefe4;
 }
 
 @media (max-width: 1100px) {
