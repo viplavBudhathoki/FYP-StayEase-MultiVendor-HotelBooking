@@ -9,13 +9,11 @@ const VendorHotels = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // image handler
   const getHotelImage = (img) => {
     if (!img) return `${baseUrl}/uploads/hotels/placeholder.png`;
     return `${baseUrl}/${img}`;
   };
 
-  // NEW: go to hotel details (not rooms)
   const goToHotelDetails = (hotelId) => {
     navigate(`/vendor/hotels/${hotelId}`);
   };
@@ -34,8 +32,7 @@ const VendorHotels = () => {
         body: form,
       });
 
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const data = await res.json();
 
       if (data.success) {
         setHotels(Array.isArray(data.data) ? data.data : []);
@@ -55,23 +52,22 @@ const VendorHotels = () => {
     fetchHotels();
   }, []);
 
-  // loading state
   if (loading) {
     return <div className={styles.stateText}>Loading hotels...</div>;
   }
 
-  // empty state
   if (hotels.length === 0) {
-    return (
-      <div className={styles.stateText}>
-        No hotels assigned to you yet.
-      </div>
-    );
+    return <div className={styles.stateText}>No hotels assigned to us yet.</div>;
   }
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>My Hotels</h1>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>My Hotels</h1>
+        <p className={styles.subtitle}>
+          View and manage the hotels assigned to us.
+        </p>
+      </div>
 
       <div className={styles.hotelList}>
         {hotels.map((h) => (
@@ -88,7 +84,6 @@ const VendorHotels = () => {
               }
             }}
           >
-            {/* IMAGE */}
             <div className={styles.hotelImageWrap}>
               <img
                 src={getHotelImage(h.image_url)}
@@ -100,11 +95,8 @@ const VendorHotels = () => {
               />
             </div>
 
-            {/* CONTENT */}
             <div className={styles.hotelInfo}>
-              <h2 className={styles.hotelName}>
-                {h.name || "Untitled Hotel"}
-              </h2>
+              <h2 className={styles.hotelName}>{h.name || "Untitled Hotel"}</h2>
 
               <p className={styles.hotelLocation}>
                 {h.location || "Location not available"}
@@ -114,7 +106,6 @@ const VendorHotels = () => {
                 {h.description || "No description available."}
               </p>
 
-              {/* 👉 Button now also goes to details */}
               <button
                 className={styles.manageBtn}
                 onClick={(e) => {
