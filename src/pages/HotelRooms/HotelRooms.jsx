@@ -4,8 +4,6 @@ import toast from "react-hot-toast";
 import { baseUrl } from "../../constant";
 import styles from "./HotelRooms.module.css";
 
-const MAX_CAPACITY_PER_ROOM_RULE = 4;
-
 const HotelRooms = () => {
   const { hotelId } = useParams();
   const navigate = useNavigate();
@@ -16,7 +14,7 @@ const HotelRooms = () => {
   const [loading, setLoading] = useState(true);
   const [priceSort, setPriceSort] = useState("default");
   const [bookingLoading, setBookingLoading] = useState(false);
-  const [selectedRoomIds, setSelectedRoomIds] = useState([]);
+  const [selectedCounts, setSelectedCounts] = useState({});
   const [selectedImages, setSelectedImages] = useState({});
 
   const [stayInfo, setStayInfo] = useState({
@@ -39,14 +37,15 @@ const HotelRooms = () => {
   const isLoggedIn = !!token && !!user;
   const today = new Date().toISOString().split("T")[0];
   const totalGuests = Number(stayInfo.adults || 0) + Number(stayInfo.children || 0);
-  const minimumRoomsNeeded = Math.ceil(totalGuests / MAX_CAPACITY_PER_ROOM_RULE);
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
     return `${baseUrl}/${img}`;
   };
 
-  const parseAmenities = (value) => {
+  const parseAmenities = (value, amenitiesArray) => {
+    if (Array.isArray(amenitiesArray)) return amenitiesArray;
+
     if (!value) return [];
 
     try {
@@ -158,6 +157,17 @@ const HotelRooms = () => {
           nextSelectedImages[room.room_id] = gallery[0]?.image_url || room.image_url || "";
         });
         setSelectedImages(nextSelectedImages);
+
+        setSelectedCounts((prev) => {
+          const next = {};
+          roomData.forEach((room) => {
+            const roomId = String(room.room_id);
+            const previous = Number(prev[roomId] || 0);
+            const available = Number(room.available_rooms || 0);
+            next[roomId] = Math.min(previous, available);
+          });
+          return next;
+        });
       } else {
         toast.error(data.message || "Failed to load rooms");
         setRooms([]);
@@ -172,21 +182,7 @@ const HotelRooms = () => {
 
   useEffect(() => {
     fetchRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hotelId, stayInfo.check_in, stayInfo.check_out]);
-
-  useEffect(() => {
-    setSelectedRoomIds((prev) => {
-      const validRoomIds = new Set(rooms.map((room) => Number(room.room_id)));
-      const filtered = prev.filter((id) => validRoomIds.has(Number(id)));
-
-      if (filtered.length > stayInfo.rooms_requested) {
-        return filtered.slice(0, stayInfo.rooms_requested);
-      }
-
-      return filtered;
-    });
-  }, [rooms, stayInfo.rooms_requested]);
 
   const sortedRooms = useMemo(() => {
     const copied = [...rooms];
@@ -200,18 +196,23 @@ const HotelRooms = () => {
     return copied;
   }, [rooms, priceSort]);
 
-  const selectedRooms = useMemo(() => {
-    const selectedSet = new Set(selectedRoomIds.map(Number));
-    return sortedRooms.filter((room) => selectedSet.has(Number(room.room_id)));
-  }, [sortedRooms, selectedRoomIds]);
+  const totalSelectedRooms = useMemo(() => {
+    return Object.values(selectedCounts).reduce((sum, count) => sum + Number(count || 0), 0);
+  }, [selectedCounts]);
 
   const selectedCapacity = useMemo(() => {
-    return selectedRooms.reduce((sum, room) => sum + Number(room.capacity || 1), 0);
-  }, [selectedRooms]);
+    return sortedRooms.reduce((sum, room) => {
+      const count = Number(selectedCounts[String(room.room_id)] || 0);
+      return sum + Number(room.capacity || 1) * count;
+    }, 0);
+  }, [sortedRooms, selectedCounts]);
 
   const selectedPricePerNight = useMemo(() => {
-    return selectedRooms.reduce((sum, room) => sum + Number(room.price || 0), 0);
-  }, [selectedRooms]);
+    return sortedRooms.reduce((sum, room) => {
+      const count = Number(selectedCounts[String(room.room_id)] || 0);
+      return sum + Number(room.price || 0) * count;
+    }, 0);
+  }, [sortedRooms, selectedCounts]);
 
   const nights = useMemo(() => {
     if (!stayInfo.check_in || !stayInfo.check_out) return 0;
@@ -227,54 +228,81 @@ const HotelRooms = () => {
     return selectedPricePerNight * nights;
   }, [selectedPricePerNight, nights]);
 
-  const availableSelectableRooms = useMemo(() => {
-    return sortedRooms.filter(
-      (room) => room.status !== "maintenance" && !room.is_booked_for_dates
-    );
+  const availableCapacity = useMemo(() => {
+    return sortedRooms.reduce((sum, room) => {
+      if (room.can_book) {
+        return sum + Number(room.capacity || 1) * Number(room.available_rooms || 0);
+      }
+      return sum;
+    }, 0);
   }, [sortedRooms]);
 
   const canHotelHandleRequestedStay = useMemo(() => {
-    const availableCapacity = availableSelectableRooms.reduce(
-      (sum, room) => sum + Number(room.capacity || 1),
+    const totalAvailableUnits = sortedRooms.reduce(
+      (sum, room) => sum + Number(room.available_rooms || 0),
       0
     );
 
     return (
-      availableSelectableRooms.length >= Number(stayInfo.rooms_requested || 1) &&
+      totalAvailableUnits >= Number(stayInfo.rooms_requested || 1) &&
       availableCapacity >= totalGuests
     );
-  }, [availableSelectableRooms, stayInfo.rooms_requested, totalGuests]);
+  }, [sortedRooms, stayInfo.rooms_requested, totalGuests, availableCapacity]);
 
-  const handleToggleRoom = (room) => {
-    const roomId = Number(room.room_id);
-    const isSelected = selectedRoomIds.includes(roomId);
+  const extraSelectedRooms = totalSelectedRooms - Number(stayInfo.rooms_requested || 1);
 
+  const capacityStatus =
+    selectedCapacity === 0
+      ? "No rooms selected yet"
+      : selectedCapacity >= totalGuests
+      ? `Good fit for ${totalGuests} guest(s)`
+      : `Need ${totalGuests - selectedCapacity} more guest capacity`;
+
+  const selectionStatusType =
+    totalSelectedRooms === 0
+      ? "neutral"
+      : totalSelectedRooms < Number(stayInfo.rooms_requested || 1)
+      ? "warning"
+      : selectedCapacity < totalGuests
+      ? "warning"
+      : "success";
+
+  const handleDecrease = (room) => {
+    const roomId = String(room.room_id);
+    const current = Number(selectedCounts[roomId] || 0);
+
+    if (current <= 0) return;
+
+    setSelectedCounts((prev) => ({
+      ...prev,
+      [roomId]: current - 1,
+    }));
+  };
+
+  const handleIncrease = (room) => {
     if (!stayInfo.check_in || !stayInfo.check_out) {
       toast.error("Please select check-in and check-out dates first");
       return;
     }
 
-    if (room.status === "maintenance") {
-      toast.error("This room is under maintenance");
+    if (!room.can_book) {
+      toast.error(`${room.name} is not available for the selected dates`);
       return;
     }
 
-    if (room.is_booked_for_dates) {
-      toast.error("This room is unavailable for the selected dates");
+    const roomId = String(room.room_id);
+    const current = Number(selectedCounts[roomId] || 0);
+    const available = Number(room.available_rooms || 0);
+
+    if (current >= available) {
+      toast.error(`Only ${available} room(s) available for ${room.name}`);
       return;
     }
 
-    if (isSelected) {
-      setSelectedRoomIds((prev) => prev.filter((id) => id !== roomId));
-      return;
-    }
-
-    if (selectedRoomIds.length >= stayInfo.rooms_requested) {
-      toast.error(`You can select only ${stayInfo.rooms_requested} room(s)`);
-      return;
-    }
-
-    setSelectedRoomIds((prev) => [...prev, roomId]);
+    setSelectedCounts((prev) => ({
+      ...prev,
+      [roomId]: current + 1,
+    }));
   };
 
   const handleReserveSelected = async () => {
@@ -313,13 +341,8 @@ const HotelRooms = () => {
       return;
     }
 
-    if (stayInfo.rooms_requested < minimumRoomsNeeded) {
-      toast.error(`For ${totalGuests} guests, at least ${minimumRoomsNeeded} room(s) are required`);
-      return;
-    }
-
-    if (selectedRoomIds.length !== Number(stayInfo.rooms_requested || 1)) {
-      toast.error(`Please select exactly ${stayInfo.rooms_requested} room(s)`);
+    if (totalSelectedRooms < Number(stayInfo.rooms_requested || 1)) {
+      toast.error(`Please select at least ${stayInfo.rooms_requested} room(s)`);
       return;
     }
 
@@ -340,8 +363,10 @@ const HotelRooms = () => {
       form.append("adults", String(stayInfo.adults));
       form.append("children", String(stayInfo.children));
 
-      selectedRoomIds.forEach((id) => {
-        form.append("room_ids[]", String(id));
+      Object.entries(selectedCounts).forEach(([roomId, count]) => {
+        for (let i = 0; i < Number(count || 0); i++) {
+          form.append("room_ids[]", String(roomId));
+        }
       });
 
       const res = await fetch(`${baseUrl}/bookings/bookRoom.php`, {
@@ -356,6 +381,7 @@ const HotelRooms = () => {
         navigate("/my-bookings");
       } else {
         toast.error(data.message || "Booking failed");
+        fetchRooms();
       }
     } catch {
       toast.error("Failed to book rooms");
@@ -363,11 +389,6 @@ const HotelRooms = () => {
       setBookingLoading(false);
     }
   };
-
-  const availableCapacity = availableSelectableRooms.reduce(
-    (sum, room) => sum + Number(room.capacity || 1),
-    0
-  );
 
   if (loading) {
     return <div className={styles.stateText}>Loading rooms...</div>;
@@ -379,7 +400,7 @@ const HotelRooms = () => {
         <div>
           <h1 className={styles.title}>Choose your rooms</h1>
           <p className={styles.subtitle}>
-            Select exactly {stayInfo.rooms_requested} room(s) for our stay and make sure the total room capacity covers all guests.
+            Select at least {stayInfo.rooms_requested} room(s) for our stay and make sure the total room capacity covers all guests.
           </p>
         </div>
 
@@ -419,6 +440,9 @@ const HotelRooms = () => {
         <div className={styles.summaryCard}>
           <span>Requested Rooms</span>
           <strong>{stayInfo.rooms_requested}</strong>
+          <small className={styles.summaryHelper}>
+            Minimum selection for this booking
+          </small>
         </div>
       </div>
 
@@ -478,7 +502,7 @@ const HotelRooms = () => {
               value={stayInfo.rooms_requested}
               onChange={(e) => handleStayInfoChange("rooms_requested", e.target.value)}
             >
-              {[1, 2, 3, 4].map((n) => (
+              {[1, 2, 3, 4, 5, 6].map((n) => (
                 <option key={n} value={n}>
                   {n} Room{n > 1 ? "s" : ""}
                 </option>
@@ -487,25 +511,46 @@ const HotelRooms = () => {
           </div>
         </div>
 
-        <div className={styles.infoBanner}>
-          <strong>Booking rule:</strong> For {totalGuests} guest(s), at least {minimumRoomsNeeded} room(s) are recommended by system validation.
-        </div>
-
         {!canHotelHandleRequestedStay && (
           <div className={styles.warningBanner}>
-            This hotel can currently accommodate up to {availableCapacity} guest(s),
-            but {totalGuests} guest(s) were selected. Please choose another hotel or adjust your search.
+            This hotel does not currently have enough available room inventory or total capacity for the selected stay.
           </div>
         )}
       </div>
 
       <div className={styles.selectionSummary}>
         <div className={styles.selectionInfo}>
-          <p>Selected Rooms: <strong>{selectedRoomIds.length}</strong> / {stayInfo.rooms_requested}</p>
+          <p>Selected Rooms: <strong>{totalSelectedRooms}</strong> / minimum {stayInfo.rooms_requested}</p>
           <p>Selected Capacity: <strong>{selectedCapacity}</strong> guest(s)</p>
           <p>Total Guests: <strong>{totalGuests}</strong></p>
           <p>Nights: <strong>{nights}</strong></p>
           <p>Total Price: <strong>Rs. {totalBookingPrice.toFixed(2)}</strong></p>
+        </div>
+
+        <div
+          className={`${styles.selectionHint} ${
+            selectionStatusType === "success"
+              ? styles.selectionHintSuccess
+              : selectionStatusType === "warning"
+              ? styles.selectionHintWarning
+              : styles.selectionHintNeutral
+          }`}
+        >
+          {totalSelectedRooms < Number(stayInfo.rooms_requested || 1) ? (
+            <span>
+              Please select at least <strong>{stayInfo.rooms_requested}</strong> room(s).
+            </span>
+          ) : selectedCapacity < totalGuests ? (
+            <span>
+              Selected rooms are not enough for <strong>{totalGuests}</strong> guest(s).
+            </span>
+          ) : extraSelectedRooms > 0 ? (
+            <span>
+              You selected <strong>{extraSelectedRooms}</strong> more room(s) than requested.
+            </span>
+          ) : (
+            <span>{capacityStatus}</span>
+          )}
         </div>
 
         <button
@@ -515,8 +560,7 @@ const HotelRooms = () => {
             bookingLoading ||
             !stayInfo.check_in ||
             !stayInfo.check_out ||
-            stayInfo.rooms_requested < minimumRoomsNeeded ||
-            selectedRoomIds.length !== Number(stayInfo.rooms_requested || 1) ||
+            totalSelectedRooms < Number(stayInfo.rooms_requested || 1) ||
             selectedCapacity < totalGuests ||
             !canHotelHandleRequestedStay
           }
@@ -531,11 +575,11 @@ const HotelRooms = () => {
       ) : (
         <div className={styles.roomsList}>
           {sortedRooms.map((room) => {
-            const amenities = parseAmenities(room.amenities);
+            const amenities = parseAmenities(room.amenities, room.amenities_array);
             const roomCapacity = Number(room.capacity || 1);
             const isMaintenance = room.status === "maintenance";
             const isBookedForDates = room.is_booked_for_dates;
-            const isSelected = selectedRoomIds.includes(Number(room.room_id));
+            const selectedCount = Number(selectedCounts[String(room.room_id)] || 0);
             const gallery = buildRoomGallery(room);
             const selectedImage =
               selectedImages[room.room_id] ||
@@ -543,7 +587,7 @@ const HotelRooms = () => {
               room.image_url ||
               "uploads/rooms/placeholder.png";
 
-            let statusText = "Available for selected stay";
+            let statusText = room.availability_label || "Available";
             let statusClass = styles.availableStatus;
 
             if (isMaintenance) {
@@ -560,7 +604,7 @@ const HotelRooms = () => {
             return (
               <div
                 key={room.room_id}
-                className={`${styles.roomCard} ${isSelected ? styles.selectedRoomCard : ""}`}
+                className={`${styles.roomCard} ${selectedCount > 0 ? styles.selectedRoomCard : ""}`}
               >
                 <div className={styles.roomGallerySection}>
                   <img
@@ -614,10 +658,11 @@ const HotelRooms = () => {
                       </h3>
                       <p className={styles.roomType}>{room.type}</p>
                       <p className={styles.roomType}>Capacity: {roomCapacity} guest(s)</p>
+                      <p className={styles.roomType}>Available: {room.available_rooms} room(s)</p>
                     </div>
 
                     <div className={styles.rightTop}>
-                      <p className={styles.price}>Rs. {room.price} / night</p>
+                      <p className={styles.price}>Rs. {Number(room.price || 0).toFixed(2)} / night</p>
                       <span className={`${styles.statusBadge} ${statusClass}`}>
                         {statusText}
                       </span>
@@ -645,26 +690,39 @@ const HotelRooms = () => {
                       View Details
                     </button>
 
-                    <button
-                      type="button"
-                      className={
-                        isSelected
-                          ? styles.selectedBtn
-                          : isMaintenance || isBookedForDates || !stayInfo.check_in || !stayInfo.check_out
-                          ? styles.maintenanceBtn
-                          : styles.bookBtn
-                      }
-                      onClick={() => handleToggleRoom(room)}
-                      disabled={
-                        isMaintenance ||
-                        isBookedForDates ||
-                        !stayInfo.check_in ||
-                        !stayInfo.check_out ||
-                        (!isSelected && selectedRoomIds.length >= Number(stayInfo.rooms_requested || 1))
-                      }
-                    >
-                      {isSelected ? "Selected" : "Select Room"}
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginLeft: "auto" }}>
+                      <button
+                        type="button"
+                        className={styles.viewDetailsBtn}
+                        onClick={() => handleDecrease(room)}
+                        disabled={selectedCount <= 0}
+                      >
+                        -
+                      </button>
+
+                      <span style={{ minWidth: "70px", textAlign: "center", fontWeight: 700 }}>
+                        {selectedCount}
+                      </span>
+
+                      <button
+                        type="button"
+                        className={
+                          isMaintenance || isBookedForDates || !stayInfo.check_in || !stayInfo.check_out
+                            ? styles.maintenanceBtn
+                            : styles.bookBtn
+                        }
+                        onClick={() => handleIncrease(room)}
+                        disabled={
+                          isMaintenance ||
+                          isBookedForDates ||
+                          !stayInfo.check_in ||
+                          !stayInfo.check_out ||
+                          selectedCount >= Number(room.available_rooms || 0)
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
