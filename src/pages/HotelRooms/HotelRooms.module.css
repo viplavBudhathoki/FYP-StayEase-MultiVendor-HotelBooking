@@ -163,6 +163,7 @@
 }
 
 .selectionInfo {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -183,6 +184,9 @@
   cursor: pointer;
   font-weight: 700;
   transition: 0.2s ease;
+  width: auto;
+  min-width: 220px;
+  align-self: flex-end;
 }
 
 .reserveSelectedBtn:hover {
@@ -223,6 +227,7 @@
   border-radius: 14px;
   object-fit: cover;
   background: #f1f5f9;
+  cursor: pointer;
 }
 
 .roomInfo {
@@ -244,6 +249,11 @@
   font-weight: 700;
   color: #0f172a;
   margin: 0;
+  cursor: pointer;
+}
+
+.roomName:hover {
+  color: #f8740f;
 }
 
 .roomType {
@@ -288,7 +298,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 12px; 
+  gap: 12px;
   padding-top: 10px;
   border-top: 1px solid #e2e8f0;
 }
@@ -403,18 +413,6 @@
   display: block;
 }
 
-.roomImage {
-  cursor: pointer;
-}
-
-.roomName {
-  cursor: pointer;
-}
-
-.roomName:hover {
-  color: #f8740f;
-}
-
 .viewDetailsBtn {
   padding: 10px 14px;
   border: 1px solid #f8740f;
@@ -427,6 +425,41 @@
 
 .viewDetailsBtn:hover {
   background: #ffefe4;
+}
+
+.summaryHelper {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.selectionHint {
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.selectionHintNeutral {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.selectionHintSuccess {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.selectionHintWarning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.22);
 }
 
 @media (max-width: 1100px) {
@@ -463,6 +496,14 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .reserveSelectedBtn {
+    align-self: flex-start;
+  }
+
+  .selectionHint {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -480,7 +521,6 @@
 
   .sortBox,
   .sortSelect,
-  .reserveSelectedBtn,
   .bookBtn,
   .selectedBtn,
   .maintenanceBtn {
