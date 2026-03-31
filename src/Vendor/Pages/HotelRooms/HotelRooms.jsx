@@ -124,7 +124,7 @@ const HotelRooms = () => {
   };
 
   const deleteRoom = async (room_id) => {
-    if (!window.confirm("Delete this room?")) return;
+    if (!window.confirm("Delete this room type?")) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -170,7 +170,7 @@ const HotelRooms = () => {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Rooms</h1>
+          <h1 className={styles.title}>Room Types</h1>
           <p className={styles.subtitle}>{headerText}</p>
         </div>
 
@@ -181,13 +181,13 @@ const HotelRooms = () => {
             setOpenModal(true);
           }}
         >
-          + Add Room
+          + Add Room Type
         </button>
       </div>
 
       {rooms.length === 0 ? (
         <div className={styles.emptyState}>
-          <p className={styles.emptyText}>No rooms added yet.</p>
+          <p className={styles.emptyText}>No room types added yet.</p>
         </div>
       ) : (
         <div className={styles.roomList}>
@@ -264,7 +264,8 @@ const HotelRooms = () => {
                   ) : null}
 
                   <div className={styles.roomMeta}>
-                    <span className={styles.metaItem}>Capacity: {r.capacity}</span>
+                    <span className={styles.metaItem}>Capacity Per Room: {r.capacity}</span>
+                    <span className={styles.metaItem}>Total Rooms: {r.total_rooms || 1}</span>
                     <span className={styles.metaItem}>Gallery: {gallery.length}</span>
                   </div>
 
