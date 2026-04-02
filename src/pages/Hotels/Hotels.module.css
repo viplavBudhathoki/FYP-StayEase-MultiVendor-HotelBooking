@@ -35,32 +35,46 @@
   margin-bottom: 24px;
 }
 
-.topStats {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.statBox {
+.searchBar {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(5, 1fr) auto;
+  gap: 12px;
   background: white;
-  border-radius: 14px;
-  padding: 14px 18px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  min-width: 170px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.statNumber {
-  display: block;
-  font-size: 1.15rem;
-  font-weight: 800;
+.searchInput {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.95rem;
+  outline: none;
   color: #0f172a;
 }
 
-.statLabel {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.9rem;
-  color: #64748b;
+.searchInput:focus {
+  border-color: #f8740f;
+}
+
+.searchBtn {
+  padding: 12px 18px;
+  border: none;
+  background: #f8740f;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.searchBtn:hover {
+  background: #d85f09;
 }
 
 .sortRow {
@@ -139,7 +153,7 @@
   left: 14px;
   right: 14px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: 10px;
 }
@@ -153,15 +167,6 @@
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.popularTag {
-  background: rgba(248, 116, 15, 0.95);
-  color: white;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 0.76rem;
   font-weight: 700;
 }
 
@@ -188,7 +193,6 @@
   color: #0f172a;
   min-height: 52px;
   line-height: 1.4;
-
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -201,11 +205,36 @@
   color: #475569;
   line-height: 1.6;
   min-height: 74px;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.matchBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.matchBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.goodBadge {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+}
+
+.warnBadge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
 }
 
 .cardFooter {
@@ -262,8 +291,18 @@
   color: #64748b;
 }
 
+@media (max-width: 1200px) {
+  .searchBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 992px) {
   .hotelsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .searchBar {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -281,12 +320,17 @@
     font-size: 2rem;
   }
 
+  .searchBar {
+    grid-template-columns: 1fr;
+  }
+
   .cardFooter {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .viewBtn {
+  .viewBtn,
+  .searchBtn {
     width: 100%;
   }
 
@@ -294,10 +338,7 @@
     justify-content: stretch;
   }
 
-  .sortBox {
-    width: 100%;
-  }
-
+  .sortBox,
   .sortSelect {
     width: 100%;
   }
