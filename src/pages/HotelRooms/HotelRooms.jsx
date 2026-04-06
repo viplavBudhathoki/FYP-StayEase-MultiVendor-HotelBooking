@@ -1,5 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState, useRef } from "react";
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../constant";
 import styles from "./HotelRooms.module.css";
@@ -16,6 +21,7 @@ const HotelRooms = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedCounts, setSelectedCounts] = useState({});
   const [selectedImages, setSelectedImages] = useState({});
+  const [highlightSearch, setHighlightSearch] = useState(false);
 
   const [stayInfo, setStayInfo] = useState({
     check_in: searchParams.get("check_in") || "",
@@ -25,6 +31,7 @@ const HotelRooms = () => {
     rooms_requested: Number(searchParams.get("rooms") || 1),
   });
 
+  const bookingSectionRef = useRef(null);
   const token = localStorage.getItem("token");
 
   let user = null;
@@ -36,7 +43,10 @@ const HotelRooms = () => {
 
   const isLoggedIn = !!token && !!user;
   const today = new Date().toISOString().split("T")[0];
-  const totalGuests = Number(stayInfo.adults || 0) + Number(stayInfo.children || 0);
+  const totalGuests =
+    Number(stayInfo.adults || 0) + Number(stayInfo.children || 0);
+
+  const hasSelectedDates = Boolean(stayInfo.check_in && stayInfo.check_out);
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -117,7 +127,9 @@ const HotelRooms = () => {
       const next = {
         ...prev,
         [field]:
-          field === "adults" || field === "children" || field === "rooms_requested"
+          field === "adults" ||
+          field === "children" ||
+          field === "rooms_requested"
             ? Number(value)
             : value,
       };
@@ -137,6 +149,8 @@ const HotelRooms = () => {
     try {
       const form = new FormData();
       form.append("hotel_id", hotelId);
+      form.append("rooms_requested", String(stayInfo.rooms_requested));
+
       if (stayInfo.check_in) form.append("check_in", stayInfo.check_in);
       if (stayInfo.check_out) form.append("check_out", stayInfo.check_out);
 
@@ -154,7 +168,8 @@ const HotelRooms = () => {
         const nextSelectedImages = {};
         roomData.forEach((room) => {
           const gallery = buildRoomGallery(room);
-          nextSelectedImages[room.room_id] = gallery[0]?.image_url || room.image_url || "";
+          nextSelectedImages[room.room_id] =
+            gallery[0]?.image_url || room.image_url || "";
         });
         setSelectedImages(nextSelectedImages);
 
@@ -163,8 +178,13 @@ const HotelRooms = () => {
           roomData.forEach((room) => {
             const roomId = String(room.room_id);
             const previous = Number(prev[roomId] || 0);
-            const available = Number(room.available_rooms || 0);
-            next[roomId] = Math.min(previous, available);
+
+            if (room.has_checked_dates && room.available_rooms !== null) {
+              const available = Number(room.available_rooms || 0);
+              next[roomId] = Math.min(previous, available);
+            } else {
+              next[roomId] = previous;
+            }
           });
           return next;
         });
@@ -182,22 +202,75 @@ const HotelRooms = () => {
 
   useEffect(() => {
     fetchRooms();
-  }, [hotelId, stayInfo.check_in, stayInfo.check_out]);
+  }, [hotelId, stayInfo.check_in, stayInfo.check_out, stayInfo.rooms_requested]);
+
+  const getDisplayPrice = (room) =>
+    Number(room.final_price ?? room.original_price ?? room.price ?? 0);
+
+  const getOriginalPrice = (room) =>
+    Number(room.original_price ?? room.price ?? 0);
+
+  const getVisibleOffer = (room) => room.offer || room.promo_offer || null;
+
+  const getOfferBadgeText = (offer) => {
+    if (!offer) return "";
+    if (offer.discount_type === "percentage") {
+      return `${Number(offer.discount_value || 0).toFixed(0)}% OFF`;
+    }
+    return `Rs. ${Number(offer.discount_value || 0).toFixed(0)} OFF`;
+  };
+
+  const getOfferConditionText = (offer) => {
+    if (!offer) return "";
+    const minNights = Number(offer.min_nights || 1);
+    const minRooms = Number(offer.min_rooms || 1);
+
+    if (minNights > 1 && minRooms > 1) {
+      return `for ${minNights}+ nights & ${minRooms}+ rooms`;
+    }
+    if (minNights > 1) {
+      return `for ${minNights}+ nights`;
+    }
+    if (minRooms > 1) {
+      return `for ${minRooms}+ rooms`;
+    }
+    return "special deal";
+  };
+
+  const getDiscountedNightsText = (room) => {
+    const overlap = Number(
+      room.offer?.pricing_breakdown?.overlap_nights ||
+        room.pricing_breakdown?.overlap_nights ||
+        0
+    );
+    const total = Number(
+      room.offer?.pricing_breakdown?.total_nights ||
+        room.pricing_breakdown?.total_nights ||
+        0
+    );
+
+    if (!overlap || !total) return "";
+    if (overlap >= total) return `All ${total} night(s) discounted`;
+    return `${overlap} of ${total} night(s) discounted`;
+  };
 
   const sortedRooms = useMemo(() => {
     const copied = [...rooms];
 
     if (priceSort === "low-to-high") {
-      copied.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+      copied.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
     } else if (priceSort === "high-to-low") {
-      copied.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+      copied.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
     }
 
     return copied;
   }, [rooms, priceSort]);
 
   const totalSelectedRooms = useMemo(() => {
-    return Object.values(selectedCounts).reduce((sum, count) => sum + Number(count || 0), 0);
+    return Object.values(selectedCounts).reduce(
+      (sum, count) => sum + Number(count || 0),
+      0
+    );
   }, [selectedCounts]);
 
   const selectedCapacity = useMemo(() => {
@@ -210,7 +283,14 @@ const HotelRooms = () => {
   const selectedPricePerNight = useMemo(() => {
     return sortedRooms.reduce((sum, room) => {
       const count = Number(selectedCounts[String(room.room_id)] || 0);
-      return sum + Number(room.price || 0) * count;
+      return sum + getDisplayPrice(room) * count;
+    }, 0);
+  }, [sortedRooms, selectedCounts]);
+
+  const selectedOriginalPricePerNight = useMemo(() => {
+    return sortedRooms.reduce((sum, room) => {
+      const count = Number(selectedCounts[String(room.room_id)] || 0);
+      return sum + getOriginalPrice(room) * count;
     }, 0);
   }, [sortedRooms, selectedCounts]);
 
@@ -228,28 +308,84 @@ const HotelRooms = () => {
     return selectedPricePerNight * nights;
   }, [selectedPricePerNight, nights]);
 
+  const totalOriginalBookingPrice = useMemo(() => {
+    return selectedOriginalPricePerNight * nights;
+  }, [selectedOriginalPricePerNight, nights]);
+
+  const totalLiveSavings = useMemo(() => {
+    return Math.max(0, totalOriginalBookingPrice - totalBookingPrice);
+  }, [totalOriginalBookingPrice, totalBookingPrice]);
+
+  const discountedSelectionSummary = useMemo(() => {
+    let discountedNights = 0;
+    let selectedOfferRooms = 0;
+
+    sortedRooms.forEach((room) => {
+      const count = Number(selectedCounts[String(room.room_id)] || 0);
+      if (count <= 0) return;
+
+      const overlap = Number(
+        room.offer?.pricing_breakdown?.overlap_nights ||
+          room.pricing_breakdown?.overlap_nights ||
+          0
+      );
+
+      if (overlap > 0) {
+        discountedNights += overlap * count;
+        selectedOfferRooms += count;
+      }
+    });
+
+    return {
+      discountedNights,
+      selectedOfferRooms,
+    };
+  }, [sortedRooms, selectedCounts]);
+
   const availableCapacity = useMemo(() => {
     return sortedRooms.reduce((sum, room) => {
-      if (room.can_book) {
-        return sum + Number(room.capacity || 1) * Number(room.available_rooms || 0);
+      if (
+        room.has_checked_dates &&
+        !room.is_under_maintenance &&
+        room.available_rooms !== null &&
+        Number(room.available_rooms) > 0
+      ) {
+        return (
+          sum + Number(room.capacity || 1) * Number(room.available_rooms || 0)
+        );
       }
       return sum;
     }, 0);
   }, [sortedRooms]);
 
   const canHotelHandleRequestedStay = useMemo(() => {
-    const totalAvailableUnits = sortedRooms.reduce(
-      (sum, room) => sum + Number(room.available_rooms || 0),
-      0
-    );
+    if (!hasSelectedDates) return false;
+
+    const totalAvailableUnits = sortedRooms.reduce((sum, room) => {
+      if (
+        room.has_checked_dates &&
+        !room.is_under_maintenance &&
+        room.available_rooms !== null
+      ) {
+        return sum + Number(room.available_rooms || 0);
+      }
+      return sum;
+    }, 0);
 
     return (
       totalAvailableUnits >= Number(stayInfo.rooms_requested || 1) &&
       availableCapacity >= totalGuests
     );
-  }, [sortedRooms, stayInfo.rooms_requested, totalGuests, availableCapacity]);
+  }, [
+    sortedRooms,
+    stayInfo.rooms_requested,
+    totalGuests,
+    availableCapacity,
+    hasSelectedDates,
+  ]);
 
-  const extraSelectedRooms = totalSelectedRooms - Number(stayInfo.rooms_requested || 1);
+  const extraSelectedRooms =
+    totalSelectedRooms - Number(stayInfo.rooms_requested || 1);
 
   const capacityStatus =
     selectedCapacity === 0
@@ -285,7 +421,12 @@ const HotelRooms = () => {
       return;
     }
 
-    if (!room.can_book) {
+    if (
+      !room.has_checked_dates ||
+      room.available_rooms === null ||
+      Number(room.available_rooms) <= 0 ||
+      room.is_under_maintenance
+    ) {
       toast.error(`${room.name} is not available for the selected dates`);
       return;
     }
@@ -390,6 +531,24 @@ const HotelRooms = () => {
     }
   };
 
+  const handleCheckAvailability = () => {
+    if (!stayInfo.check_in || !stayInfo.check_out) {
+      toast.error("Please select check-in and check-out dates first");
+
+      setHighlightSearch(true);
+
+      bookingSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      setTimeout(() => setHighlightSearch(false), 1500);
+      return;
+    }
+
+    fetchRooms();
+  };
+
   if (loading) {
     return <div className={styles.stateText}>Loading rooms...</div>;
   }
@@ -400,7 +559,8 @@ const HotelRooms = () => {
         <div>
           <h1 className={styles.title}>Choose your rooms</h1>
           <p className={styles.subtitle}>
-            Select at least {stayInfo.rooms_requested} room(s) for our stay and make sure the total room capacity covers all guests.
+            Select at least {stayInfo.rooms_requested} room(s) for our stay and
+            make sure the total room capacity covers all guests.
           </p>
         </div>
 
@@ -434,7 +594,9 @@ const HotelRooms = () => {
 
         <div className={styles.summaryCard}>
           <span>Guests</span>
-          <strong>{stayInfo.adults} Adults, {stayInfo.children} Children</strong>
+          <strong>
+            {stayInfo.adults} Adults, {stayInfo.children} Children
+          </strong>
         </div>
 
         <div className={styles.summaryCard}>
@@ -446,7 +608,12 @@ const HotelRooms = () => {
         </div>
       </div>
 
-      <div className={styles.bookingSection}>
+      <div
+        ref={bookingSectionRef}
+        className={`${styles.bookingSection} ${
+          highlightSearch ? styles.highlightSearch : ""
+        }`}
+      >
         <div className={styles.dateGroupFive}>
           <div className={styles.dateField}>
             <label>Check-in</label>
@@ -454,7 +621,9 @@ const HotelRooms = () => {
               type="date"
               value={stayInfo.check_in}
               min={today}
-              onChange={(e) => handleStayInfoChange("check_in", e.target.value)}
+              onChange={(e) =>
+                handleStayInfoChange("check_in", e.target.value)
+              }
             />
           </div>
 
@@ -464,7 +633,9 @@ const HotelRooms = () => {
               type="date"
               value={stayInfo.check_out}
               min={stayInfo.check_in || today}
-              onChange={(e) => handleStayInfoChange("check_out", e.target.value)}
+              onChange={(e) =>
+                handleStayInfoChange("check_out", e.target.value)
+              }
             />
           </div>
 
@@ -486,7 +657,9 @@ const HotelRooms = () => {
             <label>Children</label>
             <select
               value={stayInfo.children}
-              onChange={(e) => handleStayInfoChange("children", e.target.value)}
+              onChange={(e) =>
+                handleStayInfoChange("children", e.target.value)
+              }
             >
               {[0, 1, 2, 3, 4, 5, 6].map((n) => (
                 <option key={n} value={n}>
@@ -500,7 +673,9 @@ const HotelRooms = () => {
             <label>Rooms</label>
             <select
               value={stayInfo.rooms_requested}
-              onChange={(e) => handleStayInfoChange("rooms_requested", e.target.value)}
+              onChange={(e) =>
+                handleStayInfoChange("rooms_requested", e.target.value)
+              }
             >
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <option key={n} value={n}>
@@ -511,20 +686,47 @@ const HotelRooms = () => {
           </div>
         </div>
 
-        {!canHotelHandleRequestedStay && (
-          <div className={styles.warningBanner}>
-            This hotel does not currently have enough available room inventory or total capacity for the selected stay.
+        {!hasSelectedDates ? (
+          <div className={styles.infoBanner}>
+            Enter travel dates to check real-time availability and reserve
+            rooms.
           </div>
-        )}
+        ) : !canHotelHandleRequestedStay ? (
+          <div className={styles.warningBanner}>
+            This hotel does not currently have enough available room inventory
+            or total capacity for the selected stay.
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.selectionSummary}>
         <div className={styles.selectionInfo}>
-          <p>Selected Rooms: <strong>{totalSelectedRooms}</strong> / minimum {stayInfo.rooms_requested}</p>
-          <p>Selected Capacity: <strong>{selectedCapacity}</strong> guest(s)</p>
-          <p>Total Guests: <strong>{totalGuests}</strong></p>
-          <p>Nights: <strong>{nights}</strong></p>
-          <p>Total Price: <strong>Rs. {totalBookingPrice.toFixed(2)}</strong></p>
+          <p>
+            Selected Rooms: <strong>{totalSelectedRooms}</strong> / minimum{" "}
+            {stayInfo.rooms_requested}
+          </p>
+          <p>
+            Selected Capacity: <strong>{selectedCapacity}</strong> guest(s)
+          </p>
+          <p>
+            Total Guests: <strong>{totalGuests}</strong>
+          </p>
+          <p>
+            Nights: <strong>{nights}</strong>
+          </p>
+          <p>
+            Total Price: <strong>Rs. {totalBookingPrice.toFixed(2)}</strong>
+          </p>
+          {totalLiveSavings > 0 && (
+            <p className={styles.liveSavingsText}>
+              Save Rs. {totalLiveSavings.toFixed(2)}
+            </p>
+          )}
+          {discountedSelectionSummary.discountedNights > 0 && (
+            <p className={styles.liveDiscountText}>
+              {discountedSelectionSummary.discountedNights} discounted room-night(s)
+            </p>
+          )}
         </div>
 
         <div
@@ -536,17 +738,22 @@ const HotelRooms = () => {
               : styles.selectionHintNeutral
           }`}
         >
-          {totalSelectedRooms < Number(stayInfo.rooms_requested || 1) ? (
+          {!hasSelectedDates ? (
+            <span>Please choose check-in and check-out dates first.</span>
+          ) : totalSelectedRooms < Number(stayInfo.rooms_requested || 1) ? (
             <span>
-              Please select at least <strong>{stayInfo.rooms_requested}</strong> room(s).
+              Please select at least <strong>{stayInfo.rooms_requested}</strong>{" "}
+              room(s).
             </span>
           ) : selectedCapacity < totalGuests ? (
             <span>
-              Selected rooms are not enough for <strong>{totalGuests}</strong> guest(s).
+              Selected rooms are not enough for <strong>{totalGuests}</strong>{" "}
+              guest(s).
             </span>
           ) : extraSelectedRooms > 0 ? (
             <span>
-              You selected <strong>{extraSelectedRooms}</strong> more room(s) than requested.
+              You selected <strong>{extraSelectedRooms}</strong> more room(s)
+              than requested.
             </span>
           ) : (
             <span>{capacityStatus}</span>
@@ -558,8 +765,7 @@ const HotelRooms = () => {
           className={styles.reserveSelectedBtn}
           disabled={
             bookingLoading ||
-            !stayInfo.check_in ||
-            !stayInfo.check_out ||
+            !hasSelectedDates ||
             totalSelectedRooms < Number(stayInfo.rooms_requested || 1) ||
             selectedCapacity < totalGuests ||
             !canHotelHandleRequestedStay
@@ -575,11 +781,19 @@ const HotelRooms = () => {
       ) : (
         <div className={styles.roomsList}>
           {sortedRooms.map((room) => {
-            const amenities = parseAmenities(room.amenities, room.amenities_array);
+            const amenities = parseAmenities(
+              room.amenities,
+              room.amenities_array
+            );
             const roomCapacity = Number(room.capacity || 1);
-            const isMaintenance = room.status === "maintenance";
-            const isBookedForDates = room.is_booked_for_dates;
-            const selectedCount = Number(selectedCounts[String(room.room_id)] || 0);
+            const isMaintenance =
+              Boolean(room.is_under_maintenance) ||
+              room.status === "maintenance";
+            const hasCheckedDates = Boolean(room.has_checked_dates);
+            const isBookedForDates = Boolean(room.is_booked_for_dates);
+            const selectedCount = Number(
+              selectedCounts[String(room.room_id)] || 0
+            );
             const gallery = buildRoomGallery(room);
             const selectedImage =
               selectedImages[room.room_id] ||
@@ -587,24 +801,33 @@ const HotelRooms = () => {
               room.image_url ||
               "uploads/rooms/placeholder.png";
 
+            const visibleOffer = getVisibleOffer(room);
+            const hasAppliedOffer = Boolean(room.has_offer && room.offer);
+            const hasPromoOnly = Boolean(
+              !hasAppliedOffer && room.has_promo_offer && room.promo_offer
+            );
+            const discountedNightsText = getDiscountedNightsText(room);
+
             let statusText = room.availability_label || "Available";
             let statusClass = styles.availableStatus;
 
             if (isMaintenance) {
               statusText = "Under Maintenance";
               statusClass = styles.maintenanceStatus;
-            } else if (!stayInfo.check_in || !stayInfo.check_out) {
-              statusText = "Select travel dates to check availability";
+            } else if (!hasCheckedDates) {
+              statusText = "Availability depends on selected dates";
               statusClass = styles.occupiedStatus;
             } else if (isBookedForDates) {
-              statusText = "Unavailable for selected dates";
+              statusText = "Sold out for selected dates";
               statusClass = styles.occupiedStatus;
             }
 
             return (
               <div
                 key={room.room_id}
-                className={`${styles.roomCard} ${selectedCount > 0 ? styles.selectedRoomCard : ""}`}
+                className={`${styles.roomCard} ${
+                  selectedCount > 0 ? styles.selectedRoomCard : ""
+                }`}
               >
                 <div className={styles.roomGallerySection}>
                   <img
@@ -624,7 +847,9 @@ const HotelRooms = () => {
                           key={img.image_id || index}
                           type="button"
                           className={`${styles.thumbBtn} ${
-                            selectedImage === img.image_url ? styles.activeThumb : ""
+                            selectedImage === img.image_url
+                              ? styles.activeThumb
+                              : ""
                           }`}
                           onClick={() =>
                             setSelectedImages((prev) => ({
@@ -656,18 +881,125 @@ const HotelRooms = () => {
                       >
                         {room.name}
                       </h3>
+
                       <p className={styles.roomType}>{room.type}</p>
-                      <p className={styles.roomType}>Capacity: {roomCapacity} guest(s)</p>
-                      <p className={styles.roomType}>Available: {room.available_rooms} room(s)</p>
+                      <p className={styles.roomType}>
+                        Capacity: {roomCapacity} guest(s)
+                      </p>
+
+                      {hasCheckedDates ? (
+                        isMaintenance ? (
+                          <p className={styles.roomType}>Status: Under maintenance</p>
+                        ) : (
+                          <>
+                            <p className={styles.roomType}>
+                              Total Rooms: {Number(room.total_rooms || 0)}
+                            </p>
+                            <p className={styles.roomType}>
+                              Booked: {Number(room.booked_rooms || 0)}
+                            </p>
+                            <p className={styles.roomType}>
+                              Available: {Number(room.available_rooms || 0)} room(s)
+                            </p>
+                          </>
+                        )
+                      ) : (
+                        <p className={styles.roomType}>
+                          Select travel dates to check availability
+                        </p>
+                      )}
                     </div>
 
                     <div className={styles.rightTop}>
-                      <p className={styles.price}>Rs. {Number(room.price || 0).toFixed(2)} / night</p>
+                      {hasAppliedOffer ? (
+                        <div className={styles.priceBox}>
+                          <span className={styles.offerBadge}>
+                            {getOfferBadgeText(room.offer)}
+                          </span>
+                          <span className={styles.offerMiniText}>
+                            {getOfferConditionText(room.offer)}
+                          </span>
+                          <p className={styles.oldPrice}>
+                            Rs. {getOriginalPrice(room).toFixed(2)}
+                          </p>
+                          <p className={styles.newPrice}>
+                            Rs. {getDisplayPrice(room).toFixed(2)} / night
+                          </p>
+                          {discountedNightsText && (
+                            <p className={styles.nightsDiscountedBadge}>
+                              {discountedNightsText}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className={styles.priceBox}>
+                          {visibleOffer && (
+                            <>
+                              <span className={styles.offerBadge}>
+                                {getOfferBadgeText(visibleOffer)}
+                              </span>
+                              <span className={styles.offerMiniText}>
+                                {getOfferConditionText(visibleOffer)}
+                              </span>
+                            </>
+                          )}
+                          <p className={styles.price}>
+                            Rs. {getOriginalPrice(room).toFixed(2)} / night
+                          </p>
+                        </div>
+                      )}
+
                       <span className={`${styles.statusBadge} ${statusClass}`}>
                         {statusText}
                       </span>
                     </div>
                   </div>
+
+                  {visibleOffer && (
+                    <div className={styles.offerInfoBox}>
+                      <div className={styles.offerInfoTop}>
+                        <strong className={styles.offerTitle}>
+                          {visibleOffer.title}
+                        </strong>
+                        <span className={styles.offerTypeTag}>
+                          {visibleOffer.offer_type === "room"
+                            ? "Room Offer"
+                            : "Hotel Offer"}
+                        </span>
+                      </div>
+
+                      {visibleOffer.description && (
+                        <p className={styles.offerDescription}>
+                          {visibleOffer.description}
+                        </p>
+                      )}
+
+                      <p className={styles.offerMeta}>
+                        Valid {visibleOffer.start_date} to {visibleOffer.end_date} ·
+                        Minimum {visibleOffer.min_nights} night(s) ·
+                        Minimum {visibleOffer.min_rooms} room(s)
+                      </p>
+
+                      {hasAppliedOffer ? (
+                        <>
+                          <p className={styles.offerAppliedText}>
+                            Offer applied to this room price.
+                          </p>
+                          {discountedNightsText && (
+                            <p className={styles.offerAppliedExtra}>
+                              {discountedNightsText}
+                            </p>
+                          )}
+                        </>
+                      ) : hasPromoOnly && room.offer_note ? (
+                        <p className={styles.offerNoteText}>{room.offer_note}</p>
+                      ) : hasPromoOnly ? (
+                        <p className={styles.offerPromoText}>
+                          Promotion available for eligible stays.
+                        </p>
+                      ) : null}
+                    </div>
+                  )}
 
                   {room.description && (
                     <p className={styles.roomDescription}>{room.description}</p>
@@ -690,39 +1022,60 @@ const HotelRooms = () => {
                       View Details
                     </button>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginLeft: "auto" }}>
+                    {isMaintenance ? (
                       <button
                         type="button"
-                        className={styles.viewDetailsBtn}
-                        onClick={() => handleDecrease(room)}
-                        disabled={selectedCount <= 0}
+                        className={styles.maintenanceBtn}
+                        disabled
                       >
-                        -
+                        Under Maintenance
                       </button>
-
-                      <span style={{ minWidth: "70px", textAlign: "center", fontWeight: 700 }}>
-                        {selectedCount}
-                      </span>
-
+                    ) : !hasCheckedDates ? (
                       <button
                         type="button"
-                        className={
-                          isMaintenance || isBookedForDates || !stayInfo.check_in || !stayInfo.check_out
-                            ? styles.maintenanceBtn
-                            : styles.bookBtn
-                        }
-                        onClick={() => handleIncrease(room)}
-                        disabled={
-                          isMaintenance ||
-                          isBookedForDates ||
-                          !stayInfo.check_in ||
-                          !stayInfo.check_out ||
-                          selectedCount >= Number(room.available_rooms || 0)
-                        }
+                        className={styles.bookBtn}
+                        onClick={handleCheckAvailability}
                       >
-                        +
+                        Check Availability
                       </button>
-                    </div>
+                    ) : isBookedForDates ? (
+                      <button
+                        type="button"
+                        className={styles.maintenanceBtn}
+                        disabled
+                      >
+                        Sold Out
+                      </button>
+                    ) : (
+                      <div className={styles.counterBox}>
+                        <button
+                          type="button"
+                          className={styles.counterBtn}
+                          onClick={() => handleDecrease(room)}
+                          disabled={selectedCount <= 0}
+                        >
+                          -
+                        </button>
+
+                        <span className={styles.counterValue}>
+                          {selectedCount}
+                        </span>
+
+                        <button
+                          type="button"
+                          className={styles.counterBtn}
+                          onClick={() => handleIncrease(room)}
+                          disabled={
+                            !room.has_checked_dates ||
+                            Boolean(room.is_under_maintenance) ||
+                            Number(room.available_rooms || 0) <= 0 ||
+                            selectedCount >= Number(room.available_rooms || 0)
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
