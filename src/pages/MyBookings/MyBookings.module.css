@@ -67,6 +67,12 @@
   border-radius: 18px;
   padding: 20px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  transition: all 0.25s ease;
+}
+
+.bookingCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
 }
 
 .imageWrap {
@@ -181,7 +187,46 @@
 .detailValue {
   font-size: 0.95rem;
   color: #0f172a;
+  font-weight: 700;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.oldTotalPrice {
+  font-size: 0.82rem;
+  color: #94a3b8;
   font-weight: 600;
+  text-decoration: line-through;
+}
+
+.savingsText {
+  font-size: 0.82rem;
+  color: #15803d;
+  font-weight: 700;
+}
+
+.pricingNoteBox {
+  margin-top: -4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(248, 116, 15, 0.08);
+  border: 1px solid rgba(248, 116, 15, 0.18);
+  color: #9a3412;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.policyText {
+  margin: 8px 0 0 0;
+  font-size: 0.85rem;
+  color: #7c2d12;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .roomBreakdown {
@@ -230,6 +275,22 @@
   margin: 0;
   font-size: 0.88rem;
   color: #64748b;
+}
+
+.breakdownPriceWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.breakdownOldPrice {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .breakdownPrice {
@@ -291,10 +352,12 @@
   outline: none;
   background: #ffffff;
   font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dateField input:focus {
   border-color: #f8740f;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.12);
 }
 
 .dateField input:disabled {
@@ -309,28 +372,7 @@
   color: #7c2d12;
 }
 
-.saveBtn {
-  margin-top: 14px;
-  padding: 11px 18px;
-  border: none;
-  border-radius: 10px;
-  background: #f8740f;
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.saveBtn:hover {
-  background: #d3610a;
-}
-
-.saveBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.actionRow {
+.actionsRow {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -340,7 +382,8 @@
 .pdfBtn,
 .reviewBtn,
 .downloadBtn,
-.cancelBtn {
+.cancelBtn,
+.updateBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -349,7 +392,7 @@
   border: none;
   border-radius: 10px;
   font-weight: 700;
-  transition: 0.2s ease;
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
@@ -360,38 +403,113 @@
 
 .pdfBtn:hover {
   background: #1e293b;
+  transform: translateY(-2px);
+}
+
+.updateBtn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.updateBtn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.updateBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .downloadBtn {
-  background: #f8740f;
+  background: linear-gradient(135deg, #f8740f, #ea580c);
   color: white;
+  box-shadow: 0 4px 12px rgba(248, 116, 15, 0.25);
 }
 
 .downloadBtn:hover {
-  background: #d3610a;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ea580c, #c2410c);
 }
 
 .cancelBtn {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .cancelBtn:hover {
-  background: #dc2626;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
 
 .cancelBtn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 
 .reviewBtn {
-  background: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   color: white;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
 }
 
 .reviewBtn:hover {
-  background: #15803d;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #15803d, #166534);
+}
+
+.pagination {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.paginationBtn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  background: #1e293b;
+}
+
+.paginationBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.highlightCard {
+  border: 2px solid #f8740f;
+  box-shadow: 0 0 0 4px rgba(248, 116, 15, 0.12);
+  animation: bookingHighlightFade 3.5s ease;
+}
+
+@keyframes bookingHighlightFade {
+  0% {
+    box-shadow: 0 0 0 6px rgba(248, 116, 15, 0.22);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(248, 116, 15, 0);
+  }
 }
 
 @media (max-width: 1100px) {
@@ -424,7 +542,12 @@
     align-items: flex-start;
   }
 
-  .breakdownPrice {
+  .breakdownPriceWrap {
+    align-items: flex-start;
+  }
+
+  .breakdownPrice,
+  .breakdownOldPrice {
     white-space: normal;
   }
 }
@@ -440,7 +563,7 @@
 
   .pdfBtn,
   .reviewBtn,
-  .saveBtn,
+  .updateBtn,
   .downloadBtn,
   .cancelBtn {
     width: 100%;
