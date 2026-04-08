@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams, useOutletContext } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Search, FileDown } from "lucide-react";
 import { baseUrl } from "../../../constant";
 import styles from "./Bookings.module.css";
 
+const BOOKINGS_PER_PAGE = 5;
+
 const Bookings = () => {
   const [searchParams] = useSearchParams();
+  const targetBookingId = Number(searchParams.get("booking_id") || 0);
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +19,12 @@ const Bookings = () => {
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  const { searchQuery = "" } = useOutletContext() || {};
+  const [currentPage, setCurrentPage] = useState(1);
+  const [highlightedBookingId, setHighlightedBookingId] = useState(targetBookingId);
+
+  const bookingRefs = useRef({});
 
   const getRoomImage = (img) => {
     if (!img) return `${baseUrl}/uploads/rooms/placeholder.png`;
@@ -133,6 +142,7 @@ const Bookings = () => {
   useEffect(() => {
     const urlStatus = (searchParams.get("status") || "all").toLowerCase();
     setStatusFilter(urlStatus);
+    setCurrentPage(1);
   }, [searchParams]);
 
   useEffect(() => {
@@ -141,6 +151,7 @@ const Bookings = () => {
 
   const filteredBookings = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const globalQ = searchQuery.trim().toLowerCase();
 
     return bookings.filter((booking) => {
       const searchMatch =
@@ -151,9 +162,57 @@ const Bookings = () => {
         String(booking.room_name || "").toLowerCase().includes(q) ||
         String(booking.room_type || "").toLowerCase().includes(q);
 
-      return searchMatch;
+      const globalSearchMatch =
+        !globalQ ||
+        Object.values(booking).some(
+          (val) => val && String(val).toLowerCase().includes(globalQ)
+        );
+
+      return searchMatch && globalSearchMatch;
     });
-  }, [bookings, search]);
+  }, [bookings, search, searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, fromDate, toDate, bookings.length]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredBookings.length / BOOKINGS_PER_PAGE));
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    if (targetBookingId > 0 && filteredBookings.length > 0) {
+      const index = filteredBookings.findIndex(
+        (booking) => Number(booking.booking_id) === targetBookingId
+      );
+
+      if (index >= 0) {
+        const page = Math.floor(index / BOOKINGS_PER_PAGE) + 1;
+        setCurrentPage(page);
+        setHighlightedBookingId(targetBookingId);
+
+        setTimeout(() => {
+          bookingRefs.current[targetBookingId]?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }, 250);
+
+        setTimeout(() => {
+          setHighlightedBookingId(0);
+        }, 3500);
+      }
+    }
+  }, [targetBookingId, filteredBookings]);
+
+  const paginatedBookings = useMemo(() => {
+    const start = (currentPage - 1) * BOOKINGS_PER_PAGE;
+    return filteredBookings.slice(start, start + BOOKINGS_PER_PAGE);
+  }, [filteredBookings, currentPage]);
 
   const filterButtons = [
     { label: "All", value: "all" },
@@ -172,9 +231,7 @@ const Bookings = () => {
       <div className={styles.pageHeader}>
         <h1>Booking Management</h1>
         <p>Monitor customer reservations for our hotel rooms.</p>
-        <p className={styles.countText}>
-          Total Bookings: {filteredBookings.length}
-        </p>
+        <p className={styles.countText}>Total Bookings: {filteredBookings.length}</p>
       </div>
 
       <div className={styles.toolbar}>
@@ -226,11 +283,7 @@ const Bookings = () => {
           </div>
         </div>
 
-        <button
-          type="button"
-          className={styles.exportBtn}
-          onClick={handleExportPdf}
-        >
+        <button type="button" className={styles.exportBtn} onClick={handleExportPdf}>
           <FileDown size={18} />
           Export PDF
         </button>
@@ -242,145 +295,185 @@ const Bookings = () => {
           <p>Customer bookings will appear here once rooms are reserved.</p>
         </div>
       ) : (
-        <div className={styles.bookingsList}>
-          {filteredBookings.map((booking) => {
-            const roomsRequested = Number(booking.rooms_requested || 1);
+        <>
+          <div className={styles.bookingsList}>
+            {paginatedBookings.map((booking) => {
+              const roomsRequested = Number(booking.rooms_requested || 1);
+              const isHighlighted =
+                Number(booking.booking_id) === Number(highlightedBookingId);
 
-            return (
-              <div key={booking.booking_id} className={styles.bookingCard}>
-                <img
-                  src={getRoomImage(booking.room_image)}
-                  alt={booking.room_name || "Booked room"}
-                  className={styles.roomImage}
-                  onError={(e) => {
-                    e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+              return (
+                <div
+                  key={booking.booking_id}
+                  ref={(el) => {
+                    bookingRefs.current[booking.booking_id] = el;
                   }}
-                />
+                  className={`${styles.bookingCard} ${
+                    isHighlighted ? styles.highlightCard : ""
+                  }`}
+                >
+                  <img
+                    src={getRoomImage(booking.room_image)}
+                    alt={booking.room_name || "Booked room"}
+                    className={styles.roomImage}
+                    onError={(e) => {
+                      e.currentTarget.src = `${baseUrl}/uploads/rooms/placeholder.png`;
+                    }}
+                  />
 
-                <div className={styles.bookingInfo}>
-                  <div className={styles.topRow}>
-                    <div>
-                      <p className={styles.hotelName}>{booking.hotel_name}</p>
-                      <h2 className={styles.roomName}>{booking.room_name}</h2>
-                      <p className={styles.roomType}>{booking.room_type}</p>
-                      <p className={styles.location}>{booking.hotel_location}</p>
-                    </div>
+                  <div className={styles.bookingInfo}>
+                    <div className={styles.topRow}>
+                      <div>
+                        <p className={styles.hotelName}>{booking.hotel_name}</p>
+                        <h2 className={styles.roomName}>{booking.room_name}</h2>
+                        <p className={styles.roomType}>{booking.room_type}</p>
+                        <p className={styles.location}>{booking.hotel_location}</p>
+                      </div>
 
-                    <span
-                      className={`${styles.statusBadge} ${
-                        styles[String(booking.status || "").toLowerCase()] || ""
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </div>
-
-                  <div className={styles.customerBox}>
-                    <p className={styles.customerTitle}>Customer Details</p>
-                    <p className={styles.customerText}>
-                      <strong>Name:</strong> {booking.customer_name}
-                    </p>
-                    <p className={styles.customerText}>
-                      <strong>Email:</strong> {booking.customer_email}
-                    </p>
-                  </div>
-
-                  <div className={styles.detailsGrid}>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Check-in</span>
-                      <span className={styles.detailValue}>{booking.check_in}</span>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Check-out</span>
-                      <span className={styles.detailValue}>{booking.check_out}</span>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Rooms</span>
-                      <span className={styles.detailValue}>{roomsRequested}</span>
-                    </div>
-
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Total Price</span>
-                      <span className={styles.detailValue}>
-                        Rs. {booking.total_price}
+                      <span
+                        className={`${styles.statusBadge} ${
+                          styles[String(booking.status || "").toLowerCase()] || ""
+                        }`}
+                      >
+                        {booking.status}
                       </span>
                     </div>
 
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Booked On</span>
-                      <span className={styles.detailValue}>
-                        {booking.created_at
-                          ? new Date(booking.created_at).toLocaleDateString()
-                          : "-"}
-                      </span>
+                    <div className={styles.customerBox}>
+                      <p className={styles.customerTitle}>Customer Details</p>
+                      <p className={styles.customerText}>
+                        <strong>Name:</strong> {booking.customer_name}
+                      </p>
+                      <p className={styles.customerText}>
+                        <strong>Email:</strong> {booking.customer_email}
+                      </p>
                     </div>
-                  </div>
 
-                  <div className={styles.actions}>
-                    {booking.status === "confirmed" && (
-                      <>
+                    <div className={styles.detailsGrid}>
+                      <div className={styles.detailItem}>
+                        <span className={styles.detailLabel}>Check-in</span>
+                        <span className={styles.detailValue}>{booking.check_in}</span>
+                      </div>
+
+                      <div className={styles.detailItem}>
+                        <span className={styles.detailLabel}>Check-out</span>
+                        <span className={styles.detailValue}>{booking.check_out}</span>
+                      </div>
+
+                      <div className={styles.detailItem}>
+                        <span className={styles.detailLabel}>Rooms</span>
+                        <span className={styles.detailValue}>{roomsRequested}</span>
+                      </div>
+
+                      <div className={styles.detailItem}>
+                        <span className={styles.detailLabel}>Total Price</span>
+                        <span className={styles.detailValue}>
+                          Rs. {Number(booking.total_price || 0).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <div className={styles.detailItem}>
+                        <span className={styles.detailLabel}>Booked On</span>
+                        <span className={styles.detailValue}>
+                          {booking.created_at
+                            ? new Date(booking.created_at).toLocaleDateString()
+                            : "-"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.actionsRow}>
+                      {booking.status === "confirmed" && (
+                        <>
+                          <button
+                            className={styles.checkInBtn}
+                            onClick={() =>
+                              updateBookingStatus(booking.booking_id, "checked_in")
+                            }
+                            disabled={updatingId === booking.booking_id}
+                            type="button"
+                          >
+                            {updatingId === booking.booking_id
+                              ? "Updating..."
+                              : "Check In Guest"}
+                          </button>
+
+                          <button
+                            className={styles.cancelBtn}
+                            onClick={() =>
+                              updateBookingStatus(booking.booking_id, "cancelled")
+                            }
+                            disabled={updatingId === booking.booking_id}
+                            type="button"
+                          >
+                            {updatingId === booking.booking_id
+                              ? "Updating..."
+                              : "Cancel Booking"}
+                          </button>
+                        </>
+                      )}
+
+                      {booking.status === "checked_in" && (
                         <button
                           className={styles.completeBtn}
                           onClick={() =>
-                            updateBookingStatus(booking.booking_id, "checked_in")
+                            updateBookingStatus(booking.booking_id, "completed")
                           }
                           disabled={updatingId === booking.booking_id}
                           type="button"
                         >
                           {updatingId === booking.booking_id
                             ? "Updating..."
-                            : "Check In Guest"}
+                            : "Complete Stay"}
                         </button>
+                      )}
 
-                        <button
-                          className={styles.cancelBtn}
-                          onClick={() =>
-                            updateBookingStatus(booking.booking_id, "cancelled")
-                          }
-                          disabled={updatingId === booking.booking_id}
-                          type="button"
-                        >
-                          {updatingId === booking.booking_id
-                            ? "Updating..."
-                            : "Cancel Booking"}
+                      {booking.status === "completed" && (
+                        <button className={styles.disabledBtn} disabled type="button">
+                          Stay Completed
                         </button>
-                      </>
-                    )}
+                      )}
 
-                    {booking.status === "checked_in" && (
-                      <button
-                        className={styles.completeBtn}
-                        onClick={() =>
-                          updateBookingStatus(booking.booking_id, "completed")
-                        }
-                        disabled={updatingId === booking.booking_id}
-                        type="button"
-                      >
-                        {updatingId === booking.booking_id
-                          ? "Updating..."
-                          : "Complete Stay"}
-                      </button>
-                    )}
-
-                    {booking.status === "completed" && (
-                      <button className={styles.disabledBtn} disabled type="button">
-                        Stay Completed
-                      </button>
-                    )}
-
-                    {booking.status === "cancelled" && (
-                      <button className={styles.disabledBtn} disabled type="button">
-                        Booking Cancelled
-                      </button>
-                    )}
+                      {booking.status === "cancelled" && (
+                        <button className={styles.disabledBtn} disabled type="button">
+                          Booking Cancelled
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {filteredBookings.length > BOOKINGS_PER_PAGE && (
+            <div className={styles.pagination}>
+              <button
+                type="button"
+                className={styles.paginationBtn}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+
+              <span className={styles.paginationInfo}>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                type="button"
+                className={styles.paginationBtn}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
