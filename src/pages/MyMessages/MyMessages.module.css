@@ -1,0 +1,347 @@
+.page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 110px 20px 40px;
+}
+
+.wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.header p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.newMessageBtn,
+.startMessageBtn {
+  border: none;
+  background: #f8740f;
+  color: #ffffff;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.newMessageBtn:hover,
+.startMessageBtn:hover {
+  background: #d4640d;
+}
+
+.newMessageCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  margin-bottom: 22px;
+  margin-top: 16px;
+}
+
+.newMessageCard h3 {
+  margin: 0 0 16px;
+  color: #0f172a;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  color: #334155;
+  font-weight: 700;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus,
+.textarea:focus {
+  border-color: #f8740f;
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.12);
+}
+
+.newMessageActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.stateText {
+  padding-top: 140px;
+  text-align: center;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.emptyState {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 40px 24px;
+  text-align: center;
+  color: #64748b;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.emptyState h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.emptyState p {
+  margin: 0;
+}
+
+.startMessageBtn {
+  margin-top: 18px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.topRow h3 {
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.topRowActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.repliedBadge,
+.pendingBadge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.repliedBadge {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.pendingBadge {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.deleteMessageBtn {
+  border: none;
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.deleteMessageBtn:hover {
+  background: #fee2e2;
+}
+
+.deleteMessageBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.messageBlock,
+.replyBlock {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #8b5cf6;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.messageBlock p,
+.replyBlock p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.replyDate {
+  display: inline-block;
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: 0.84rem;
+}
+
+.noReplyBlock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 0.92rem;
+  margin-bottom: 14px;
+}
+
+.followUpBox {
+  margin-top: 6px;
+}
+
+.followUpLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sendBtn {
+  border: none;
+  background: #f8740f;
+  color: #ffffff;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.sendBtn:hover {
+  background: #d4640d;
+}
+
+.sendBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 95px 14px 28px;
+  }
+
+  .topRow,
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topRowActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .actions,
+  .newMessageActions {
+    justify-content: stretch;
+  }
+
+  .sendBtn,
+  .newMessageBtn,
+  .startMessageBtn,
+  .deleteMessageBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
