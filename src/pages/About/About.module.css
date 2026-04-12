@@ -1,0 +1,198 @@
+.aboutPage {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.heroSection {
+  padding: 130px 0 70px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(248, 116, 15, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.heroTitle {
+  font-size: 2.7rem;
+  line-height: 1.2;
+  margin: 0 auto 18px;
+  max-width: 900px;
+}
+
+.heroText {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.storySection,
+.featuresSection,
+.statsSection {
+  padding: 70px 0;
+}
+
+.storyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.storyCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.storyCard h2 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  font-size: 1.4rem;
+}
+
+.secondaryTitle {
+  margin-top: 24px !important;
+}
+
+.storyCard p {
+  margin: 0 0 14px;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.sectionHeader h2 {
+  margin: 0 0 10px;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.sectionHeader p {
+  margin: 0 auto;
+  max-width: 700px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.featureCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.iconWrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: #fff7ed;
+  color: #f8740f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.featureCard h3 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 1.08rem;
+}
+
+.featureCard p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.statCard {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 20px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.statCard h3 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  color: #f8740f;
+}
+
+.statCard p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+@media (max-width: 992px) {
+  .storyGrid,
+  .featuresGrid,
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .heroTitle {
+    font-size: 2.2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .storyGrid,
+  .featuresGrid,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroSection {
+    padding: 115px 0 60px;
+  }
+
+  .heroTitle {
+    font-size: 1.9rem;
+  }
+}
