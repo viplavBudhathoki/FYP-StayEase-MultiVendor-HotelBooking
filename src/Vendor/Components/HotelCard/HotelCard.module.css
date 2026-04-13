@@ -1,0 +1,154 @@
+.hotelCard {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+.hotelCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hotelCard:focus {
+  box-shadow: 0 0 0 3px rgba(248, 116, 15, 0.25);
+}
+
+/* ================= Image ================= */
+.hotelImage {
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.hotelImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hotelCard:hover .hotelImage img {
+  transform: scale(1.08);
+}
+
+/* ================= Content ================= */
+.hotelInfo {
+  padding: 1rem 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.55rem;
+}
+
+.hotelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-height: 58px;
+}
+
+.hotelHeader h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.4;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ================= Text ================= */
+.hotelLocation,
+.hotelVendor {
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+  min-height: 20px;
+}
+
+.hotelDescription {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+  line-height: 1.5;
+  min-height: 60px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ================= Actions ================= */
+.hotelActions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+}
+
+.editBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #0f172a;
+  transition: background 0.2s ease, color 0.2s ease;
+  flex: 1;
+}
+
+.editBtn:hover {
+  background: #e2e8f0;
+}
+
+.textDanger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.textDanger:hover {
+  background: #fecaca;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 640px) {
+  .hotelImage {
+    height: 160px;
+  }
+
+  .hotelHeader {
+    min-height: auto;
+  }
+
+  .hotelHeader h3 {
+    font-size: 1rem;
+  }
+
+  .hotelDescription {
+    min-height: auto;
+  }
+
+  .hotelActions {
+    flex-direction: column;
+  }
+}
